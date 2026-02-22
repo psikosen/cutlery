@@ -41,6 +41,21 @@ export const DEFAULT_ACHIEVEMENTS: Omit<Achievement, 'unlocked' | 'unlocked_at'>
   { id: 'rank_b', name: 'Elite Hunter', description: 'Reach Hunter Rank B', hint: 'Accumulate 601 total power', icon: '🏅', rarity: 'rare', condition: { type: 'rank', target: 'player', value: 601 }, reward: { xp: 200, gold: 100 }, lore_text: 'You stand among the elite.' },
   { id: 'rank_a', name: 'Raid Captain', description: 'Reach Hunter Rank A', hint: 'Accumulate 1501 total power', icon: '🏅', rarity: 'epic', condition: { type: 'rank', target: 'player', value: 1501 }, reward: { xp: 500, gold: 250 }, lore_text: 'Others look to you for guidance in the darkness.' },
   { id: 'rank_s', name: 'Shadow Commander', description: 'Reach Hunter Rank S', hint: 'Accumulate 3501 total power', icon: '🏅', rarity: 'legendary', condition: { type: 'rank', target: 'player', value: 3501 }, reward: { xp: 1000, gold: 500 }, lore_text: 'S-Rank. The shadows themselves bow to your command.' },
+
+  // Skill milestones
+  { id: 'first_skill', name: 'Skill Awakened', description: 'Unlock your first creature skill', hint: 'Evolve a creature to Spawn stage', icon: '⚡', rarity: 'common', condition: { type: 'total_skills', target: 'player', value: 1 }, reward: { xp: 100, gold: 50 }, lore_text: 'The creature stirs. New power flows through its veins.' },
+  { id: 'six_skills', name: 'Multi-Skilled', description: 'Unlock 6 creature skills', hint: 'Evolve multiple creatures', icon: '⚡', rarity: 'rare', condition: { type: 'total_skills', target: 'player', value: 6 }, reward: { xp: 250, gold: 125 }, lore_text: 'Six skills. The army grows more capable.' },
+  { id: 'twelve_skills', name: 'Skill Adept', description: 'Unlock 12 creature skills', hint: 'Push your creatures further', icon: '⚡', rarity: 'epic', condition: { type: 'total_skills', target: 'player', value: 12 }, reward: { xp: 500, gold: 250 }, lore_text: 'Twelve skills mastered. The shadows sharpen.' },
+  { id: 'twentyfour_skills', name: 'Skill Sovereign', description: 'Unlock 24 creature skills', hint: 'Master the skill trees', icon: '⚡', rarity: 'legendary', condition: { type: 'total_skills', target: 'player', value: 24 }, reward: { xp: 1000, gold: 500 }, lore_text: 'Twenty-four skills. Your creatures have ascended beyond mortal limits.' },
+
+  // Ability milestones
+  { id: 'first_ability', name: 'Power Awakening', description: 'Unlock your first special ability', hint: 'Build cross-domain synergies or reach power milestones', icon: '🌟', rarity: 'rare', condition: { type: 'total_abilities', target: 'player', value: 1 }, reward: { xp: 200, gold: 100 }, lore_text: 'A power beyond skills. Beyond genes. The system itself yields.' },
+  { id: 'five_abilities', name: 'Ability Collector', description: 'Unlock 5 special abilities', hint: 'Diversify your progression', icon: '🌟', rarity: 'epic', condition: { type: 'total_abilities', target: 'player', value: 5 }, reward: { xp: 500, gold: 250 }, lore_text: 'Five abilities. The shadow realm bends to your will.' },
+  { id: 'ten_abilities', name: 'Shadow Sovereign', description: 'Unlock 10 special abilities', hint: 'Master all domains', icon: '🌟', rarity: 'legendary', condition: { type: 'total_abilities', target: 'player', value: 10 }, reward: { xp: 1500, gold: 750 }, lore_text: 'Ten abilities. You are no longer playing the system. You are the system.' },
+
+  // Gene diversity milestones
+  { id: 'gene_diversity', name: 'Genetic Polymath', description: 'Acquire genes of 30 or more different types', hint: 'Complete tasks across all categories', icon: '🧬', rarity: 'epic', condition: { type: 'gene_diversity', target: 'player', value: 30 }, reward: { xp: 500, gold: 250 }, lore_text: 'Thirty gene types. A library of mutations inscribed in shadow flesh.' },
+  { id: 'full_genome', name: 'Complete Genome', description: 'Acquire at least one gene of every type', hint: 'Experience all 54 gene types', icon: '🧬', rarity: 'legendary', condition: { type: 'gene_diversity', target: 'player', value: 54 }, reward: { xp: 2000, gold: 1000 }, lore_text: 'Every gene type acquired. The genome is complete. Evolution has no more secrets.' },
 ];
 
 export function getDefaultAchievements(): Achievement[] {

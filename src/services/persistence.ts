@@ -1,8 +1,8 @@
 import { openDB, type IDBPDatabase } from 'idb';
-import type { Player, Creature, Gene, Task, Achievement } from '../types';
+import type { Player, Creature, Gene, Task, Achievement, Skill, SpecialAbility } from '../types';
 
 const DB_NAME = 'shadow_system';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let dbInstance: IDBPDatabase | null = null;
 
@@ -29,6 +29,12 @@ async function getDB(): Promise<IDBPDatabase> {
       }
       if (!db.objectStoreNames.contains('meta')) {
         db.createObjectStore('meta', { keyPath: 'key' });
+      }
+      if (!db.objectStoreNames.contains('skills')) {
+        db.createObjectStore('skills', { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains('abilities')) {
+        db.createObjectStore('abilities', { keyPath: 'id' });
       }
     },
   });
@@ -109,6 +115,36 @@ export async function loadAllAchievements(): Promise<Achievement[]> {
   return (await db.getAll('achievements')) as Achievement[];
 }
 
+// --- Skills ---
+export async function saveSkills(skills: Skill[]): Promise<void> {
+  const db = await getDB();
+  const tx = db.transaction('skills', 'readwrite');
+  for (const s of skills) {
+    await tx.store.put(s);
+  }
+  await tx.done;
+}
+
+export async function loadAllSkills(): Promise<Skill[]> {
+  const db = await getDB();
+  return (await db.getAll('skills')) as Skill[];
+}
+
+// --- Abilities ---
+export async function saveAbilities(abilities: SpecialAbility[]): Promise<void> {
+  const db = await getDB();
+  const tx = db.transaction('abilities', 'readwrite');
+  for (const a of abilities) {
+    await tx.store.put(a);
+  }
+  await tx.done;
+}
+
+export async function loadAllAbilities(): Promise<SpecialAbility[]> {
+  const db = await getDB();
+  return (await db.getAll('abilities')) as SpecialAbility[];
+}
+
 // --- Meta ---
 export async function saveMeta(key: string, value: unknown): Promise<void> {
   const db = await getDB();
@@ -130,6 +166,8 @@ export async function exportAllData(): Promise<string> {
     genes: await db.getAll('genes'),
     tasks: await db.getAll('tasks'),
     achievements: await db.getAll('achievements'),
+    skills: await db.getAll('skills'),
+    abilities: await db.getAll('abilities'),
     meta: await db.getAll('meta'),
     exportedAt: new Date().toISOString(),
   };
@@ -138,7 +176,7 @@ export async function exportAllData(): Promise<string> {
 
 export async function clearAllData(): Promise<void> {
   const db = await getDB();
-  const storeNames = ['player', 'creatures', 'genes', 'tasks', 'achievements', 'meta'];
+  const storeNames = ['player', 'creatures', 'genes', 'tasks', 'achievements', 'skills', 'abilities', 'meta'];
   for (const name of storeNames) {
     const tx = db.transaction(name, 'readwrite');
     await tx.store.clear();

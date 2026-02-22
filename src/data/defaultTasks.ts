@@ -31,6 +31,12 @@ const TASK_TEMPLATES: TaskTemplate[] = [
   { name: 'Clean Meal Day', description: 'Every meal today was healthy and balanced', icon: '🥗', domain: 'health', category: 'recovery', difficulty: 2, type: 'daily', gene_type: 'organ_sac', xp: 30, gold: 15, repeatable: true },
   { name: 'Personal Record Day', description: 'Beat a personal best in any exercise', icon: '🔥', domain: 'health', category: 'boss', difficulty: 5, type: 'weekly', gene_type: 'tooth_row', xp: 100, gold: 50, repeatable: true },
   { name: 'Iron Week', description: 'Complete 5 workout sessions this week', icon: '⚔️', domain: 'health', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'tooth_row', xp: 150, gold: 75, repeatable: true },
+  { name: 'Ice Bath', description: 'Take a cold immersion for recovery', icon: '🧊', domain: 'health', category: 'recovery', difficulty: 3, type: 'daily', gene_type: 'blood_shard', xp: 40, gold: 20, repeatable: true },
+  { name: 'First Aid Practice', description: 'Practice or study first aid techniques', icon: '🩹', domain: 'health', category: 'recovery', difficulty: 2, type: 'daily', gene_type: 'blood_shard', xp: 30, gold: 15, repeatable: true },
+  { name: 'Reaction Training', description: 'Practice reaction speed drills or sports', icon: '⚡', domain: 'health', category: 'agility', difficulty: 2, type: 'daily', gene_type: 'nerve_bundle', xp: 30, gold: 15, repeatable: true },
+  { name: 'Sprint Intervals', description: 'Complete high-intensity sprint intervals', icon: '🏎️', domain: 'health', category: 'agility', difficulty: 3, type: 'daily', gene_type: 'nerve_bundle', xp: 45, gold: 25, repeatable: true },
+  { name: 'Endurance Run', description: 'Run for 60+ minutes without stopping', icon: '🏃', domain: 'health', category: 'endurance', difficulty: 4, type: 'daily', gene_type: 'marrow_core', xp: 60, gold: 30, repeatable: true },
+  { name: 'Multi-Hour Hike', description: 'Complete a long hike (2+ hours)', icon: '🥾', domain: 'health', category: 'endurance', difficulty: 3, type: 'weekly', gene_type: 'marrow_core', xp: 50, gold: 25, repeatable: true },
 
   // ===== MIND & KNOWLEDGE — MIND WEAVER =====
   { name: 'Read 30 Minutes', description: 'Read a book or article for 30 minutes', icon: '📖', domain: 'mind', category: 'reading', difficulty: 1, type: 'daily', gene_type: 'eye_cluster', xp: 25, gold: 10, repeatable: true },
@@ -44,6 +50,12 @@ const TASK_TEMPLATES: TaskTemplate[] = [
   { name: '15-Min Meditation', description: 'Meditate for 15 minutes', icon: '🧘', domain: 'mind', category: 'reflection', difficulty: 2, type: 'daily', gene_type: 'memory_sac', xp: 30, gold: 15, repeatable: true },
   { name: 'Teach Someone', description: 'Explain a concept you know to someone else', icon: '👨‍🏫', domain: 'mind', category: 'mentoring', difficulty: 3, type: 'daily', gene_type: 'psychic_crown', xp: 45, gold: 25, repeatable: true },
   { name: 'Knowledge Week', description: 'Complete 7 mind tasks this week', icon: '🌌', domain: 'mind', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'psychic_crown', xp: 150, gold: 75, repeatable: true },
+  { name: 'Creative Project', description: 'Work on a creative project (art, music, writing)', icon: '🎨', domain: 'mind', category: 'creativity', difficulty: 2, type: 'daily', gene_type: 'cortex_fold', xp: 35, gold: 15, repeatable: true },
+  { name: 'Brainstorm Session', description: 'Spend 20 minutes brainstorming new ideas', icon: '💡', domain: 'mind', category: 'creativity', difficulty: 1, type: 'daily', gene_type: 'cortex_fold', xp: 25, gold: 10, repeatable: true },
+  { name: 'Dream Journal', description: 'Record and reflect on your dreams', icon: '🌙', domain: 'mind', category: 'reflection', difficulty: 1, type: 'daily', gene_type: 'dream_gland', xp: 20, gold: 10, repeatable: true },
+  { name: 'Follow Your Intuition', description: 'Make a decision by trusting your gut today', icon: '🔮', domain: 'mind', category: 'reflection', difficulty: 2, type: 'daily', gene_type: 'dream_gland', xp: 30, gold: 15, repeatable: true },
+  { name: 'Plan Next Month', description: 'Create a detailed plan for the upcoming month', icon: '📅', domain: 'mind', category: 'planning', difficulty: 3, type: 'weekly', gene_type: 'third_eye', xp: 50, gold: 25, repeatable: true },
+  { name: 'Strategic Analysis', description: 'Analyze a situation and predict outcomes', icon: '🎯', domain: 'mind', category: 'planning', difficulty: 2, type: 'daily', gene_type: 'third_eye', xp: 35, gold: 15, repeatable: true },
 
   // ===== DISCIPLINE & HABITS — CHAIN WRAITH =====
   { name: 'Morning Routine', description: 'Complete your full morning routine', icon: '🌅', domain: 'discipline', category: 'routine', difficulty: 2, type: 'daily', gene_type: 'ember_node', xp: 30, gold: 15, repeatable: true },
@@ -55,6 +67,12 @@ const TASK_TEMPLATES: TaskTemplate[] = [
   { name: 'Track All Habits', description: 'Log every habit in your tracker', icon: '📊', domain: 'discipline', category: 'tracking', difficulty: 1, type: 'daily', gene_type: 'wardens_eye', xp: 20, gold: 10, repeatable: true },
   { name: 'Evening Review', description: 'Review your day and plan tomorrow', icon: '🌙', domain: 'discipline', category: 'tracking', difficulty: 1, type: 'daily', gene_type: 'wardens_eye', xp: 20, gold: 10, repeatable: true },
   { name: 'Unbroken Week', description: 'Complete all daily discipline tasks for 7 days', icon: '⛓️', domain: 'discipline', category: 'boss', difficulty: 5, type: 'boss', gene_type: 'lock_core', xp: 200, gold: 100, repeatable: true },
+  { name: 'Push Through', description: 'Complete a task you were avoiding', icon: '🎯', domain: 'discipline', category: 'resistance', difficulty: 3, type: 'daily', gene_type: 'anchor_bone', xp: 40, gold: 20, repeatable: true },
+  { name: 'No Excuses Day', description: 'Complete every planned task without exceptions', icon: '🚫', domain: 'discipline', category: 'routine', difficulty: 3, type: 'daily', gene_type: 'anchor_bone', xp: 45, gold: 25, repeatable: true },
+  { name: 'Discomfort Challenge', description: 'Deliberately do something uncomfortable', icon: '💥', domain: 'discipline', category: 'resistance', difficulty: 3, type: 'daily', gene_type: 'scar_tissue', xp: 40, gold: 20, repeatable: true },
+  { name: 'Delayed Gratification', description: 'Postpone a reward you could have now', icon: '⏳', domain: 'discipline', category: 'resistance', difficulty: 2, type: 'daily', gene_type: 'scar_tissue', xp: 30, gold: 15, repeatable: true },
+  { name: 'Same Time Every Day', description: 'Do a key habit at the exact same time', icon: '🕐', domain: 'discipline', category: 'routine', difficulty: 2, type: 'daily', gene_type: 'ritual_glyph', xp: 30, gold: 15, repeatable: true },
+  { name: 'Build a New Ritual', description: 'Establish and perform a new daily ritual', icon: '🕯️', domain: 'discipline', category: 'routine', difficulty: 2, type: 'daily', gene_type: 'ritual_glyph', xp: 35, gold: 20, repeatable: true },
 
   // ===== CAREER & SKILLS — ROT ENGINE =====
   { name: 'Complete Work Task', description: 'Finish a meaningful work/project task', icon: '⚙️', domain: 'career', category: 'work', difficulty: 2, type: 'daily', gene_type: 'gear_assembly', xp: 35, gold: 20, repeatable: true },
@@ -64,6 +82,12 @@ const TASK_TEMPLATES: TaskTemplate[] = [
   { name: 'Plan & Strategize', description: 'Spend 30 min planning your week/project', icon: '📐', domain: 'career', category: 'planning', difficulty: 1, type: 'daily', gene_type: 'blueprint_glyph', xp: 25, gold: 10, repeatable: true },
   { name: 'Ship Something', description: 'Complete and deliver a project or milestone', icon: '🚀', domain: 'career', category: 'delivery', difficulty: 3, type: 'weekly', gene_type: 'exhaust_vent', xp: 60, gold: 30, repeatable: true },
   { name: 'Productivity Beast', description: 'Complete 5 career tasks this week', icon: '🏭', domain: 'career', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'exhaust_vent', xp: 150, gold: 75, repeatable: true },
+  { name: 'Try Something New', description: 'Experiment with a new tool, method, or approach', icon: '🧪', domain: 'career', category: 'innovation', difficulty: 2, type: 'daily', gene_type: 'spark_plug', xp: 35, gold: 15, repeatable: true },
+  { name: 'Solve a Problem Creatively', description: 'Find an unconventional solution to a work problem', icon: '💡', domain: 'career', category: 'innovation', difficulty: 3, type: 'daily', gene_type: 'spark_plug', xp: 45, gold: 25, repeatable: true },
+  { name: 'Adapt to Change', description: 'Successfully pivot when plans change', icon: '🔀', domain: 'career', category: 'adaptability', difficulty: 2, type: 'daily', gene_type: 'conduit_wire', xp: 30, gold: 15, repeatable: true },
+  { name: 'Learn a New Tool', description: 'Spend time learning a new professional tool', icon: '🔧', domain: 'career', category: 'adaptability', difficulty: 2, type: 'daily', gene_type: 'conduit_wire', xp: 35, gold: 20, repeatable: true },
+  { name: 'Finish What You Started', description: 'Complete a task from start to finish today', icon: '🏁', domain: 'career', category: 'delivery', difficulty: 2, type: 'daily', gene_type: 'output_valve', xp: 35, gold: 20, repeatable: true },
+  { name: 'Clear the Backlog', description: 'Complete 3+ outstanding tasks', icon: '📋', domain: 'career', category: 'delivery', difficulty: 3, type: 'daily', gene_type: 'output_valve', xp: 50, gold: 25, repeatable: true },
 
   // ===== FINANCE & WEALTH — GILT HORROR =====
   { name: 'Track Expenses', description: 'Log all spending for today', icon: '📝', domain: 'finance', category: 'tracking', difficulty: 1, type: 'daily', gene_type: 'coin_disc', xp: 20, gold: 10, repeatable: true },
@@ -72,6 +96,12 @@ const TASK_TEMPLATES: TaskTemplate[] = [
   { name: 'No Impulse Buy', description: 'Resist an unnecessary purchase today', icon: '🛑', domain: 'finance', category: 'saving', difficulty: 2, type: 'daily', gene_type: 'vault_door', xp: 30, gold: 15, repeatable: true },
   { name: 'Research Investment', description: 'Learn about a new investment opportunity', icon: '📈', domain: 'finance', category: 'investing', difficulty: 2, type: 'daily', gene_type: 'investment_tendril', xp: 30, gold: 15, repeatable: true },
   { name: 'Savings Milestone', description: 'Hit a savings goal or milestone', icon: '🏦', domain: 'finance', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'crown_jewel', xp: 150, gold: 100, repeatable: true },
+  { name: 'Evaluate a Risk', description: 'Analyze the risk/reward of a financial decision', icon: '⚖️', domain: 'finance', category: 'analysis', difficulty: 2, type: 'daily', gene_type: 'debt_fang', xp: 30, gold: 15, repeatable: true },
+  { name: 'Negotiate a Better Deal', description: 'Successfully negotiate a price or rate', icon: '🤝', domain: 'finance', category: 'negotiation', difficulty: 3, type: 'weekly', gene_type: 'trade_tendril', xp: 50, gold: 30, repeatable: true },
+  { name: 'Compare Before Buying', description: 'Research alternatives before a purchase', icon: '🔍', domain: 'finance', category: 'analysis', difficulty: 1, type: 'daily', gene_type: 'debt_fang', xp: 20, gold: 10, repeatable: true },
+  { name: 'Long-Term Investment', description: 'Make or maintain a long-term investment', icon: '💎', domain: 'finance', category: 'investing', difficulty: 3, type: 'weekly', gene_type: 'compound_crystal', xp: 50, gold: 25, repeatable: true },
+  { name: 'Wait 24 Hours', description: 'Delay a non-essential purchase by 24 hours', icon: '⏰', domain: 'finance', category: 'saving', difficulty: 2, type: 'daily', gene_type: 'compound_crystal', xp: 30, gold: 15, repeatable: true },
+  { name: 'Sell Something', description: 'Sell an unused item for extra income', icon: '🏷️', domain: 'finance', category: 'negotiation', difficulty: 2, type: 'weekly', gene_type: 'trade_tendril', xp: 40, gold: 20, repeatable: true },
 
   // ===== SOCIAL & RELATIONSHIPS — HOLLOW SINGER =====
   { name: 'Reach Out', description: 'Message or call someone you care about', icon: '📱', domain: 'social', category: 'connection', difficulty: 1, type: 'daily', gene_type: 'mouth', xp: 20, gold: 10, repeatable: true },
@@ -81,6 +111,12 @@ const TASK_TEMPLATES: TaskTemplate[] = [
   { name: 'Group Activity', description: 'Participate in a team sport or group event', icon: '🤼', domain: 'social', category: 'team', difficulty: 2, type: 'daily', gene_type: 'harmony_thread', xp: 35, gold: 20, repeatable: true },
   { name: 'Follow Up', description: 'Follow up with someone you recently met', icon: '🔄', domain: 'social', category: 'maintain', difficulty: 1, type: 'daily', gene_type: 'memory_face', xp: 20, gold: 10, repeatable: true },
   { name: 'Social Butterfly', description: 'Complete 5 social tasks this week', icon: '🦋', domain: 'social', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'vocal_cord', xp: 150, gold: 75, repeatable: true },
+  { name: 'Be Vulnerable', description: 'Share something honest and personal with someone', icon: '💔', domain: 'social', category: 'authenticity', difficulty: 3, type: 'daily', gene_type: 'mirror_shard', xp: 40, gold: 20, repeatable: true },
+  { name: 'Give Honest Feedback', description: 'Provide constructive and truthful feedback', icon: '🪞', domain: 'social', category: 'authenticity', difficulty: 2, type: 'daily', gene_type: 'mirror_shard', xp: 30, gold: 15, repeatable: true },
+  { name: 'Motivate Someone', description: 'Actively encourage or inspire someone today', icon: '🔥', domain: 'social', category: 'leadership', difficulty: 2, type: 'daily', gene_type: 'pulse_drum', xp: 30, gold: 15, repeatable: true },
+  { name: 'Lead a Group Activity', description: 'Organize and lead a group event or discussion', icon: '📢', domain: 'social', category: 'leadership', difficulty: 3, type: 'weekly', gene_type: 'pulse_drum', xp: 50, gold: 25, repeatable: true },
+  { name: 'Check on Someone', description: 'Check in on someone who might need support', icon: '💌', domain: 'social', category: 'maintain', difficulty: 1, type: 'daily', gene_type: 'bond_marrow', xp: 20, gold: 10, repeatable: true },
+  { name: 'Strengthen a Bond', description: 'Do something meaningful for a close relationship', icon: '🔗', domain: 'social', category: 'maintain', difficulty: 2, type: 'daily', gene_type: 'bond_marrow', xp: 35, gold: 20, repeatable: true },
 ];
 
 let taskCounter = 0;

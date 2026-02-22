@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useRef } from 'react';
 import type {
   Player, Creature, Gene, Task, Achievement, Notification,
-  TabId, Domain, CreatureId, GeneType, GeneTier,
+  TabId, Domain, CreatureId, GeneType, GeneTier, Skill, SpecialAbility,
 } from '../types';
 import {
   createDefaultPlayer, createAllCreatures, completeTask as engineCompleteTask,
@@ -12,10 +12,14 @@ import {
   savePlayer, loadPlayer, saveCreature, loadAllCreatures,
   saveGene, loadAllGenes, saveTasks, loadAllTasks,
   saveAchievements, loadAllAchievements,
+  saveSkills, loadAllSkills as loadAllSkillsDB,
+  saveAbilities, loadAllAbilities as loadAllAbilitiesDB,
   saveMeta, loadMeta,
 } from '../services/persistence';
 import { generateDefaultTasks } from '../data/defaultTasks';
 import { getDefaultAchievements } from '../data/achievements';
+import { getAllSkills } from '../data/skills';
+import { getAllAbilities } from '../data/abilities';
 
 // ============================================================
 // STATE
@@ -29,6 +33,8 @@ interface GameState {
   genes: Gene[];
   tasks: Task[];
   achievements: Achievement[];
+  skills: Skill[];
+  abilities: SpecialAbility[];
   notifications: Notification[];
   activeTab: TabId;
   selectedCreature: CreatureId | null;
@@ -45,6 +51,8 @@ const initialState: GameState = {
   genes: [],
   tasks: [],
   achievements: [],
+  skills: [],
+  abilities: [],
   notifications: [],
   activeTab: 'hub',
   selectedCreature: null,
@@ -58,7 +66,7 @@ const initialState: GameState = {
 // ============================================================
 
 type GameAction =
-  | { type: 'INIT_COMPLETE'; player: Player; creatures: Creature[]; genes: Gene[]; tasks: Task[]; achievements: Achievement[] }
+  | { type: 'INIT_COMPLETE'; player: Player; creatures: Creature[]; genes: Gene[]; tasks: Task[]; achievements: Achievement[]; skills: Skill[]; abilities: SpecialAbility[] }
   | { type: 'SHOW_NAME_INPUT' }
   | { type: 'SET_PLAYER_NAME'; name: string }
   | { type: 'TASK_COMPLETED'; result: TaskCompletionResult; task: Task; achievements: Achievement[] }
@@ -85,6 +93,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         genes: action.genes,
         tasks: action.tasks,
         achievements: action.achievements,
+        skills: action.skills,
+        abilities: action.abilities,
         showNameInput: false,
       };
 
@@ -122,6 +132,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         genes: [...state.genes, result.gene, ...result.streakGenes],
         tasks: updatedTasks,
         achievements: action.achievements,
+        skills: result.updatedSkills || state.skills,
+        abilities: result.updatedAbilities || state.abilities,
         notifications: [...state.notifications, ...result.notifications],
         showEvolution: result.evolved ? {
           creatureId: result.creature.id,
@@ -228,6 +240,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           await saveAchievements(achievements);
         }
 
+        let skills = await loadAllSkillsDB();
+        if (skills.length === 0) {
+          skills = getAllSkills();
+          await saveSkills(skills);
+        }
+
+        let abilities = await loadAllAbilitiesDB();
+        if (abilities.length === 0) {
+          abilities = getAllAbilities();
+          await saveAbilities(abilities);
+        }
+
         // Daily reset is handled in the separate useEffect below
 
         dispatch({
@@ -237,6 +261,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           genes,
           tasks,
           achievements,
+          skills,
+          abilities,
         });
       } catch (err) {
         console.error('Failed to load game state:', err);
@@ -293,11 +319,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const creatures = createAllCreatures(player.id);
     const tasks = generateDefaultTasks();
     const achievements = getDefaultAchievements();
+    const skills = getAllSkills();
+    const abilities = getAllAbilities();
 
     await savePlayer(player);
     for (const c of creatures) await saveCreature(c);
     await saveTasks(tasks);
     await saveAchievements(achievements);
+    await saveSkills(skills);
+    await saveAbilities(abilities);
 
     dispatch({
       type: 'INIT_COMPLETE',
@@ -306,6 +336,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       genes: [],
       tasks,
       achievements,
+      skills,
+      abilities,
     });
   }, []);
 
@@ -313,7 +345,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const s = stateRef.current;
     if (!s.player || task.completed_today) return;
 
-    const result = engineCompleteTask(task, s.player, s.creatures, s.achievements);
+    const result = engineCompleteTask(task, s.player, s.creatures, s.achievements, s.skills, s.abilities);
 
     // Persist
     await savePlayer(result.player);
@@ -330,8 +362,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const allCreatures = s.creatures.map(c =>
       c.id === result.creature.id ? result.creature : c
     );
-    const achResult = checkAchievements(result.player, allCreatures, s.achievements);
+    const achResult = checkAchievements(result.player, allCreatures, s.achievements, result.updatedSkills, result.updatedAbilities);
     await saveAchievements(achResult.achievements);
+
+    // Save updated skills and abilities
+    if (result.updatedSkills) await saveSkills(result.updatedSkills);
+    if (result.updatedAbilities) await saveAbilities(result.updatedAbilities);
 
     // If chain wraith was updated (streak genes), save it too
     if (result.streakGenes.length > 0 && result.creature.id !== 'chain_wraith') {
