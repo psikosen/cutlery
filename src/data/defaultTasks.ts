@@ -38,6 +38,37 @@ const TASK_TEMPLATES: TaskTemplate[] = [
   { name: 'Endurance Run', description: 'Run for 60+ minutes without stopping', icon: '🏃', domain: 'health', category: 'endurance', difficulty: 4, type: 'daily', gene_type: 'marrow_core', xp: 60, gold: 30, repeatable: true },
   { name: 'Multi-Hour Hike', description: 'Complete a long hike (2+ hours)', icon: '🥾', domain: 'health', category: 'endurance', difficulty: 3, type: 'weekly', gene_type: 'marrow_core', xp: 50, gold: 25, repeatable: true },
 
+  // --- Workout Exercises ---
+  // Strength
+  { name: '50 Crunches', description: 'Complete 50 crunches in any rep scheme', icon: '🔥', domain: 'health', category: 'strength', difficulty: 2, type: 'daily', gene_type: 'muscle_fiber', xp: 30, gold: 15, repeatable: true },
+  { name: '100 Crunches', description: 'Crush 100 crunches — forge your core', icon: '🔥', domain: 'health', category: 'strength', difficulty: 3, type: 'daily', gene_type: 'muscle_fiber', xp: 50, gold: 25, repeatable: true },
+  { name: 'Dumbbell Workout', description: 'Complete a full dumbbell training session', icon: '🏋️', domain: 'health', category: 'strength', difficulty: 3, type: 'daily', gene_type: 'muscle_fiber', xp: 50, gold: 25, repeatable: true },
+  { name: 'Pull-ups', description: 'Complete a set of pull-ups (any rep scheme)', icon: '💪', domain: 'health', category: 'strength', difficulty: 3, type: 'daily', gene_type: 'muscle_fiber', xp: 45, gold: 25, repeatable: true },
+  { name: 'Squats', description: 'Complete a squat session (bodyweight or weighted)', icon: '🦵', domain: 'health', category: 'strength', difficulty: 2, type: 'daily', gene_type: 'muscle_fiber', xp: 35, gold: 20, repeatable: true },
+  { name: 'Bench Press', description: 'Complete a bench press session', icon: '🏋️', domain: 'health', category: 'strength', difficulty: 3, type: 'daily', gene_type: 'muscle_fiber', xp: 50, gold: 25, repeatable: true },
+  { name: 'Deadlifts', description: 'Complete a deadlift session with proper form', icon: '🏋️', domain: 'health', category: 'strength', difficulty: 4, type: 'daily', gene_type: 'bone_plate', xp: 60, gold: 30, repeatable: true },
+  { name: 'Resistance Band Training', description: 'Full resistance band workout session', icon: '🔗', domain: 'health', category: 'strength', difficulty: 2, type: 'daily', gene_type: 'tendon_whip', xp: 30, gold: 15, repeatable: true },
+  { name: 'Kettlebell Swings', description: 'Complete a kettlebell swing session', icon: '🔔', domain: 'health', category: 'strength', difficulty: 3, type: 'daily', gene_type: 'muscle_fiber', xp: 45, gold: 25, repeatable: true },
+
+  // Cardio
+  { name: 'Aerobics Session', description: 'Complete a 30+ minute aerobics workout', icon: '🤸', domain: 'health', category: 'cardio', difficulty: 2, type: 'daily', gene_type: 'heart_pump', xp: 35, gold: 20, repeatable: true },
+  { name: 'Jump Rope', description: 'Jump rope for 15+ minutes', icon: '⏭️', domain: 'health', category: 'cardio', difficulty: 2, type: 'daily', gene_type: 'vein_network', xp: 35, gold: 20, repeatable: true },
+  { name: 'Swimming', description: 'Complete a swimming session (30+ minutes)', icon: '🏊', domain: 'health', category: 'cardio', difficulty: 3, type: 'daily', gene_type: 'vein_network', xp: 50, gold: 25, repeatable: true },
+  { name: 'HIIT Workout', description: 'Complete a high-intensity interval training session', icon: '⚡', domain: 'health', category: 'cardio', difficulty: 3, type: 'daily', gene_type: 'heart_pump', xp: 50, gold: 25, repeatable: true },
+  { name: 'Dancing Workout', description: 'Dance workout session for 30+ minutes', icon: '💃', domain: 'health', category: 'cardio', difficulty: 2, type: 'daily', gene_type: 'heart_pump', xp: 35, gold: 20, repeatable: true },
+  { name: 'Stair Climbing', description: 'Climb stairs for 20+ minutes', icon: '🪜', domain: 'health', category: 'cardio', difficulty: 2, type: 'daily', gene_type: 'vein_network', xp: 35, gold: 20, repeatable: true },
+
+  // Agility
+  { name: 'Burpees', description: 'Complete a set of burpees (30+ reps)', icon: '🏃', domain: 'health', category: 'agility', difficulty: 3, type: 'daily', gene_type: 'nerve_bundle', xp: 45, gold: 25, repeatable: true },
+  { name: 'Mountain Climbers', description: 'Complete mountain climbers for 10+ minutes', icon: '⛰️', domain: 'health', category: 'agility', difficulty: 2, type: 'daily', gene_type: 'nerve_bundle', xp: 30, gold: 15, repeatable: true },
+  { name: 'Box Jumps', description: 'Complete a box jump session', icon: '📦', domain: 'health', category: 'agility', difficulty: 3, type: 'daily', gene_type: 'tendon_whip', xp: 45, gold: 25, repeatable: true },
+  { name: 'Lunges', description: 'Complete a set of walking or stationary lunges', icon: '🦵', domain: 'health', category: 'agility', difficulty: 2, type: 'daily', gene_type: 'tendon_whip', xp: 30, gold: 15, repeatable: true },
+  { name: 'Agility Ladder Drills', description: 'Complete footwork drills on an agility ladder', icon: '👟', domain: 'health', category: 'agility', difficulty: 2, type: 'daily', gene_type: 'nerve_bundle', xp: 35, gold: 20, repeatable: true },
+
+  // Recovery
+  { name: 'Foam Rolling', description: 'Foam roll major muscle groups for recovery', icon: '🧴', domain: 'health', category: 'recovery', difficulty: 1, type: 'daily', gene_type: 'blood_shard', xp: 20, gold: 10, repeatable: true },
+  { name: 'Post-Workout Stretch', description: 'Complete a 10+ minute cooldown stretch', icon: '🧘', domain: 'health', category: 'recovery', difficulty: 1, type: 'daily', gene_type: 'organ_sac', xp: 20, gold: 10, repeatable: true },
+
   // --- New Health Organs & Appendages ---
   { name: 'Breathing Exercises', description: 'Practice deep breathing for 10 minutes', icon: '🌬️', domain: 'health', category: 'recovery', difficulty: 1, type: 'daily', gene_type: 'lung_bellows', xp: 20, gold: 10, repeatable: true },
   { name: 'Breath Hold Training', description: 'Practice CO2 tolerance breath holds', icon: '💨', domain: 'health', category: 'endurance', difficulty: 3, type: 'daily', gene_type: 'lung_bellows', xp: 40, gold: 20, repeatable: true },
