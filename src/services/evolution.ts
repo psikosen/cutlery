@@ -267,6 +267,37 @@ function getGeneLoci(geneType: string): (keyof CreatureChromosome)[] {
     mirror_shard: ['luminanceContrast', 'eyeGlowIntensity', 'hueShift'],
     pulse_drum: ['auraIntensity', 'particleDensity', 'bioluminescence'],
     bond_marrow: ['bodySegments', 'bodyTextureDensity', 'auraComplexity'],
+
+    // --- New Organs & Appendages ---
+
+    // Health organs & appendages
+    lung_bellows: ['bodyElongation', 'bodySegments', 'bodyAsymmetry'],
+    heart_pump: ['bioluminescence', 'saturation', 'bodySegments'],
+    claw_hook: ['tentacleThickness', 'tentacleLength', 'spineCount'],
+
+    // Mind brain power genes
+    cerebral_lobe: ['bodySegments', 'bodyAsymmetry', 'auraComplexity'],
+    psionic_node: ['auraIntensity', 'distortionField', 'bioluminescence'],
+    temporal_gland: ['distortionField', 'auraComplexity', 'hueShift'],
+    logic_matrix: ['bodyTextureDensity', 'auraComplexity', 'metallicSheen'],
+    astral_fiber: ['auraIntensity', 'particleDensity', 'distortionField'],
+    insight_lens: ['eyeSize', 'eyeGlowIntensity', 'eyeSpread'],
+
+    // Discipline organs & appendages
+    iron_spine: ['spineCount', 'spineLength', 'metallicSheen'],
+    will_node: ['auraIntensity', 'bioluminescence', 'bodyTextureDensity'],
+
+    // Career mechanical appendages
+    turbine_arm: ['tentacleThickness', 'tentacleBranching', 'metallicSheen'],
+    crane_claw: ['tentacleLength', 'tentacleThickness', 'bodySegments'],
+
+    // Finance organs & appendages
+    gilded_claw: ['tentacleLength', 'spineCount', 'metallicSheen'],
+    treasure_organ: ['bodySegments', 'metallicSheen', 'saturation'],
+
+    // Social organs & appendages
+    empathy_lobe: ['auraComplexity', 'eyeSize', 'particleDensity'],
+    resonance_horn: ['spineLength', 'auraIntensity', 'particleDensity'],
   };
 
   return mapping[geneType] || ['bodyTextureDensity', 'bodyAsymmetry'];
