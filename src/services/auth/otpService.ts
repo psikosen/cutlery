@@ -63,8 +63,10 @@ export async function requestOTP(request: OTPRequest): Promise<{ success: boolea
   });
 
   // In production: send email via backend API
-  // For local dev: log to console
-  console.log(`[Shadow System Auth] OTP for ${email}: ${code} (purpose: ${purpose})`);
+  // For local dev: log to console (NEVER in production)
+  if (import.meta.env.DEV) {
+    console.log(`[Shadow System Auth] OTP for ${email}: ${code} (purpose: ${purpose})`);
+  }
 
   return {
     success: true,
