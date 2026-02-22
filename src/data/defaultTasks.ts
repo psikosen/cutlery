@@ -38,6 +38,72 @@ const TASK_TEMPLATES: TaskTemplate[] = [
   { name: 'Endurance Run', description: 'Run for 60+ minutes without stopping', icon: '🏃', domain: 'health', category: 'endurance', difficulty: 4, type: 'daily', gene_type: 'marrow_core', xp: 60, gold: 30, repeatable: true },
   { name: 'Multi-Hour Hike', description: 'Complete a long hike (2+ hours)', icon: '🥾', domain: 'health', category: 'endurance', difficulty: 3, type: 'weekly', gene_type: 'marrow_core', xp: 50, gold: 25, repeatable: true },
 
+  // --- Workout Exercises ---
+  // Strength
+  { name: '50 Crunches', description: 'Complete 50 crunches in any rep scheme', icon: '🔥', domain: 'health', category: 'strength', difficulty: 2, type: 'daily', gene_type: 'muscle_fiber', xp: 30, gold: 15, repeatable: true },
+  { name: '100 Crunches', description: 'Crush 100 crunches — forge your core', icon: '🔥', domain: 'health', category: 'strength', difficulty: 3, type: 'daily', gene_type: 'muscle_fiber', xp: 50, gold: 25, repeatable: true },
+  { name: 'Dumbbell Workout', description: 'Complete a full dumbbell training session', icon: '🏋️', domain: 'health', category: 'strength', difficulty: 3, type: 'daily', gene_type: 'muscle_fiber', xp: 50, gold: 25, repeatable: true },
+  { name: 'Pull-ups', description: 'Complete a set of pull-ups (any rep scheme)', icon: '💪', domain: 'health', category: 'strength', difficulty: 3, type: 'daily', gene_type: 'muscle_fiber', xp: 45, gold: 25, repeatable: true },
+  { name: 'Squats', description: 'Complete a squat session (bodyweight or weighted)', icon: '🦵', domain: 'health', category: 'strength', difficulty: 2, type: 'daily', gene_type: 'muscle_fiber', xp: 35, gold: 20, repeatable: true },
+  { name: 'Bench Press', description: 'Complete a bench press session', icon: '🏋️', domain: 'health', category: 'strength', difficulty: 3, type: 'daily', gene_type: 'muscle_fiber', xp: 50, gold: 25, repeatable: true },
+  { name: 'Deadlifts', description: 'Complete a deadlift session with proper form', icon: '🏋️', domain: 'health', category: 'strength', difficulty: 4, type: 'daily', gene_type: 'bone_plate', xp: 60, gold: 30, repeatable: true },
+  { name: 'Resistance Band Training', description: 'Full resistance band workout session', icon: '🔗', domain: 'health', category: 'strength', difficulty: 2, type: 'daily', gene_type: 'tendon_whip', xp: 30, gold: 15, repeatable: true },
+  { name: 'Kettlebell Swings', description: 'Complete a kettlebell swing session', icon: '🔔', domain: 'health', category: 'strength', difficulty: 3, type: 'daily', gene_type: 'muscle_fiber', xp: 45, gold: 25, repeatable: true },
+
+  // Cardio
+  { name: 'Aerobics Session', description: 'Complete a 30+ minute aerobics workout', icon: '🤸', domain: 'health', category: 'cardio', difficulty: 2, type: 'daily', gene_type: 'heart_pump', xp: 35, gold: 20, repeatable: true },
+  { name: 'Jump Rope', description: 'Jump rope for 15+ minutes', icon: '⏭️', domain: 'health', category: 'cardio', difficulty: 2, type: 'daily', gene_type: 'vein_network', xp: 35, gold: 20, repeatable: true },
+  { name: 'Swimming', description: 'Complete a swimming session (30+ minutes)', icon: '🏊', domain: 'health', category: 'cardio', difficulty: 3, type: 'daily', gene_type: 'vein_network', xp: 50, gold: 25, repeatable: true },
+  { name: 'HIIT Workout', description: 'Complete a high-intensity interval training session', icon: '⚡', domain: 'health', category: 'cardio', difficulty: 3, type: 'daily', gene_type: 'heart_pump', xp: 50, gold: 25, repeatable: true },
+  { name: 'Dancing Workout', description: 'Dance workout session for 30+ minutes', icon: '💃', domain: 'health', category: 'cardio', difficulty: 2, type: 'daily', gene_type: 'heart_pump', xp: 35, gold: 20, repeatable: true },
+  { name: 'Stair Climbing', description: 'Climb stairs for 20+ minutes', icon: '🪜', domain: 'health', category: 'cardio', difficulty: 2, type: 'daily', gene_type: 'vein_network', xp: 35, gold: 20, repeatable: true },
+
+  // Agility
+  { name: 'Burpees', description: 'Complete a set of burpees (30+ reps)', icon: '🏃', domain: 'health', category: 'agility', difficulty: 3, type: 'daily', gene_type: 'nerve_bundle', xp: 45, gold: 25, repeatable: true },
+  { name: 'Mountain Climbers', description: 'Complete mountain climbers for 10+ minutes', icon: '⛰️', domain: 'health', category: 'agility', difficulty: 2, type: 'daily', gene_type: 'nerve_bundle', xp: 30, gold: 15, repeatable: true },
+  { name: 'Box Jumps', description: 'Complete a box jump session', icon: '📦', domain: 'health', category: 'agility', difficulty: 3, type: 'daily', gene_type: 'tendon_whip', xp: 45, gold: 25, repeatable: true },
+  { name: 'Lunges', description: 'Complete a set of walking or stationary lunges', icon: '🦵', domain: 'health', category: 'agility', difficulty: 2, type: 'daily', gene_type: 'tendon_whip', xp: 30, gold: 15, repeatable: true },
+  { name: 'Agility Ladder Drills', description: 'Complete footwork drills on an agility ladder', icon: '👟', domain: 'health', category: 'agility', difficulty: 2, type: 'daily', gene_type: 'nerve_bundle', xp: 35, gold: 20, repeatable: true },
+
+  // Recovery
+  { name: 'Foam Rolling', description: 'Foam roll major muscle groups for recovery', icon: '🧴', domain: 'health', category: 'recovery', difficulty: 1, type: 'daily', gene_type: 'blood_shard', xp: 20, gold: 10, repeatable: true },
+  { name: 'Post-Workout Stretch', description: 'Complete a 10+ minute cooldown stretch', icon: '🧘', domain: 'health', category: 'recovery', difficulty: 1, type: 'daily', gene_type: 'organ_sac', xp: 20, gold: 10, repeatable: true },
+
+  // --- Compounding Streak Challenges ---
+  // Strength Streaks
+  { name: '5-Day Push-up Streak', description: 'Do 20+ push-ups every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 3, type: 'boss', gene_type: 'muscle_fiber', xp: 120, gold: 60, repeatable: true },
+  { name: '7-Day Push-up Streak', description: 'Do 50+ push-ups every day for 7 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'muscle_fiber', xp: 200, gold: 100, repeatable: true },
+  { name: '5-Day Crunch Streak', description: 'Do 30+ crunches every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 3, type: 'boss', gene_type: 'muscle_fiber', xp: 120, gold: 60, repeatable: true },
+  { name: '7-Day Crunch Streak', description: 'Do 50+ crunches every day for 7 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'bone_plate', xp: 200, gold: 100, repeatable: true },
+  { name: '5-Day Squat Streak', description: 'Complete squats every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 3, type: 'boss', gene_type: 'muscle_fiber', xp: 120, gold: 60, repeatable: true },
+  { name: '5-Day Pull-up Streak', description: 'Do pull-ups every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'claw_hook', xp: 150, gold: 75, repeatable: true },
+  { name: '5-Day Dumbbell Streak', description: 'Dumbbell workout every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'muscle_fiber', xp: 150, gold: 75, repeatable: true },
+  { name: '5-Day Plank Streak', description: 'Hold a 2+ min plank every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 3, type: 'boss', gene_type: 'bone_plate', xp: 120, gold: 60, repeatable: true },
+
+  // Cardio Streaks
+  { name: '5-Day Running Streak', description: 'Run 30+ minutes every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'vein_network', xp: 150, gold: 75, repeatable: true },
+  { name: '7-Day Cardio Streak', description: 'Complete any cardio session every day for 7 days', icon: '🔁', domain: 'health', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'heart_pump', xp: 200, gold: 100, repeatable: true },
+  { name: '5-Day Aerobics Streak', description: 'Aerobics session every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 3, type: 'boss', gene_type: 'heart_pump', xp: 120, gold: 60, repeatable: true },
+  { name: '5-Day HIIT Streak', description: 'HIIT workout every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'heart_pump', xp: 150, gold: 75, repeatable: true },
+  { name: '5-Day Jump Rope Streak', description: 'Jump rope 15+ min every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 3, type: 'boss', gene_type: 'vein_network', xp: 120, gold: 60, repeatable: true },
+  { name: '5-Day Swimming Streak', description: 'Swim every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'lung_bellows', xp: 150, gold: 75, repeatable: true },
+  { name: '5-Day Cycling Streak', description: 'Cycle 30+ min every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 3, type: 'boss', gene_type: 'vein_network', xp: 120, gold: 60, repeatable: true },
+
+  // Agility & Endurance Streaks
+  { name: '5-Day Burpee Streak', description: 'Do 30+ burpees every day for 5 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'nerve_bundle', xp: 150, gold: 75, repeatable: true },
+  { name: '7-Day Stretching Streak', description: 'Stretch 15+ min every day for 7 days straight', icon: '🔁', domain: 'health', category: 'boss', difficulty: 2, type: 'boss', gene_type: 'tendon_whip', xp: 100, gold: 50, repeatable: true },
+  { name: '7-Day Yoga Streak', description: 'Complete a yoga session every day for 7 days', icon: '🔁', domain: 'health', category: 'boss', difficulty: 3, type: 'boss', gene_type: 'tendon_whip', xp: 150, gold: 75, repeatable: true },
+
+  // Recovery & Wellness Streaks
+  { name: '7-Day Hydration Streak', description: 'Drink 8+ glasses of water every day for 7 days', icon: '🔁', domain: 'health', category: 'boss', difficulty: 2, type: 'boss', gene_type: 'organ_sac', xp: 100, gold: 50, repeatable: true },
+  { name: '5-Day Clean Eating Streak', description: 'Eat only clean meals every day for 5 days', icon: '🔁', domain: 'health', category: 'boss', difficulty: 3, type: 'boss', gene_type: 'organ_sac', xp: 120, gold: 60, repeatable: true },
+  { name: '7-Day Sleep Streak', description: 'Get 8+ hours of sleep every night for 7 days', icon: '🔁', domain: 'health', category: 'boss', difficulty: 3, type: 'boss', gene_type: 'blood_shard', xp: 150, gold: 75, repeatable: true },
+
+  // Ultimate Compounding Challenges
+  { name: 'Full Body 7-Day Gauntlet', description: 'Push-ups, squats, crunches, and plank every day for 7 days', icon: '👑', domain: 'health', category: 'boss', difficulty: 5, type: 'boss', gene_type: 'tooth_row', xp: 300, gold: 150, repeatable: true },
+  { name: '14-Day Warrior Streak', description: 'Complete any workout every day for 14 days straight', icon: '👑', domain: 'health', category: 'boss', difficulty: 5, type: 'boss', gene_type: 'tooth_row', xp: 400, gold: 200, repeatable: true },
+  { name: '30-Day Iron Discipline', description: 'Work out every single day for 30 days — no exceptions', icon: '👑', domain: 'health', category: 'boss', difficulty: 5, type: 'boss', gene_type: 'marrow_core', xp: 750, gold: 400, repeatable: true },
+
   // --- New Health Organs & Appendages ---
   { name: 'Breathing Exercises', description: 'Practice deep breathing for 10 minutes', icon: '🌬️', domain: 'health', category: 'recovery', difficulty: 1, type: 'daily', gene_type: 'lung_bellows', xp: 20, gold: 10, repeatable: true },
   { name: 'Breath Hold Training', description: 'Practice CO2 tolerance breath holds', icon: '💨', domain: 'health', category: 'endurance', difficulty: 3, type: 'daily', gene_type: 'lung_bellows', xp: 40, gold: 20, repeatable: true },
