@@ -7,6 +7,22 @@ import gameRoutes from './routes/game.js';
 
 dotenv.config();
 
+// Refuse to start in production without required secrets
+if (process.env.NODE_ENV === 'production') {
+  const required = ['JWT_SECRET', 'MFA_ENCRYPTION_KEY'] as const;
+  const missing = required.filter(k => !process.env[k]);
+  if (missing.length > 0) {
+    console.error(`FATAL: Missing required environment variables: ${missing.join(', ')}`);
+    process.exit(1);
+  }
+  const insecureJwt = !process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev-secret-change-me' || process.env.JWT_SECRET === 'change-me-to-a-random-64-char-secret';
+  const insecureMfa = !process.env.MFA_ENCRYPTION_KEY || /^0+$/.test(process.env.MFA_ENCRYPTION_KEY);
+  if (insecureJwt || insecureMfa) {
+    console.error('FATAL: JWT_SECRET and MFA_ENCRYPTION_KEY must be set to secure, non-default values in production');
+    process.exit(1);
+  }
+}
+
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
 

@@ -6,6 +6,7 @@
 // implementation for development/offline mode.
 
 import type { OTPRequest } from './types';
+import { constantTimeEqual } from './crypto';
 
 // OTP configuration
 const OTP_LENGTH = 6;
@@ -113,14 +114,3 @@ export async function verifyOTP(email: string, code: string): Promise<{ valid: b
   return { valid: true, message: 'Verified successfully' };
 }
 
-/**
- * Constant-time string comparison to prevent timing attacks
- */
-function constantTimeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-  return result === 0;
-}

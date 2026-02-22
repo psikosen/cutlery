@@ -5,7 +5,7 @@ import type {
   BodySlot, BodySlotEntry, Skill, SpecialAbility,
 } from '../types';
 import {
-  DOMAIN_TO_CREATURE, GENE_STAT_VALUES, GENE_SLOT_AFFINITIES,
+  DOMAIN_TO_CREATURE, CREATURE_TO_DOMAIN, GENE_STAT_VALUES, GENE_SLOT_AFFINITIES,
   HUNTER_RANK_THRESHOLDS, GENE_STAT_KEYS, EVOLUTION_THRESHOLDS,
   BILATERAL_PAIRS, BODY_SLOTS,
 } from '../types';
@@ -49,19 +49,10 @@ export function calculateHunterRank(totalPower: number): HunterRank {
 // CREATURES
 // ============================================================
 
-const CREATURE_DOMAINS: Record<CreatureId, Domain> = {
-  gore_maw: 'health',
-  mind_weaver: 'mind',
-  chain_wraith: 'discipline',
-  rot_engine: 'career',
-  gilt_horror: 'finance',
-  hollow_singer: 'social',
-};
-
 export function createAllCreatures(playerId: string): Creature[] {
-  return (Object.keys(CREATURE_DOMAINS) as CreatureId[]).map(id => {
+  return (Object.keys(CREATURE_TO_DOMAIN) as CreatureId[]).map(id => {
     const seed = Math.floor(Math.random() * 999999);
-    const domain = CREATURE_DOMAINS[id];
+    const domain = CREATURE_TO_DOMAIN[id];
     const chromosome = generateInitialChromosome(seed, domain);
     return {
     id,
@@ -764,23 +755,6 @@ export function completeTask(
     updatedPlayer.hunter_rank = newRank;
   }
 
-  // Check achievements
-  const achResult = checkAchievements(updatedPlayer, updatedCreatures, achievements, skillResult.skills, abilityResult.abilities);
-  for (const a of achResult.newlyUnlocked) {
-    notifications.push({
-      id: uuidv4(),
-      title: 'Achievement Unlocked',
-      message: `${a.name}: ${a.description}`,
-      type: 'achievement',
-      created_at: Date.now(),
-    });
-    updatedPlayer.gold += a.reward.gold;
-  }
-
-  updatedPlayer.achievements = achResult.achievements
-    .filter(a => a.unlocked)
-    .map(a => a.id);
-
   // Check skill unlocks
   const currentSkills = skills || getAllSkills();
   const skillResult = checkSkillUnlocks(updatedCreatures, currentSkills);
@@ -809,6 +783,23 @@ export function completeTask(
       created_at: Date.now(),
     });
   }
+
+  // Check achievements (after skills/abilities so we can pass them)
+  const achResult = checkAchievements(updatedPlayer, updatedCreatures, achievements, skillResult.skills, abilityResult.abilities);
+  for (const a of achResult.newlyUnlocked) {
+    notifications.push({
+      id: uuidv4(),
+      title: 'Achievement Unlocked',
+      message: `${a.name}: ${a.description}`,
+      type: 'achievement',
+      created_at: Date.now(),
+    });
+    updatedPlayer.gold += a.reward.gold;
+  }
+
+  updatedPlayer.achievements = achResult.achievements
+    .filter(a => a.unlocked)
+    .map(a => a.id);
 
   return {
     gene,

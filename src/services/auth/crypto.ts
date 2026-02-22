@@ -100,3 +100,16 @@ export async function decryptSecret(encrypted: string): Promise<string> {
 
   return new TextDecoder().decode(decrypted);
 }
+
+/**
+ * Constant-time string comparison to prevent timing attacks.
+ * Shared utility used by both OTP and MFA verification.
+ */
+export function constantTimeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
