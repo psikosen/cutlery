@@ -205,6 +205,10 @@ function getGeneLoci(geneType: string): (keyof CreatureChromosome)[] {
     organ_sac: ['bodySegments', 'bodyAsymmetry', 'bodyElongation'],
     tooth_row: ['mouthTeeth', 'mouthWidth', 'jawProtrusion'],
 
+    blood_shard: ['bioluminescence', 'saturation', 'bodyTextureDensity'],
+    nerve_bundle: ['tentacleCurl', 'tentacleLength', 'eyeGlowIntensity'],
+    marrow_core: ['bodyElongation', 'bodySegments', 'plateCount'],
+
     // Mind genes → sensory traits
     eye_cluster: ['eyeSpread', 'eyeSize', 'eyeGlowIntensity'],
     neural_tendril: ['tentacleCurl', 'bioluminescence', 'auraComplexity'],
@@ -212,6 +216,10 @@ function getGeneLoci(geneType: string): (keyof CreatureChromosome)[] {
     synapse_arc: ['eyeGlowIntensity', 'bioluminescence', 'distortionField'],
     memory_sac: ['bodySegments', 'bodyAsymmetry', 'auraComplexity'],
     psychic_crown: ['auraIntensity', 'distortionField', 'particleDensity'],
+
+    cortex_fold: ['auraComplexity', 'bodyAsymmetry', 'distortionField'],
+    dream_gland: ['auraIntensity', 'particleDensity', 'hueShift'],
+    third_eye: ['eyeSize', 'eyeGlowIntensity', 'distortionField'],
 
     // Discipline genes → armor/structure
     chain_link: ['metallicSheen', 'bodyTextureDensity', 'plateCount'],
@@ -221,6 +229,10 @@ function getGeneLoci(geneType: string): (keyof CreatureChromosome)[] {
     spectral_layer: ['auraIntensity', 'distortionField', 'particleDensity'],
     wardens_eye: ['eyeSize', 'eyeGlowIntensity', 'pupilShape'],
 
+    anchor_bone: ['plateCount', 'bodyElongation', 'spineLength'],
+    scar_tissue: ['scarring', 'plateCount', 'bodyTextureDensity'],
+    ritual_glyph: ['auraComplexity', 'bioluminescence', 'metallicSheen'],
+
     // Career genes → mechanical traits
     gear_assembly: ['bodySegments', 'metallicSheen', 'bodyTextureDensity'],
     cable_nerve: ['tentacleLength', 'tentacleBranching', 'metallicSheen'],
@@ -228,6 +240,10 @@ function getGeneLoci(geneType: string): (keyof CreatureChromosome)[] {
     furnace_core: ['bioluminescence', 'saturation', 'luminanceContrast'],
     blueprint_glyph: ['bodyTextureDensity', 'auraComplexity', 'metallicSheen'],
     exhaust_vent: ['particleDensity', 'bodyAsymmetry', 'distortionField'],
+
+    spark_plug: ['bioluminescence', 'eyeGlowIntensity', 'particleDensity'],
+    conduit_wire: ['tentacleBranching', 'metallicSheen', 'bodyTextureDensity'],
+    output_valve: ['particleDensity', 'distortionField', 'auraIntensity'],
 
     // Finance genes → ornamental traits
     gold_scale: ['metallicSheen', 'saturation', 'plateCount'],
@@ -237,6 +253,10 @@ function getGeneLoci(geneType: string): (keyof CreatureChromosome)[] {
     ledger_glyph: ['bodyTextureDensity', 'auraComplexity', 'luminanceContrast'],
     crown_jewel: ['bioluminescence', 'saturation', 'metallicSheen'],
 
+    debt_fang: ['mouthTeeth', 'jawProtrusion', 'spineCount'],
+    compound_crystal: ['metallicSheen', 'bioluminescence', 'luminanceContrast'],
+    trade_tendril: ['tentacleLength', 'tentacleBranching', 'tentacleCurl'],
+
     // Social genes → expressive traits
     mouth: ['mouthWidth', 'mouthTeeth', 'jawProtrusion'],
     face_mask: ['bodyAsymmetry', 'eyeSpread', 'pupilShape'],
@@ -244,6 +264,9 @@ function getGeneLoci(geneType: string): (keyof CreatureChromosome)[] {
     echo_chamber: ['auraIntensity', 'auraComplexity', 'distortionField'],
     harmony_thread: ['tentacleCurl', 'bioluminescence', 'auraComplexity'],
     memory_face: ['bodyAsymmetry', 'eyeSize', 'scarring'],
+    mirror_shard: ['luminanceContrast', 'eyeGlowIntensity', 'hueShift'],
+    pulse_drum: ['auraIntensity', 'particleDensity', 'bioluminescence'],
+    bond_marrow: ['bodySegments', 'bodyTextureDensity', 'auraComplexity'],
   };
 
   return mapping[geneType] || ['bodyTextureDensity', 'bodyAsymmetry'];

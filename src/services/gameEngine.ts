@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type {
   Player, Creature, Gene, Task, Achievement, Notification,
   Domain, CreatureId, GeneType, GeneTier, EvolutionStage, HunterRank,
-  BodySlot, BodySlotEntry,
+  BodySlot, BodySlotEntry, Skill, SpecialAbility,
 } from '../types';
 import {
   DOMAIN_TO_CREATURE, GENE_STAT_VALUES, GENE_SLOT_AFFINITIES,
@@ -10,6 +10,8 @@ import {
   BILATERAL_PAIRS, BODY_SLOTS,
 } from '../types';
 import { getAllTraits } from '../data/traits';
+import { getAllSkills } from '../data/skills';
+import { getAllAbilities } from '../data/abilities';
 import {
   generateInitialChromosome, mutateChromosome,
   serializeChromosome, deserializeChromosome,
@@ -266,6 +268,130 @@ function checkTraitUnlocks(creature: Creature): string[] {
 }
 
 // ============================================================
+// SKILL CHECKING
+// ============================================================
+
+export function checkSkillUnlocks(
+  creatures: Creature[],
+  skills: Skill[],
+): { skills: Skill[]; newlyUnlocked: Skill[] } {
+  const updated = skills.map(s => ({ ...s }));
+  const newlyUnlocked: Skill[] = [];
+
+  for (let i = 0; i < updated.length; i++) {
+    const skill = updated[i];
+    if (skill.unlocked) continue;
+
+    const creature = creatures.find(c => c.id === skill.creature_id);
+    if (!creature) continue;
+
+    let met = false;
+    switch (skill.condition.type) {
+      case 'evolution_stage':
+        met = creature.evolution_stage >= skill.condition.value;
+        break;
+      case 'gene_count':
+        met = creature.total_genes >= skill.condition.value;
+        break;
+      case 'gene_type_count': {
+        const geneType = skill.condition.gene_type;
+        if (geneType) {
+          const entry = creature.genes[geneType];
+          met = entry ? entry.count >= skill.condition.value : false;
+        }
+        break;
+      }
+      case 'trait_count':
+        met = creature.traits.length >= skill.condition.value;
+        break;
+      case 'power':
+        met = creature.total_power >= skill.condition.value;
+        break;
+    }
+
+    if (met) {
+      updated[i] = { ...skill, unlocked: true, unlocked_at: new Date().toISOString() };
+      newlyUnlocked.push(updated[i]);
+    }
+  }
+
+  return { skills: updated, newlyUnlocked };
+}
+
+// ============================================================
+// SPECIAL ABILITY CHECKING
+// ============================================================
+
+export function checkAbilityUnlocks(
+  player: Player,
+  creatures: Creature[],
+  skills: Skill[],
+  abilities: SpecialAbility[],
+): { abilities: SpecialAbility[]; newlyUnlocked: SpecialAbility[] } {
+  const updated = abilities.map(a => ({ ...a }));
+  const newlyUnlocked: SpecialAbility[] = [];
+
+  for (let i = 0; i < updated.length; i++) {
+    const ability = updated[i];
+    if (ability.unlocked) continue;
+
+    let met = false;
+    switch (ability.condition.type) {
+      case 'cross_domain': {
+        const requiredDomains = ability.condition.domains || [];
+        const minStage = ability.condition.value;
+        met = requiredDomains.every(domain => {
+          const creature = creatures.find(c => c.domain === domain);
+          return creature ? creature.evolution_stage >= minStage : false;
+        });
+        break;
+      }
+      case 'total_power':
+        met = player.total_power >= ability.condition.value;
+        break;
+      case 'max_evolution': {
+        const requiredStage = ability.condition.value;
+        const requiredCount = ability.condition.secondary_value || 1;
+        const atStage = creatures.filter(c => c.evolution_stage >= requiredStage).length;
+        met = atStage >= requiredCount;
+        break;
+      }
+      case 'total_skills': {
+        const unlockedSkills = skills.filter(s => s.unlocked).length;
+        met = unlockedSkills >= ability.condition.value;
+        break;
+      }
+      case 'total_traits': {
+        const totalTraits = creatures.reduce((sum, c) => sum + c.traits.length, 0);
+        met = totalTraits >= ability.condition.value;
+        break;
+      }
+      case 'gene_mastery': {
+        const requiredCount = ability.condition.value;
+        const requiredTierLevel = ability.condition.secondary_value || 1;
+        const tierNames: GeneTier[] = ['base', 'dense', 'hyper', 'titan'];
+        const targetTier = tierNames[Math.min(requiredTierLevel, tierNames.length - 1)];
+        let tierCount = 0;
+        for (const creature of creatures) {
+          for (const entry of Object.values(creature.genes)) {
+            tierCount += entry.tier_breakdown[targetTier] || 0;
+          }
+        }
+        met = tierCount >= requiredCount;
+        break;
+      }
+    }
+
+    if (met) {
+      updated[i] = { ...ability, unlocked: true, unlocked_at: new Date().toISOString() };
+      newlyUnlocked.push(updated[i]);
+    }
+  }
+
+  return { abilities: updated, newlyUnlocked };
+}
+
+// ============================================================
 // GENE FUSION
 // ============================================================
 
@@ -431,6 +557,8 @@ export function checkAchievements(
   player: Player,
   creatures: Creature[],
   achievements: Achievement[],
+  skills?: Skill[],
+  abilities?: SpecialAbility[],
 ): { achievements: Achievement[]; newlyUnlocked: Achievement[] } {
   const updated = [...achievements];
   const newlyUnlocked: Achievement[] = [];
@@ -466,6 +594,28 @@ export function checkAchievements(
         met = domainsWithGenes.size >= 6;
         break;
       }
+      case 'total_skills': {
+        const unlockedSkills = (skills || []).filter(s => s.unlocked).length;
+        met = unlockedSkills >= a.condition.value;
+        break;
+      }
+      case 'total_abilities': {
+        const unlockedAbilities = (abilities || []).filter(ab => ab.unlocked).length;
+        met = unlockedAbilities >= a.condition.value;
+        break;
+      }
+      case 'gene_diversity': {
+        const uniqueGeneTypes = new Set<string>();
+        for (const creature of creatures) {
+          for (const geneType of Object.keys(creature.genes)) {
+            if (creature.genes[geneType].count > 0) {
+              uniqueGeneTypes.add(geneType);
+            }
+          }
+        }
+        met = uniqueGeneTypes.size >= a.condition.value;
+        break;
+      }
     }
 
     if (met) {
@@ -492,6 +642,10 @@ export interface TaskCompletionResult {
   notifications: Notification[];
   streakGenes: Gene[];
   newAchievements: Achievement[];
+  newSkills: Skill[];
+  newAbilities: SpecialAbility[];
+  updatedSkills: Skill[];
+  updatedAbilities: SpecialAbility[];
 }
 
 export function completeTask(
@@ -499,6 +653,8 @@ export function completeTask(
   player: Player,
   creatures: Creature[],
   achievements: Achievement[],
+  skills?: Skill[],
+  abilities?: SpecialAbility[],
 ): TaskCompletionResult {
   const creatureId = DOMAIN_TO_CREATURE[task.domain];
   const creature = creatures.find(c => c.id === creatureId)!;
@@ -608,7 +764,7 @@ export function completeTask(
   }
 
   // Check achievements
-  const achResult = checkAchievements(updatedPlayer, updatedCreatures, achievements);
+  const achResult = checkAchievements(updatedPlayer, updatedCreatures, achievements, skillResult.skills, abilityResult.abilities);
   for (const a of achResult.newlyUnlocked) {
     notifications.push({
       id: uuidv4(),
@@ -624,6 +780,35 @@ export function completeTask(
     .filter(a => a.unlocked)
     .map(a => a.id);
 
+  // Check skill unlocks
+  const currentSkills = skills || getAllSkills();
+  const skillResult = checkSkillUnlocks(updatedCreatures, currentSkills);
+  for (const s of skillResult.newlyUnlocked) {
+    notifications.push({
+      id: uuidv4(),
+      title: 'Skill Unlocked',
+      message: `${s.name}: ${s.description}`,
+      type: 'skill',
+      domain: s.domain,
+      created_at: Date.now(),
+    });
+  }
+
+  // Check ability unlocks
+  const currentAbilities = abilities || getAllAbilities();
+  const abilityResult = checkAbilityUnlocks(
+    updatedPlayer, updatedCreatures, skillResult.skills, currentAbilities
+  );
+  for (const a of abilityResult.newlyUnlocked) {
+    notifications.push({
+      id: uuidv4(),
+      title: 'Special Ability Unlocked',
+      message: `${a.name}: ${a.description}`,
+      type: 'ability',
+      created_at: Date.now(),
+    });
+  }
+
   return {
     gene,
     creature: result.creature,
@@ -635,5 +820,9 @@ export function completeTask(
     notifications,
     streakGenes,
     newAchievements: achResult.newlyUnlocked,
+    newSkills: skillResult.newlyUnlocked,
+    newAbilities: abilityResult.newlyUnlocked,
+    updatedSkills: skillResult.skills,
+    updatedAbilities: abilityResult.abilities,
   };
 }

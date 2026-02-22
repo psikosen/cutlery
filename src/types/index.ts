@@ -18,6 +18,10 @@ export type TaskType = 'daily' | 'weekly' | 'boss' | 'emergency';
 
 export type AchievementRarity = 'common' | 'rare' | 'epic' | 'legendary' | 'mythic';
 
+export type SkillTier = 'basic' | 'advanced' | 'master' | 'transcendent';
+
+export type AbilityRarity = 'rare' | 'epic' | 'legendary' | 'mythic';
+
 export type CreatureId = 'gore_maw' | 'mind_weaver' | 'chain_wraith' | 'rot_engine' | 'gilt_horror' | 'hollow_singer';
 
 export type BodySlot =
@@ -30,12 +34,12 @@ export type BodySlot =
 
 // --- Gene Types per Domain ---
 
-export type HealthGeneType = 'muscle_fiber' | 'bone_plate' | 'vein_network' | 'tendon_whip' | 'organ_sac' | 'tooth_row';
-export type MindGeneType = 'eye_cluster' | 'neural_tendril' | 'skull_graft' | 'synapse_arc' | 'memory_sac' | 'psychic_crown';
-export type DisciplineGeneType = 'chain_link' | 'iron_plate' | 'lock_core' | 'ember_node' | 'spectral_layer' | 'wardens_eye';
-export type CareerGeneType = 'gear_assembly' | 'cable_nerve' | 'piston_limb' | 'furnace_core' | 'blueprint_glyph' | 'exhaust_vent';
-export type FinanceGeneType = 'gold_scale' | 'coin_disc' | 'vault_door' | 'investment_tendril' | 'ledger_glyph' | 'crown_jewel';
-export type SocialGeneType = 'mouth' | 'face_mask' | 'vocal_cord' | 'echo_chamber' | 'harmony_thread' | 'memory_face';
+export type HealthGeneType = 'muscle_fiber' | 'bone_plate' | 'vein_network' | 'tendon_whip' | 'organ_sac' | 'tooth_row' | 'blood_shard' | 'nerve_bundle' | 'marrow_core';
+export type MindGeneType = 'eye_cluster' | 'neural_tendril' | 'skull_graft' | 'synapse_arc' | 'memory_sac' | 'psychic_crown' | 'cortex_fold' | 'dream_gland' | 'third_eye';
+export type DisciplineGeneType = 'chain_link' | 'iron_plate' | 'lock_core' | 'ember_node' | 'spectral_layer' | 'wardens_eye' | 'anchor_bone' | 'scar_tissue' | 'ritual_glyph';
+export type CareerGeneType = 'gear_assembly' | 'cable_nerve' | 'piston_limb' | 'furnace_core' | 'blueprint_glyph' | 'exhaust_vent' | 'spark_plug' | 'conduit_wire' | 'output_valve';
+export type FinanceGeneType = 'gold_scale' | 'coin_disc' | 'vault_door' | 'investment_tendril' | 'ledger_glyph' | 'crown_jewel' | 'debt_fang' | 'compound_crystal' | 'trade_tendril';
+export type SocialGeneType = 'mouth' | 'face_mask' | 'vocal_cord' | 'echo_chamber' | 'harmony_thread' | 'memory_face' | 'mirror_shard' | 'pulse_drum' | 'bond_marrow';
 
 export type GeneType =
   | HealthGeneType | MindGeneType | DisciplineGeneType
@@ -164,6 +168,64 @@ export interface Achievement {
   unlocked_at?: string;
 }
 
+// --- Skills & Special Abilities ---
+
+export interface SkillCondition {
+  type: 'evolution_stage' | 'gene_count' | 'gene_type_count' | 'trait_count' | 'power';
+  creature?: CreatureId;
+  gene_type?: GeneType;
+  value: number;
+}
+
+export interface SkillEffect {
+  type: 'stat_multiplier' | 'gene_bonus' | 'gold_multiplier' | 'xp_multiplier' | 'streak_shield' | 'fusion_discount' | 'domain_synergy';
+  stat_key?: string;
+  value: number;
+  duration?: string; // 'permanent' | 'per_task' | 'daily'
+  target_domain?: Domain;
+}
+
+export interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  lore_text: string;
+  tier: SkillTier;
+  domain: Domain;
+  creature_id: CreatureId;
+  condition: SkillCondition;
+  effect: SkillEffect;
+  icon: string;
+  unlocked: boolean;
+  unlocked_at?: string;
+}
+
+export interface AbilityCondition {
+  type: 'cross_domain' | 'total_power' | 'max_evolution' | 'total_skills' | 'total_traits' | 'gene_mastery';
+  domains?: Domain[];
+  value: number;
+  secondary_value?: number;
+}
+
+export interface AbilityEffect {
+  type: 'global_multiplier' | 'gene_transmute' | 'auto_streak' | 'titan_forge' | 'domain_resonance' | 'shadow_extraction' | 'evolution_burst';
+  value: number;
+  description: string;
+}
+
+export interface SpecialAbility {
+  id: string;
+  name: string;
+  description: string;
+  lore_text: string;
+  rarity: AbilityRarity;
+  condition: AbilityCondition;
+  effect: AbilityEffect;
+  icon: string;
+  unlocked: boolean;
+  unlocked_at?: string;
+}
+
 // --- UI State ---
 
 export type TabId = 'quests' | 'creatures' | 'hub' | 'lab' | 'trophies';
@@ -172,7 +234,7 @@ export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'gene' | 'evolution' | 'trait' | 'achievement' | 'rank' | 'streak';
+  type: 'gene' | 'evolution' | 'trait' | 'achievement' | 'rank' | 'streak' | 'skill' | 'ability';
   domain?: Domain;
   duration?: number;
   created_at: number;
@@ -293,6 +355,9 @@ export const GENE_SLOT_AFFINITIES: Partial<Record<GeneType, BodySlot[]>> = {
   tendon_whip: ['left_arm', 'right_arm', 'left_leg', 'right_leg', 'tail'],
   organ_sac: ['core', 'chest'],
   tooth_row: ['crown', 'left_arm', 'right_arm', 'left_shoulder', 'right_shoulder', 'chest', 'core', 'left_leg', 'right_leg', 'tail'],
+  blood_shard: ['core', 'chest', 'left_arm', 'right_arm', 'left_leg', 'right_leg'],
+  nerve_bundle: ['left_arm', 'right_arm', 'left_leg', 'right_leg', 'crown'],
+  marrow_core: ['core', 'chest', 'left_leg', 'right_leg'],
   // Mind - Mind Weaver
   eye_cluster: ['crown', 'left_shoulder', 'right_shoulder', 'chest', 'core'],
   neural_tendril: ['crown', 'left_horn', 'right_horn', 'left_arm', 'right_arm'],
@@ -300,6 +365,9 @@ export const GENE_SLOT_AFFINITIES: Partial<Record<GeneType, BodySlot[]>> = {
   synapse_arc: ['left_arm', 'right_arm', 'crown', 'chest'],
   memory_sac: ['core', 'chest', 'left_shoulder', 'right_shoulder'],
   psychic_crown: ['crown', 'left_horn', 'right_horn', 'aura'],
+  cortex_fold: ['crown', 'left_horn', 'right_horn', 'chest'],
+  dream_gland: ['crown', 'core', 'aura'],
+  third_eye: ['crown', 'left_shoulder', 'right_shoulder'],
   // Discipline - Chain Wraith
   chain_link: ['left_arm', 'right_arm', 'chest', 'core', 'left_leg', 'right_leg'],
   iron_plate: ['chest', 'left_shoulder', 'right_shoulder', 'core'],
@@ -307,6 +375,9 @@ export const GENE_SLOT_AFFINITIES: Partial<Record<GeneType, BodySlot[]>> = {
   ember_node: ['left_shoulder', 'right_shoulder', 'crown', 'chest'],
   spectral_layer: ['aura', 'left_wing', 'right_wing'],
   wardens_eye: ['crown', 'left_shoulder', 'right_shoulder', 'chest'],
+  anchor_bone: ['left_leg', 'right_leg', 'core', 'chest'],
+  scar_tissue: ['chest', 'left_arm', 'right_arm', 'left_shoulder', 'right_shoulder'],
+  ritual_glyph: ['core', 'chest', 'crown', 'aura'],
   // Career - Rot Engine
   gear_assembly: ['chest', 'left_shoulder', 'right_shoulder', 'core'],
   cable_nerve: ['left_arm', 'right_arm', 'left_leg', 'right_leg'],
@@ -314,6 +385,9 @@ export const GENE_SLOT_AFFINITIES: Partial<Record<GeneType, BodySlot[]>> = {
   furnace_core: ['core', 'chest'],
   blueprint_glyph: ['chest', 'left_arm', 'right_arm', 'core'],
   exhaust_vent: ['left_shoulder', 'right_shoulder', 'left_wing', 'right_wing'],
+  spark_plug: ['crown', 'left_shoulder', 'right_shoulder', 'core'],
+  conduit_wire: ['left_arm', 'right_arm', 'left_leg', 'right_leg', 'chest'],
+  output_valve: ['left_shoulder', 'right_shoulder', 'left_wing', 'right_wing', 'core'],
   // Finance - Gilt Horror
   gold_scale: ['chest', 'left_arm', 'right_arm', 'left_leg', 'right_leg'],
   coin_disc: ['chest', 'core', 'left_shoulder', 'right_shoulder'],
@@ -321,6 +395,9 @@ export const GENE_SLOT_AFFINITIES: Partial<Record<GeneType, BodySlot[]>> = {
   investment_tendril: ['left_arm', 'right_arm', 'tail'],
   ledger_glyph: ['chest', 'left_arm', 'right_arm', 'core'],
   crown_jewel: ['crown', 'left_shoulder', 'right_shoulder'],
+  debt_fang: ['left_arm', 'right_arm', 'crown', 'chest'],
+  compound_crystal: ['core', 'chest', 'left_shoulder', 'right_shoulder'],
+  trade_tendril: ['left_arm', 'right_arm', 'tail', 'chest'],
   // Social - Hollow Singer
   mouth: ['chest', 'left_shoulder', 'right_shoulder', 'core', 'left_arm', 'right_arm'],
   face_mask: ['crown', 'left_shoulder', 'right_shoulder', 'chest'],
@@ -328,19 +405,28 @@ export const GENE_SLOT_AFFINITIES: Partial<Record<GeneType, BodySlot[]>> = {
   echo_chamber: ['core', 'chest'],
   harmony_thread: ['left_arm', 'right_arm', 'left_wing', 'right_wing', 'aura'],
   memory_face: ['chest', 'left_shoulder', 'right_shoulder', 'core'],
+  mirror_shard: ['crown', 'chest', 'left_arm', 'right_arm'],
+  pulse_drum: ['core', 'chest', 'left_shoulder', 'right_shoulder'],
+  bond_marrow: ['core', 'left_arm', 'right_arm', 'chest'],
 };
 
 export const GENE_STAT_KEYS: Record<GeneType, string> = {
   muscle_fiber: 'Strength', bone_plate: 'Defense', vein_network: 'Stamina',
   tendon_whip: 'Agility', organ_sac: 'Vitality', tooth_row: 'Power',
+  blood_shard: 'Regeneration', nerve_bundle: 'Reflexes', marrow_core: 'Endurance',
   eye_cluster: 'Perception', neural_tendril: 'Intelligence', skull_graft: 'Wisdom',
   synapse_arc: 'Focus', memory_sac: 'Memory', psychic_crown: 'Influence',
+  cortex_fold: 'Creativity', dream_gland: 'Intuition', third_eye: 'Foresight',
   chain_link: 'Consistency', iron_plate: 'Willpower', lock_core: 'Resilience',
   ember_node: 'Discipline', spectral_layer: 'Calm', wardens_eye: 'Vigilance',
+  anchor_bone: 'Determination', scar_tissue: 'Tolerance', ritual_glyph: 'Routine',
   gear_assembly: 'Productivity', cable_nerve: 'Networking', piston_limb: 'Craft',
   furnace_core: 'Focus', blueprint_glyph: 'Strategy', exhaust_vent: 'Output',
+  spark_plug: 'Innovation', conduit_wire: 'Adaptability', output_valve: 'Execution',
   gold_scale: 'Savings', coin_disc: 'Awareness', vault_door: 'Security',
   investment_tendril: 'Growth', ledger_glyph: 'Knowledge', crown_jewel: 'Wealth',
+  debt_fang: 'Risk Management', compound_crystal: 'Patience', trade_tendril: 'Negotiation',
   mouth: 'Communication', face_mask: 'Charisma', vocal_cord: 'Influence',
   echo_chamber: 'Empathy', harmony_thread: 'Leadership', memory_face: 'Bonds',
+  mirror_shard: 'Authenticity', pulse_drum: 'Motivation', bond_marrow: 'Loyalty',
 };
