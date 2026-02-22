@@ -438,6 +438,24 @@ function renderGeneMutation(rc: RenderContext, slot: BodySlot, entry: BodySlotEn
     case 'echo_chamber': drawEchoChamber(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'harmony_thread': drawHarmonyThread(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'memory_face': drawMemoryFace(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    // --- New Organs & Appendages ---
+    case 'lung_bellows': drawLungBellows(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'heart_pump': drawHeartPump(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'claw_hook': drawClawHook(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'cerebral_lobe': drawCerebralLobe(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'psionic_node': drawPsionicNode(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'temporal_gland': drawTemporalGland(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'logic_matrix': drawLogicMatrix(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'astral_fiber': drawAstralFiber(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'insight_lens': drawInsightLens(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'iron_spine': drawIronSpine(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'will_node': drawWillNode(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'turbine_arm': drawTurbineArm(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'crane_claw': drawCraneClaw(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'gilded_claw': drawGildedClaw(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'treasure_organ': drawTreasureOrgan(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'empathy_lobe': drawEmpathyLobe(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'resonance_horn': drawResonanceHorn(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
   }
 }
 
@@ -1060,6 +1078,628 @@ function drawHarmonyThread(ctx: CanvasRenderingContext2D, x: number, y: number, 
 
 function drawMemoryFace(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
   drawFaceMask(ctx, x, y, scale * 0.8, time, rand);
+}
+
+// ============================================================
+// NEW ORGAN & APPENDAGE DRAWING FUNCTIONS
+// ============================================================
+
+// --- Health Organs & Appendages ---
+
+function drawLungBellows(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (6 + rand() * 3) * scale;
+  const inflate = 1 + Math.sin(time * 1.8 + rand() * 5) * 0.25;
+  ctx.save();
+  // Left lobe
+  ctx.beginPath();
+  ctx.ellipse(x - size * 0.3, y, size * 0.5 * inflate, size * 0.7 * inflate, -0.15, 0, Math.PI * 2);
+  const lg = ctx.createRadialGradient(x - size * 0.3, y, 0, x - size * 0.3, y, size * 0.6);
+  lg.addColorStop(0, '#cc6688');
+  lg.addColorStop(0.6, '#994466');
+  lg.addColorStop(1, '#662244');
+  ctx.fillStyle = lg;
+  ctx.fill();
+  // Right lobe
+  ctx.beginPath();
+  ctx.ellipse(x + size * 0.3, y, size * 0.5 * inflate, size * 0.7 * inflate, 0.15, 0, Math.PI * 2);
+  ctx.fillStyle = lg;
+  ctx.fill();
+  // Bronchial tube
+  ctx.beginPath();
+  ctx.moveTo(x, y - size * 0.5);
+  ctx.lineTo(x, y + size * 0.3);
+  ctx.strokeStyle = '#aa5577';
+  ctx.lineWidth = 1.5 * scale;
+  ctx.stroke();
+  ctx.strokeStyle = color + '30';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.ellipse(x - size * 0.3, y, size * 0.5 * inflate, size * 0.7 * inflate, -0.15, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + size * 0.3, y, size * 0.5 * inflate, size * 0.7 * inflate, 0.15, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawHeartPump(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (5 + rand() * 3) * scale;
+  const beat = 1 + Math.abs(Math.sin(time * 3.5 + rand() * 4)) * 0.2;
+  ctx.save();
+  // Heart shape via two arcs
+  const s = size * beat;
+  ctx.beginPath();
+  ctx.moveTo(x, y + s * 0.6);
+  ctx.bezierCurveTo(x - s * 0.8, y - s * 0.1, x - s * 0.5, y - s * 0.7, x, y - s * 0.3);
+  ctx.bezierCurveTo(x + s * 0.5, y - s * 0.7, x + s * 0.8, y - s * 0.1, x, y + s * 0.6);
+  ctx.closePath();
+  const g = ctx.createRadialGradient(x, y - s * 0.1, 0, x, y, s);
+  g.addColorStop(0, '#dd2244');
+  g.addColorStop(0.5, '#aa1133');
+  g.addColorStop(1, '#660011');
+  ctx.fillStyle = g;
+  ctx.shadowColor = '#dd2244';
+  ctx.shadowBlur = 6 * beat;
+  ctx.fill();
+  // Arteries
+  ctx.beginPath();
+  ctx.moveTo(x, y - s * 0.3);
+  ctx.lineTo(x - s * 0.2, y - s * 0.7);
+  ctx.moveTo(x, y - s * 0.3);
+  ctx.lineTo(x + s * 0.15, y - s * 0.65);
+  ctx.strokeStyle = '#cc3355';
+  ctx.lineWidth = 1.2 * scale;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawClawHook(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (7 + rand() * 4) * scale;
+  const grip = Math.sin(time * 2 + rand() * 5) * 0.15;
+  ctx.save();
+  // Three curved claws
+  for (let i = -1; i <= 1; i++) {
+    const angle = (i * 0.35) + grip;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    const cx1 = x + Math.cos(angle - 0.3) * size * 0.4;
+    const cy1 = y + Math.sin(angle - 0.3) * size * 0.4;
+    const ex = x + Math.cos(angle) * size;
+    const ey = y + Math.sin(angle) * size;
+    ctx.quadraticCurveTo(cx1, cy1, ex, ey);
+    const g = ctx.createLinearGradient(x, y, ex, ey);
+    g.addColorStop(0, '#e0d0c0');
+    g.addColorStop(0.6, '#c0a888');
+    g.addColorStop(1, '#8a6a48');
+    ctx.strokeStyle = g;
+    ctx.lineWidth = (2.5 - Math.abs(i) * 0.5) * scale;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  }
+  // Joint knuckle
+  ctx.beginPath();
+  ctx.arc(x, y, 2.5 * scale, 0, Math.PI * 2);
+  ctx.fillStyle = '#b09878';
+  ctx.fill();
+  ctx.restore();
+}
+
+// --- Mind Brain Power Genes ---
+
+function drawCerebralLobe(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (7 + rand() * 4) * scale;
+  const pulse = 1 + Math.sin(time * 1.5 + rand() * 4) * 0.08;
+  ctx.save();
+  // Brain-like lobed shape
+  ctx.beginPath();
+  // Left hemisphere
+  ctx.arc(x - size * 0.25, y, size * 0.55 * pulse, Math.PI * 0.5, Math.PI * 1.5);
+  // Right hemisphere
+  ctx.arc(x + size * 0.25, y, size * 0.55 * pulse, Math.PI * 1.5, Math.PI * 0.5);
+  ctx.closePath();
+  const g = ctx.createRadialGradient(x, y, 0, x, y, size * 0.6);
+  g.addColorStop(0, color + 'cc');
+  g.addColorStop(0.5, '#cc88dd');
+  g.addColorStop(1, '#664477');
+  ctx.fillStyle = g;
+  ctx.fill();
+  // Sulci (folds)
+  ctx.strokeStyle = '#553366' + '80';
+  ctx.lineWidth = 0.6 * scale;
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    const sy = y - size * 0.3 + i * size * 0.2;
+    ctx.moveTo(x - size * 0.35, sy);
+    ctx.quadraticCurveTo(x, sy + (rand() - 0.5) * size * 0.2, x + size * 0.35, sy);
+    ctx.stroke();
+  }
+  // Glow
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  ctx.arc(x, y, size * 0.15, 0, Math.PI * 2);
+  ctx.fillStyle = color + '40';
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawPsionicNode(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (5 + rand() * 3) * scale;
+  const pulse = 0.6 + Math.sin(time * 4 + rand() * 6) * 0.4;
+  ctx.save();
+  // Core crystal
+  ctx.beginPath();
+  ctx.moveTo(x, y - size);
+  ctx.lineTo(x + size * 0.4, y);
+  ctx.lineTo(x, y + size * 0.5);
+  ctx.lineTo(x - size * 0.4, y);
+  ctx.closePath();
+  const g = ctx.createLinearGradient(x, y - size, x, y + size * 0.5);
+  g.addColorStop(0, '#dd99ff');
+  g.addColorStop(0.5, color);
+  g.addColorStop(1, '#6622aa');
+  ctx.fillStyle = g;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 12 * pulse;
+  ctx.fill();
+  // Psionic waves
+  for (let r = 0; r < 3; r++) {
+    const waveR = size * (1.2 + r * 0.5) + Math.sin(time * 3 + r * 2) * 3;
+    ctx.beginPath();
+    ctx.arc(x, y, waveR, 0, Math.PI * 2);
+    ctx.strokeStyle = color + Math.floor((0.15 - r * 0.04) * 255).toString(16).padStart(2, '0');
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawTemporalGland(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (5 + rand() * 3) * scale;
+  ctx.save();
+  // Hourglass-shaped gland
+  ctx.beginPath();
+  ctx.moveTo(x - size * 0.4, y - size * 0.6);
+  ctx.quadraticCurveTo(x, y, x + size * 0.4, y - size * 0.6);
+  ctx.moveTo(x + size * 0.4, y + size * 0.6);
+  ctx.quadraticCurveTo(x, y, x - size * 0.4, y + size * 0.6);
+  ctx.strokeStyle = color + '80';
+  ctx.lineWidth = 1.5 * scale;
+  ctx.stroke();
+  // Temporal particles flowing
+  const flow = (time * 40) % (size * 1.2);
+  for (let p = 0; p < 4; p++) {
+    const py = y - size * 0.6 + ((flow + p * size * 0.3) % (size * 1.2));
+    const squeeze = 1 - Math.abs((py - y) / (size * 0.6));
+    const px = x + (rand() - 0.5) * size * 0.3 * squeeze;
+    ctx.beginPath();
+    ctx.arc(px, py, 1.2 * scale, 0, Math.PI * 2);
+    ctx.fillStyle = color + '90';
+    ctx.fill();
+  }
+  // Gland body
+  ctx.beginPath();
+  ctx.ellipse(x, y, size * 0.15, size * 0.15, 0, 0, Math.PI * 2);
+  ctx.fillStyle = color + '60';
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 6;
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawLogicMatrix(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (6 + rand() * 3) * scale;
+  ctx.save();
+  ctx.strokeStyle = color + '70';
+  ctx.lineWidth = 0.8 * scale;
+  // Grid of logic nodes
+  const cols = 3;
+  const rows = 3;
+  const spacing = size * 0.5;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const nx = x + (c - 1) * spacing;
+      const ny = y + (r - 1) * spacing;
+      // Node
+      ctx.beginPath();
+      ctx.arc(nx, ny, 1.5 * scale, 0, Math.PI * 2);
+      const active = Math.sin(time * 3 + r * 2.3 + c * 1.7) > 0;
+      ctx.fillStyle = active ? color : color + '30';
+      ctx.fill();
+      // Connections (right and down)
+      if (c < cols - 1) {
+        const signal = Math.sin(time * 5 + r + c * 1.5) > 0.2;
+        ctx.beginPath();
+        ctx.moveTo(nx + 1.5 * scale, ny);
+        ctx.lineTo(nx + spacing - 1.5 * scale, ny);
+        ctx.strokeStyle = signal ? color + 'aa' : color + '20';
+        ctx.stroke();
+      }
+      if (r < rows - 1) {
+        const signal = Math.sin(time * 5 + r * 1.5 + c) > 0.2;
+        ctx.beginPath();
+        ctx.moveTo(nx, ny + 1.5 * scale);
+        ctx.lineTo(nx, ny + spacing - 1.5 * scale);
+        ctx.strokeStyle = signal ? color + 'aa' : color + '20';
+        ctx.stroke();
+      }
+    }
+  }
+  ctx.restore();
+}
+
+function drawAstralFiber(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const len = (12 + rand() * 8) * scale;
+  ctx.save();
+  // Multiple ghostly fibers radiating outward
+  for (let f = 0; f < 4; f++) {
+    const angle = rand() * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    let px = x, py = y;
+    for (let s = 1; s <= 6; s++) {
+      const t = s / 6;
+      const wave = Math.sin(time * 2 + f * 1.7 + s * 0.8) * len * 0.08;
+      px = x + Math.cos(angle + wave * 0.05) * len * t + wave;
+      py = y + Math.sin(angle + wave * 0.05) * len * t;
+      ctx.lineTo(px, py);
+    }
+    const alpha = 0.2 + Math.sin(time * 1.5 + f * 2) * 0.15;
+    ctx.strokeStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+    ctx.lineWidth = (1.5 - f * 0.2) * scale;
+    ctx.lineCap = 'round';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 5;
+    ctx.stroke();
+  }
+  // Center star
+  ctx.beginPath();
+  ctx.arc(x, y, 2 * scale, 0, Math.PI * 2);
+  ctx.fillStyle = color + '50';
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawInsightLens(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (5 + rand() * 3) * scale;
+  const focus = 0.8 + Math.sin(time * 2 + rand() * 4) * 0.2;
+  ctx.save();
+  // Outer lens ring
+  ctx.beginPath();
+  ctx.arc(x, y, size, 0, Math.PI * 2);
+  ctx.strokeStyle = color + '80';
+  ctx.lineWidth = 1.5 * scale;
+  ctx.stroke();
+  // Inner lens
+  ctx.beginPath();
+  ctx.arc(x, y, size * 0.65 * focus, 0, Math.PI * 2);
+  const g = ctx.createRadialGradient(x, y, 0, x, y, size * 0.65);
+  g.addColorStop(0, '#ffffff40');
+  g.addColorStop(0.4, color + '60');
+  g.addColorStop(1, color + '10');
+  ctx.fillStyle = g;
+  ctx.fill();
+  // Crosshair
+  ctx.beginPath();
+  ctx.moveTo(x - size * 0.8, y);
+  ctx.lineTo(x - size * 0.3, y);
+  ctx.moveTo(x + size * 0.3, y);
+  ctx.lineTo(x + size * 0.8, y);
+  ctx.moveTo(x, y - size * 0.8);
+  ctx.lineTo(x, y - size * 0.3);
+  ctx.moveTo(x, y + size * 0.3);
+  ctx.lineTo(x, y + size * 0.8);
+  ctx.strokeStyle = color + '50';
+  ctx.lineWidth = 0.5 * scale;
+  ctx.stroke();
+  // Focus dot
+  ctx.beginPath();
+  ctx.arc(x, y, 1.5 * scale, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 6;
+  ctx.fill();
+  ctx.restore();
+}
+
+// --- Discipline Organs & Appendages ---
+
+function drawIronSpine(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const len = (10 + rand() * 5) * scale;
+  const segments = 5 + Math.floor(rand() * 3);
+  ctx.save();
+  // Vertebral column
+  for (let i = 0; i < segments; i++) {
+    const sy = y - len * 0.5 + (i / (segments - 1)) * len;
+    const wobble = Math.sin(time * 1.2 + i * 0.8) * 1.5;
+    const segSize = (3 + rand() * 2) * scale;
+    // Vertebra
+    ctx.beginPath();
+    ctx.ellipse(x + wobble, sy, segSize, segSize * 0.6, 0, 0, Math.PI * 2);
+    const g = ctx.createLinearGradient(x - segSize, sy, x + segSize, sy);
+    g.addColorStop(0, '#778899');
+    g.addColorStop(0.5, '#aabbcc');
+    g.addColorStop(1, '#667788');
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.strokeStyle = '#556677';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+    // Connecting rod
+    if (i < segments - 1) {
+      const ny = y - len * 0.5 + ((i + 1) / (segments - 1)) * len;
+      ctx.beginPath();
+      ctx.moveTo(x + wobble, sy + segSize * 0.5);
+      ctx.lineTo(x + Math.sin(time * 1.2 + (i + 1) * 0.8) * 1.5, ny - segSize * 0.5);
+      ctx.strokeStyle = '#8899aa';
+      ctx.lineWidth = 1.5 * scale;
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+function drawWillNode(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (5 + rand() * 3) * scale;
+  const intensity = 0.5 + Math.sin(time * 2.5 + rand() * 5) * 0.3;
+  ctx.save();
+  // Core sphere
+  ctx.beginPath();
+  ctx.arc(x, y, size, 0, Math.PI * 2);
+  const g = ctx.createRadialGradient(x, y, 0, x, y, size);
+  g.addColorStop(0, '#ffffff' + Math.floor(intensity * 200).toString(16).padStart(2, '0'));
+  g.addColorStop(0.4, color + 'aa');
+  g.addColorStop(1, color + '20');
+  ctx.fillStyle = g;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 10 * intensity;
+  ctx.fill();
+  // Inner rune
+  ctx.beginPath();
+  ctx.moveTo(x, y - size * 0.5);
+  ctx.lineTo(x + size * 0.4, y + size * 0.3);
+  ctx.lineTo(x - size * 0.4, y + size * 0.3);
+  ctx.closePath();
+  ctx.strokeStyle = '#ffffff60';
+  ctx.lineWidth = 0.8 * scale;
+  ctx.stroke();
+  ctx.restore();
+}
+
+// --- Career Mechanical Appendages ---
+
+function drawTurbineArm(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (7 + rand() * 4) * scale;
+  const spin = time * 3;
+  ctx.save();
+  // Arm shaft
+  const armLen = size * 1.2;
+  const angle = rand() * Math.PI * 2;
+  const ex = x + Math.cos(angle) * armLen;
+  const ey = y + Math.sin(angle) * armLen;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(ex, ey);
+  ctx.strokeStyle = '#8899aa';
+  ctx.lineWidth = 3 * scale;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  // Joint
+  ctx.beginPath();
+  ctx.arc(x, y, 3 * scale, 0, Math.PI * 2);
+  ctx.fillStyle = '#667788';
+  ctx.fill();
+  // Turbine blades at end
+  ctx.translate(ex, ey);
+  ctx.rotate(spin);
+  const blades = 4;
+  for (let i = 0; i < blades; i++) {
+    const bAngle = (i / blades) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(Math.cos(bAngle) * size * 0.5, Math.sin(bAngle) * size * 0.5);
+    ctx.strokeStyle = color + '80';
+    ctx.lineWidth = 2 * scale;
+    ctx.stroke();
+  }
+  // Hub
+  ctx.beginPath();
+  ctx.arc(0, 0, 2 * scale, 0, Math.PI * 2);
+  ctx.fillStyle = '#aabbcc';
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawCraneClaw(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (6 + rand() * 3) * scale;
+  const clamp = Math.sin(time * 2 + rand() * 5) * 0.2;
+  ctx.save();
+  // Arm
+  ctx.beginPath();
+  ctx.moveTo(x, y - size * 0.8);
+  ctx.lineTo(x, y);
+  ctx.strokeStyle = '#889999';
+  ctx.lineWidth = 2.5 * scale;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  // Two opposing jaws
+  for (let side = -1; side <= 1; side += 2) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    const jawAngle = side * (0.4 + clamp);
+    ctx.quadraticCurveTo(
+      x + side * size * 0.3, y + size * 0.3,
+      x + Math.sin(jawAngle) * size * 0.5, y + size * 0.7
+    );
+    ctx.strokeStyle = '#aabbbb';
+    ctx.lineWidth = 2 * scale;
+    ctx.stroke();
+    // Claw tip
+    ctx.beginPath();
+    ctx.arc(x + Math.sin(jawAngle) * size * 0.5, y + size * 0.7, 1.5 * scale, 0, Math.PI * 2);
+    ctx.fillStyle = color + '80';
+    ctx.fill();
+  }
+  // Pivot joint
+  ctx.beginPath();
+  ctx.arc(x, y, 2.5 * scale, 0, Math.PI * 2);
+  ctx.fillStyle = '#778888';
+  ctx.fill();
+  ctx.restore();
+}
+
+// --- Finance Organs & Appendages ---
+
+function drawGildedClaw(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (7 + rand() * 4) * scale;
+  const grip = Math.sin(time * 1.8 + rand() * 5) * 0.12;
+  ctx.save();
+  // Three golden talons
+  for (let i = -1; i <= 1; i++) {
+    const angle = (i * 0.3) + grip + Math.PI * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    const cx1 = x + Math.cos(angle - 0.2) * size * 0.4;
+    const cy1 = y + Math.sin(angle - 0.2) * size * 0.4;
+    const ex = x + Math.cos(angle) * size;
+    const ey = y + Math.sin(angle) * size;
+    ctx.quadraticCurveTo(cx1, cy1, ex, ey);
+    const g = ctx.createLinearGradient(x, y, ex, ey);
+    g.addColorStop(0, '#FFD700');
+    g.addColorStop(0.5, '#DAA520');
+    g.addColorStop(1, '#B8860B');
+    ctx.strokeStyle = g;
+    ctx.lineWidth = (2.5 - Math.abs(i) * 0.5) * scale;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  }
+  // Knuckle jewel
+  ctx.beginPath();
+  ctx.arc(x, y, 2.5 * scale, 0, Math.PI * 2);
+  ctx.fillStyle = '#FFD700';
+  ctx.shadowColor = '#FFD700';
+  ctx.shadowBlur = 4;
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawTreasureOrgan(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (6 + rand() * 3) * scale;
+  const pulse = 1 + Math.sin(time * 1.5 + rand() * 4) * 0.15;
+  ctx.save();
+  // Ornate sac
+  ctx.beginPath();
+  ctx.arc(x, y, size * pulse, 0, Math.PI * 2);
+  const g = ctx.createRadialGradient(x - size * 0.2, y - size * 0.2, 0, x, y, size);
+  g.addColorStop(0, '#FFF8DC');
+  g.addColorStop(0.3, '#FFD700');
+  g.addColorStop(0.7, '#DAA520');
+  g.addColorStop(1, '#8B6914');
+  ctx.fillStyle = g;
+  ctx.fill();
+  // Decorative ring
+  ctx.beginPath();
+  ctx.arc(x, y, size * pulse * 0.7, 0, Math.PI * 2);
+  ctx.strokeStyle = '#B8860B80';
+  ctx.lineWidth = 0.8 * scale;
+  ctx.stroke();
+  // Inner sparkle
+  const sparkAngle = time * 2;
+  ctx.beginPath();
+  ctx.arc(x + Math.cos(sparkAngle) * size * 0.2, y + Math.sin(sparkAngle) * size * 0.2, 1.5 * scale, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff80';
+  ctx.fill();
+  ctx.restore();
+}
+
+// --- Social Organs & Appendages ---
+
+function drawEmpathyLobe(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (6 + rand() * 3) * scale;
+  const pulse = 1 + Math.sin(time * 1.2 + rand() * 4) * 0.1;
+  ctx.save();
+  // Soft organic lobe
+  ctx.beginPath();
+  // Two connected lobes
+  ctx.arc(x - size * 0.2, y, size * 0.45 * pulse, 0, Math.PI * 2);
+  const g = ctx.createRadialGradient(x, y, 0, x, y, size * 0.5);
+  g.addColorStop(0, color + 'cc');
+  g.addColorStop(0.5, color + '80');
+  g.addColorStop(1, color + '20');
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + size * 0.2, y, size * 0.45 * pulse, 0, Math.PI * 2);
+  ctx.fillStyle = g;
+  ctx.fill();
+  // Empathic waves
+  for (let w = 0; w < 2; w++) {
+    const waveR = size * (0.8 + w * 0.4) + Math.sin(time * 2 + w * 1.5) * 2;
+    ctx.beginPath();
+    ctx.arc(x, y, waveR, 0, Math.PI * 2);
+    ctx.strokeStyle = color + Math.floor((0.2 - w * 0.06) * 255).toString(16).padStart(2, '0');
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawResonanceHorn(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  const size = (8 + rand() * 4) * scale;
+  const angle = -Math.PI * 0.5 + (rand() - 0.5) * 0.4;
+  ctx.save();
+  // Curved horn shape
+  ctx.beginPath();
+  const baseWidth = 3 * scale;
+  const tipWidth = 0.5 * scale;
+  const segments = 8;
+  const curve = 0.3 + rand() * 0.3;
+  // Right edge
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    const w = baseWidth * (1 - t) + tipWidth * t;
+    const cx = x + Math.cos(angle + curve * t) * size * t;
+    const cy = y + Math.sin(angle + curve * t) * size * t;
+    const perpAngle = angle + curve * t + Math.PI * 0.5;
+    const px = cx + Math.cos(perpAngle) * w;
+    const py = cy + Math.sin(perpAngle) * w;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  // Left edge (reverse)
+  for (let i = segments; i >= 0; i--) {
+    const t = i / segments;
+    const w = baseWidth * (1 - t) + tipWidth * t;
+    const cx = x + Math.cos(angle + curve * t) * size * t;
+    const cy = y + Math.sin(angle + curve * t) * size * t;
+    const perpAngle = angle + curve * t - Math.PI * 0.5;
+    const px = cx + Math.cos(perpAngle) * w;
+    const py = cy + Math.sin(perpAngle) * w;
+    ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  const g = ctx.createLinearGradient(x, y, x + Math.cos(angle) * size, y + Math.sin(angle) * size);
+  g.addColorStop(0, color + 'cc');
+  g.addColorStop(0.6, color + '80');
+  g.addColorStop(1, color + '40');
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.strokeStyle = color + '40';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+  // Sound waves from tip
+  const tipX = x + Math.cos(angle + curve) * size;
+  const tipY = y + Math.sin(angle + curve) * size;
+  for (let w = 0; w < 3; w++) {
+    const waveR = (3 + w * 3) * scale + Math.sin(time * 4 + w) * 2;
+    ctx.beginPath();
+    ctx.arc(tipX, tipY, waveR, angle - 0.5, angle + 0.5);
+    ctx.strokeStyle = color + Math.floor((0.3 - w * 0.08) * 255).toString(16).padStart(2, '0');
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+  ctx.restore();
 }
 
 // ============================================================

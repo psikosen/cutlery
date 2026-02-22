@@ -101,6 +101,61 @@ const TRAIT_TEMPLATES: TraitTemplate[] = [
   { gene_type: 'trade_tendril', gene_count: 3, tier: 'common', name: 'Haggler', description: '+10% Negotiation', lore_text: 'Every deal tilts in its favor.', stat_key: 'Negotiation', value: 10, domain: 'finance' },
   { gene_type: 'trade_tendril', gene_count: 7, tier: 'rare', name: 'Master Dealer', description: 'Negotiations become one-sided victories', lore_text: 'Its tendrils find every advantage.', stat_key: 'Negotiation', value: 25, domain: 'finance' },
 
+  // --- NEW HEALTH ORGAN & APPENDAGE TRAITS ---
+  { gene_type: 'lung_bellows', gene_count: 3, tier: 'common', name: 'Deep Breath', description: '+10% Breath', lore_text: 'It inhales and the air itself submits.', stat_key: 'Breath', value: 10, domain: 'health' },
+  { gene_type: 'lung_bellows', gene_count: 7, tier: 'rare', name: 'Bellows of War', description: 'Breathing becomes a weapon', lore_text: 'Its exhalation scatters ash and fear.', stat_key: 'Breath', value: 25, domain: 'health' },
+  { gene_type: 'lung_bellows', gene_count: 15, tier: 'epic', name: 'Stormlung', description: '+50% Breath, visible vapor trails', lore_text: 'It breathes storms. Hurricanes are its sighs.', stat_key: 'Breath', value: 50, domain: 'health' },
+  { gene_type: 'heart_pump', gene_count: 3, tier: 'common', name: 'Strong Heart', description: '+10% Circulation', lore_text: 'The heart beats like a war drum.', stat_key: 'Circulation', value: 10, domain: 'health' },
+  { gene_type: 'heart_pump', gene_count: 7, tier: 'rare', name: 'Twin Hearts', description: 'A second heart ensures survival', lore_text: 'Kill one heart. The other keeps beating.', stat_key: 'Circulation', value: 25, domain: 'health' },
+  { gene_type: 'heart_pump', gene_count: 15, tier: 'epic', name: 'Cardiac Engine', description: '+50% Circulation, pulsing glow visible', lore_text: 'Its heart is no longer organ but engine. It pumps fury.', stat_key: 'Circulation', value: 50, domain: 'health' },
+  { gene_type: 'claw_hook', gene_count: 3, tier: 'common', name: 'Iron Grip', description: '+10% Grip', lore_text: 'What it grasps, it keeps.', stat_key: 'Grip', value: 10, domain: 'health' },
+  { gene_type: 'claw_hook', gene_count: 7, tier: 'rare', name: 'Rending Claws', description: 'Claws tear through any defense', lore_text: 'Stone, steel, pride — all yield to the hook.', stat_key: 'Grip', value: 25, domain: 'health' },
+
+  // --- NEW MIND BRAIN POWER TRAITS ---
+  { gene_type: 'cerebral_lobe', gene_count: 3, tier: 'common', name: 'Expanded Mind', description: '+10% Logic', lore_text: 'The brain grows. The skull does not.', stat_key: 'Logic', value: 10, domain: 'mind' },
+  { gene_type: 'cerebral_lobe', gene_count: 7, tier: 'rare', name: 'Dual Cortex', description: 'Two hemispheres think in parallel', lore_text: 'One mind asks. The other answers before the question ends.', stat_key: 'Logic', value: 25, domain: 'mind' },
+  { gene_type: 'cerebral_lobe', gene_count: 15, tier: 'epic', name: 'Hyper-Cortex', description: '+50% Logic, brain mass visibly pulsing', lore_text: 'Its mind has outgrown its body. Soon it will outgrow its reality.', stat_key: 'Logic', value: 50, domain: 'mind' },
+  { gene_type: 'cerebral_lobe', gene_count: 30, tier: 'legendary', name: 'Infinite Processor', description: 'Logic stat doubled', lore_text: 'It processes universes as idle thoughts.', stat_key: 'Logic', value: 100, domain: 'mind' },
+  { gene_type: 'psionic_node', gene_count: 3, tier: 'common', name: 'Psychic Echo', description: '+10% Projection', lore_text: 'Its thoughts ripple through matter.', stat_key: 'Projection', value: 10, domain: 'mind' },
+  { gene_type: 'psionic_node', gene_count: 7, tier: 'rare', name: 'Mind Blast', description: 'Psychic waves distort nearby space', lore_text: 'To stand near it is to hear screaming silence.', stat_key: 'Projection', value: 25, domain: 'mind' },
+  { gene_type: 'psionic_node', gene_count: 15, tier: 'epic', name: 'Thought Storm', description: '+50% Projection, psionic waves visible', lore_text: 'Its thoughts are not thoughts. They are weapons.', stat_key: 'Projection', value: 50, domain: 'mind' },
+  { gene_type: 'temporal_gland', gene_count: 3, tier: 'common', name: 'Time Sense', description: '+10% Precognition', lore_text: 'It feels the seconds before they arrive.', stat_key: 'Precognition', value: 10, domain: 'mind' },
+  { gene_type: 'temporal_gland', gene_count: 7, tier: 'rare', name: 'Chrono Pulse', description: 'Perceives events before they happen', lore_text: 'The future is a memory it has not yet made.', stat_key: 'Precognition', value: 25, domain: 'mind' },
+  { gene_type: 'temporal_gland', gene_count: 15, tier: 'epic', name: 'Time Weaver', description: '+50% Precognition, temporal distortions visible', lore_text: 'It does not predict. It remembers forward.', stat_key: 'Precognition', value: 50, domain: 'mind' },
+  { gene_type: 'logic_matrix', gene_count: 3, tier: 'common', name: 'Structured Thought', description: '+10% Reasoning', lore_text: 'Chaos enters. Order exits.', stat_key: 'Reasoning', value: 10, domain: 'mind' },
+  { gene_type: 'logic_matrix', gene_count: 7, tier: 'rare', name: 'Neural Grid', description: 'Problems decompose on contact', lore_text: 'It does not solve problems. Problems solve themselves in its presence.', stat_key: 'Reasoning', value: 25, domain: 'mind' },
+  { gene_type: 'logic_matrix', gene_count: 15, tier: 'epic', name: 'Quantum Reasoning', description: '+50% Reasoning, visible computation grid', lore_text: 'It computes all possibilities. Simultaneously.', stat_key: 'Reasoning', value: 50, domain: 'mind' },
+  { gene_type: 'astral_fiber', gene_count: 3, tier: 'common', name: 'Higher Perception', description: '+10% Awareness', lore_text: 'It perceives the layer beneath the layer.', stat_key: 'Awareness', value: 10, domain: 'mind' },
+  { gene_type: 'astral_fiber', gene_count: 7, tier: 'rare', name: 'Astral Attunement', description: 'Senses extend beyond physical realm', lore_text: 'Its fibers stretch into dimensions unnamed.', stat_key: 'Awareness', value: 25, domain: 'mind' },
+  { gene_type: 'insight_lens', gene_count: 3, tier: 'common', name: 'Keen Insight', description: '+10% Insight', lore_text: 'It sees the truth hiding inside lies.', stat_key: 'Insight', value: 10, domain: 'mind' },
+  { gene_type: 'insight_lens', gene_count: 7, tier: 'rare', name: 'Piercing Gaze', description: 'No deception survives its scrutiny', lore_text: 'Its lens focuses on what others refuse to see.', stat_key: 'Insight', value: 25, domain: 'mind' },
+  { gene_type: 'insight_lens', gene_count: 15, tier: 'epic', name: 'Absolute Clarity', description: '+50% Insight, lens focuses reality itself', lore_text: 'It sees everything as it truly is. This is a gift. This is a curse.', stat_key: 'Insight', value: 50, domain: 'mind' },
+
+  // --- NEW DISCIPLINE ORGAN & APPENDAGE TRAITS ---
+  { gene_type: 'iron_spine', gene_count: 3, tier: 'common', name: 'Steel Backbone', description: '+10% Fortitude', lore_text: 'Stand straight. Stand always.', stat_key: 'Fortitude', value: 10, domain: 'discipline' },
+  { gene_type: 'iron_spine', gene_count: 7, tier: 'rare', name: 'Unbreakable Spine', description: 'No force can bend its resolve', lore_text: 'The spine is iron. The will is harder.', stat_key: 'Fortitude', value: 25, domain: 'discipline' },
+  { gene_type: 'will_node', gene_count: 3, tier: 'common', name: 'Core Resolve', description: '+10% Resolve', lore_text: 'A flame that no wind can extinguish.', stat_key: 'Resolve', value: 10, domain: 'discipline' },
+  { gene_type: 'will_node', gene_count: 7, tier: 'rare', name: 'Indomitable', description: 'Willpower becomes near-absolute', lore_text: 'It decided. The universe rearranged.', stat_key: 'Resolve', value: 25, domain: 'discipline' },
+
+  // --- NEW CAREER MECHANICAL APPENDAGE TRAITS ---
+  { gene_type: 'turbine_arm', gene_count: 3, tier: 'common', name: 'Power Output', description: '+10% Throughput', lore_text: 'The arm spins. The work flows.', stat_key: 'Throughput', value: 10, domain: 'career' },
+  { gene_type: 'turbine_arm', gene_count: 7, tier: 'rare', name: 'Overdrive', description: 'Output exceeds all design specs', lore_text: 'It was built for efficiency. It chose brutality.', stat_key: 'Throughput', value: 25, domain: 'career' },
+  { gene_type: 'crane_claw', gene_count: 3, tier: 'common', name: 'Precise Grip', description: '+10% Precision', lore_text: 'It grasps atoms when it chooses.', stat_key: 'Precision', value: 10, domain: 'career' },
+  { gene_type: 'crane_claw', gene_count: 7, tier: 'rare', name: 'Surgical Reach', description: 'Manipulation becomes flawless', lore_text: 'The claw does not grab. It selects.', stat_key: 'Precision', value: 25, domain: 'career' },
+
+  // --- NEW FINANCE ORGAN & APPENDAGE TRAITS ---
+  { gene_type: 'gilded_claw', gene_count: 3, tier: 'common', name: 'Golden Grasp', description: '+10% Acquisition', lore_text: 'Gold flows toward its claws.', stat_key: 'Acquisition', value: 10, domain: 'finance' },
+  { gene_type: 'gilded_claw', gene_count: 7, tier: 'rare', name: 'Midas Claws', description: 'Everything seized turns to profit', lore_text: 'Its touch converts matter to currency.', stat_key: 'Acquisition', value: 25, domain: 'finance' },
+  { gene_type: 'treasure_organ', gene_count: 3, tier: 'common', name: 'Inner Vault', description: '+10% Accumulation', lore_text: 'It stores wealth where none can steal.', stat_key: 'Accumulation', value: 10, domain: 'finance' },
+  { gene_type: 'treasure_organ', gene_count: 7, tier: 'rare', name: 'Living Treasury', description: 'Wealth compounds within the organ itself', lore_text: 'The organ generates gold from nothing. Finance made flesh.', stat_key: 'Accumulation', value: 25, domain: 'finance' },
+
+  // --- NEW SOCIAL ORGAN & APPENDAGE TRAITS ---
+  { gene_type: 'empathy_lobe', gene_count: 3, tier: 'common', name: 'Shared Feeling', description: '+10% Compassion', lore_text: 'It feels what others feel.', stat_key: 'Compassion', value: 10, domain: 'social' },
+  { gene_type: 'empathy_lobe', gene_count: 7, tier: 'rare', name: 'Emotional Nexus', description: 'Emotions flow through it like current', lore_text: 'Joy, grief, rage — it holds them all and understands each one.', stat_key: 'Compassion', value: 25, domain: 'social' },
+  { gene_type: 'empathy_lobe', gene_count: 15, tier: 'epic', name: 'Universal Empathy', description: '+50% Compassion, empathic aura visible', lore_text: 'In its presence, all hearts beat as one.', stat_key: 'Compassion', value: 50, domain: 'social' },
+  { gene_type: 'resonance_horn', gene_count: 3, tier: 'common', name: 'Far Voice', description: '+10% Broadcast', lore_text: 'Its horn carries meaning across chasms.', stat_key: 'Broadcast', value: 10, domain: 'social' },
+  { gene_type: 'resonance_horn', gene_count: 7, tier: 'rare', name: 'Herald\'s Call', description: 'Its voice reaches any distance', lore_text: 'When it speaks, the deaf hear. The distant listen.', stat_key: 'Broadcast', value: 25, domain: 'social' },
+
   // --- HOLLOW SINGER TRAITS ---
   { gene_type: 'mouth', gene_count: 3, tier: 'common', name: 'Many Voices', description: '+10% Communication', lore_text: 'Every mouth speaks truth.', stat_key: 'Communication', value: 10, domain: 'social' },
   { gene_type: 'mouth', gene_count: 7, tier: 'rare', name: 'Chorus', description: 'Mouths hum in harmony', lore_text: 'A symphony of connection.', stat_key: 'Communication', value: 25, domain: 'social' },

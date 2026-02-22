@@ -34,12 +34,12 @@ export type BodySlot =
 
 // --- Gene Types per Domain ---
 
-export type HealthGeneType = 'muscle_fiber' | 'bone_plate' | 'vein_network' | 'tendon_whip' | 'organ_sac' | 'tooth_row' | 'blood_shard' | 'nerve_bundle' | 'marrow_core';
-export type MindGeneType = 'eye_cluster' | 'neural_tendril' | 'skull_graft' | 'synapse_arc' | 'memory_sac' | 'psychic_crown' | 'cortex_fold' | 'dream_gland' | 'third_eye';
-export type DisciplineGeneType = 'chain_link' | 'iron_plate' | 'lock_core' | 'ember_node' | 'spectral_layer' | 'wardens_eye' | 'anchor_bone' | 'scar_tissue' | 'ritual_glyph';
-export type CareerGeneType = 'gear_assembly' | 'cable_nerve' | 'piston_limb' | 'furnace_core' | 'blueprint_glyph' | 'exhaust_vent' | 'spark_plug' | 'conduit_wire' | 'output_valve';
-export type FinanceGeneType = 'gold_scale' | 'coin_disc' | 'vault_door' | 'investment_tendril' | 'ledger_glyph' | 'crown_jewel' | 'debt_fang' | 'compound_crystal' | 'trade_tendril';
-export type SocialGeneType = 'mouth' | 'face_mask' | 'vocal_cord' | 'echo_chamber' | 'harmony_thread' | 'memory_face' | 'mirror_shard' | 'pulse_drum' | 'bond_marrow';
+export type HealthGeneType = 'muscle_fiber' | 'bone_plate' | 'vein_network' | 'tendon_whip' | 'organ_sac' | 'tooth_row' | 'blood_shard' | 'nerve_bundle' | 'marrow_core' | 'lung_bellows' | 'heart_pump' | 'claw_hook';
+export type MindGeneType = 'eye_cluster' | 'neural_tendril' | 'skull_graft' | 'synapse_arc' | 'memory_sac' | 'psychic_crown' | 'cortex_fold' | 'dream_gland' | 'third_eye' | 'cerebral_lobe' | 'psionic_node' | 'temporal_gland' | 'logic_matrix' | 'astral_fiber' | 'insight_lens';
+export type DisciplineGeneType = 'chain_link' | 'iron_plate' | 'lock_core' | 'ember_node' | 'spectral_layer' | 'wardens_eye' | 'anchor_bone' | 'scar_tissue' | 'ritual_glyph' | 'iron_spine' | 'will_node';
+export type CareerGeneType = 'gear_assembly' | 'cable_nerve' | 'piston_limb' | 'furnace_core' | 'blueprint_glyph' | 'exhaust_vent' | 'spark_plug' | 'conduit_wire' | 'output_valve' | 'turbine_arm' | 'crane_claw';
+export type FinanceGeneType = 'gold_scale' | 'coin_disc' | 'vault_door' | 'investment_tendril' | 'ledger_glyph' | 'crown_jewel' | 'debt_fang' | 'compound_crystal' | 'trade_tendril' | 'gilded_claw' | 'treasure_organ';
+export type SocialGeneType = 'mouth' | 'face_mask' | 'vocal_cord' | 'echo_chamber' | 'harmony_thread' | 'memory_face' | 'mirror_shard' | 'pulse_drum' | 'bond_marrow' | 'empathy_lobe' | 'resonance_horn';
 
 export type GeneType =
   | HealthGeneType | MindGeneType | DisciplineGeneType
@@ -408,6 +408,30 @@ export const GENE_SLOT_AFFINITIES: Partial<Record<GeneType, BodySlot[]>> = {
   mirror_shard: ['crown', 'chest', 'left_arm', 'right_arm'],
   pulse_drum: ['core', 'chest', 'left_shoulder', 'right_shoulder'],
   bond_marrow: ['core', 'left_arm', 'right_arm', 'chest'],
+  // --- New Organs & Appendages ---
+  // Health - Gore Maw (organs + appendage)
+  lung_bellows: ['chest', 'core', 'left_shoulder', 'right_shoulder'],
+  heart_pump: ['chest', 'core'],
+  claw_hook: ['left_arm', 'right_arm', 'left_leg', 'right_leg', 'tail'],
+  // Mind - Mind Weaver (brain power organs)
+  cerebral_lobe: ['crown', 'left_horn', 'right_horn', 'left_shoulder', 'right_shoulder'],
+  psionic_node: ['crown', 'left_horn', 'right_horn', 'aura'],
+  temporal_gland: ['crown', 'core', 'left_horn', 'right_horn'],
+  logic_matrix: ['crown', 'chest', 'core', 'left_shoulder', 'right_shoulder'],
+  astral_fiber: ['aura', 'left_wing', 'right_wing', 'crown'],
+  insight_lens: ['crown', 'left_shoulder', 'right_shoulder', 'chest'],
+  // Discipline - Chain Wraith (spine + willpower organ)
+  iron_spine: ['core', 'chest', 'crown', 'left_leg', 'right_leg'],
+  will_node: ['core', 'chest', 'crown'],
+  // Career - Rot Engine (mechanical appendages)
+  turbine_arm: ['left_arm', 'right_arm', 'left_shoulder', 'right_shoulder'],
+  crane_claw: ['left_arm', 'right_arm', 'left_leg', 'right_leg'],
+  // Finance - Gilt Horror (claw + organ)
+  gilded_claw: ['left_arm', 'right_arm', 'left_leg', 'right_leg', 'tail'],
+  treasure_organ: ['core', 'chest', 'left_shoulder', 'right_shoulder'],
+  // Social - Hollow Singer (empathy organ + communication appendage)
+  empathy_lobe: ['crown', 'chest', 'core', 'left_shoulder', 'right_shoulder'],
+  resonance_horn: ['left_horn', 'right_horn', 'crown', 'left_shoulder', 'right_shoulder'],
 };
 
 export const GENE_STAT_KEYS: Record<GeneType, string> = {
@@ -429,4 +453,12 @@ export const GENE_STAT_KEYS: Record<GeneType, string> = {
   mouth: 'Communication', face_mask: 'Charisma', vocal_cord: 'Influence',
   echo_chamber: 'Empathy', harmony_thread: 'Leadership', memory_face: 'Bonds',
   mirror_shard: 'Authenticity', pulse_drum: 'Motivation', bond_marrow: 'Loyalty',
+  // New organs & appendages
+  lung_bellows: 'Breath', heart_pump: 'Circulation', claw_hook: 'Grip',
+  cerebral_lobe: 'Logic', psionic_node: 'Projection', temporal_gland: 'Precognition',
+  logic_matrix: 'Reasoning', astral_fiber: 'Awareness', insight_lens: 'Insight',
+  iron_spine: 'Fortitude', will_node: 'Resolve',
+  turbine_arm: 'Throughput', crane_claw: 'Precision',
+  gilded_claw: 'Acquisition', treasure_organ: 'Accumulation',
+  empathy_lobe: 'Compassion', resonance_horn: 'Broadcast',
 };
