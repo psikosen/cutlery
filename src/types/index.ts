@@ -102,6 +102,7 @@ export interface Creature {
   traits: string[];
   body_slots: Record<string, BodySlotEntry[]>;
   appearance_seed: number;
+  chromosome?: number[]; // Genetic algorithm chromosome for procedural appearance
   created_at: string;
 }
 

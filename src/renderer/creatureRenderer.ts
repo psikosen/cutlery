@@ -2,6 +2,10 @@ import type {
   Creature, BodySlot, BodySlotEntry,
 } from '../types';
 import { DOMAIN_COLORS, EVOLUTION_CONFIGS } from '../types';
+import {
+  deserializeChromosome, extractPhenotype,
+  type CreaturePhenotype,
+} from '../services/evolution';
 
 // ============================================================
 // PROCEDURAL CREATURE RENDERER
@@ -43,6 +47,7 @@ interface RenderContext {
   creature: Creature;
   domainColor: string;
   rand: () => number;
+  phenotype: CreaturePhenotype | null;
 }
 
 // ============================================================
@@ -70,17 +75,18 @@ function getGlossyColor(rand: () => number): string {
 // ============================================================
 
 function drawBaseBody(rc: RenderContext) {
-  const { ctx, w, h, time, creature, domainColor, rand } = rc;
+  const { ctx, w, h, time, creature, domainColor, rand, phenotype } = rc;
   const config = EVOLUTION_CONFIGS[creature.evolution_stage];
   const cx = w / 2;
   const cy = h * 0.45;
 
-  // Scale body based on evolution stage
-  const baseRadius = w * (0.12 + creature.evolution_stage * 0.03);
-  const bodyPoints = config.bodyPoints;
+  // Scale body based on evolution stage, modified by phenotype
+  const radiusMult = phenotype ? phenotype.bodyRadiusMultiplier : 1;
+  const baseRadius = w * (0.12 + creature.evolution_stage * 0.03) * radiusMult;
+  const bodyPoints = phenotype ? phenotype.bodyPointCount : config.bodyPoints;
 
-  // Draw ambient glow
-  if (config.ambientType !== 'none') {
+  // Draw ambient glow (enhanced by phenotype aura)
+  if (config.ambientType !== 'none' || (phenotype && phenotype.auraRadius > 0.3)) {
     drawAmbient(rc, cx, cy, baseRadius);
   }
 
@@ -88,12 +94,17 @@ function drawBaseBody(rc: RenderContext) {
   ctx.save();
   ctx.beginPath();
 
+  const wobbleAmp = phenotype ? phenotype.bodyWobbleAmplitude : 0.08;
+  const vStretch = phenotype ? phenotype.bodyVerticalStretch : 1.3;
+  const asymmetry = phenotype ? phenotype.bodyWobbleAmplitude * 2 : 0;
+
   const points: { x: number; y: number }[] = [];
   for (let i = 0; i < bodyPoints; i++) {
     const angle = (i / bodyPoints) * Math.PI * 2;
-    const wobble = Math.sin(time * 2 + i * 0.7) * baseRadius * 0.08;
-    const verticalStretch = 1 + Math.sin(angle) * 0.3;
-    const r = (baseRadius + wobble) * (0.8 + rand() * 0.4) * verticalStretch;
+    const wobble = Math.sin(time * 2 + i * 0.7) * baseRadius * wobbleAmp;
+    const verticalStretch = 1 + Math.sin(angle) * (vStretch - 1);
+    const asymOffset = Math.sin(angle * 2 + i) * baseRadius * asymmetry;
+    const r = (baseRadius + wobble + asymOffset) * (0.8 + rand() * 0.4) * verticalStretch;
     points.push({
       x: cx + Math.cos(angle) * r,
       y: cy + Math.sin(angle) * r * 0.9,
@@ -133,11 +144,13 @@ function drawBaseBody(rc: RenderContext) {
   ctx.stroke();
   ctx.restore();
 
-  // Draw tentacles
-  drawTentacles(rc, cx, cy, baseRadius, config.tentacles);
+  // Draw tentacles (use phenotype count if available)
+  const tentacleCount = phenotype ? phenotype.tentacleCount : config.tentacles;
+  drawTentacles(rc, cx, cy, baseRadius, tentacleCount);
 
-  // Draw eyes
-  drawEyes(rc, cx, cy, baseRadius, config.eyes);
+  // Draw eyes (use phenotype count if available)
+  const eyeCount = phenotype ? phenotype.eyeCount : config.eyes;
+  drawEyes(rc, cx, cy, baseRadius, eyeCount);
 
   // Draw mouths
   if (config.mouths > 0) {
@@ -1063,19 +1076,166 @@ export function renderCreature(
   const domainColor = DOMAIN_COLORS[creature.domain];
   const rand = seededRandom(creature.appearance_seed);
 
+  // Extract phenotype from chromosome if available
+  let phenotype: CreaturePhenotype | null = null;
+  if (creature.chromosome && creature.chromosome.length > 0) {
+    const chr = deserializeChromosome(creature.chromosome);
+    phenotype = extractPhenotype(chr, creature.evolution_stage);
+  }
+
   // Clear
   ctx.clearRect(0, 0, width, height);
 
-  const rc: RenderContext = { ctx, w: width, h: height, time, creature, domainColor, rand };
+  const rc: RenderContext = { ctx, w: width, h: height, time, creature, domainColor, rand, phenotype };
 
-  // 1. Draw base body
+  // 0. Draw phenotype-driven distortion field
+  if (phenotype && phenotype.distortion > 0.05) {
+    drawDistortionField(rc, width / 2, height * 0.45, phenotype);
+  }
+
+  // 1. Draw base body (enhanced with phenotype)
   drawBaseBody(rc);
 
-  // 2. Draw gene mutations
+  // 2. Draw phenotype-driven spines
+  if (phenotype && phenotype.spines > 0) {
+    drawPhenotypeSpines(rc, width / 2, height * 0.45, phenotype);
+  }
+
+  // 3. Draw phenotype-driven armor plates
+  if (phenotype && phenotype.plates > 0) {
+    drawPhenotypePlates(rc, width / 2, height * 0.45, phenotype);
+  }
+
+  // 4. Draw gene mutations
   for (const [slotName, entries] of Object.entries(creature.body_slots)) {
     if (!entries || entries.length === 0) continue;
     for (let i = 0; i < entries.length; i++) {
       renderGeneMutation(rc, slotName as BodySlot, entries[i], i);
     }
   }
+
+  // 5. Draw phenotype-driven ambient particles
+  if (phenotype && phenotype.ambientParticles > 0) {
+    drawPhenotypeParticles(rc, width / 2, height * 0.45, phenotype);
+  }
+}
+
+// ============================================================
+// PHENOTYPE-DRIVEN RENDERING
+// ============================================================
+
+function drawDistortionField(rc: RenderContext, cx: number, cy: number, pheno: CreaturePhenotype) {
+  const { ctx, time } = rc;
+  const strength = pheno.distortion;
+  const radius = rc.w * 0.3;
+
+  ctx.save();
+  for (let i = 0; i < 3; i++) {
+    const r = radius * (1.2 + i * 0.3);
+    const wobble = Math.sin(time * 0.8 + i * 2.1) * strength * 15;
+    ctx.beginPath();
+    ctx.arc(cx + wobble, cy + wobble * 0.5, r, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(255, 255, 255, ${0.02 * strength})`;
+    ctx.lineWidth = 2 + i;
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawPhenotypeSpines(rc: RenderContext, cx: number, cy: number, pheno: CreaturePhenotype) {
+  const { ctx, time, domainColor, creature } = rc;
+  const baseRadius = rc.w * (0.12 + creature.evolution_stage * 0.03);
+  const spineCount = pheno.spines;
+  const spineScale = pheno.spineScale;
+  const rand = seededRandom(creature.appearance_seed + 7777);
+
+  ctx.save();
+  for (let i = 0; i < spineCount; i++) {
+    const angle = (i / spineCount) * Math.PI * 2 + rand() * 0.3;
+    const len = baseRadius * (0.3 + spineScale * 0.7) + Math.sin(time * 1.5 + i) * 3;
+    const startR = baseRadius * 0.85;
+
+    const sx = cx + Math.cos(angle) * startR;
+    const sy = cy + Math.sin(angle) * startR;
+    const ex = cx + Math.cos(angle) * (startR + len);
+    const ey = cy + Math.sin(angle) * (startR + len);
+
+    ctx.beginPath();
+    ctx.moveTo(sx - Math.sin(angle) * 2, sy + Math.cos(angle) * 2);
+    ctx.lineTo(ex, ey);
+    ctx.lineTo(sx + Math.sin(angle) * 2, sy - Math.cos(angle) * 2);
+    ctx.closePath();
+
+    const grad = ctx.createLinearGradient(sx, sy, ex, ey);
+    grad.addColorStop(0, domainColor + '60');
+    grad.addColorStop(1, domainColor + '10');
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawPhenotypePlates(rc: RenderContext, cx: number, cy: number, pheno: CreaturePhenotype) {
+  const { ctx, creature, domainColor } = rc;
+  const baseRadius = rc.w * (0.12 + creature.evolution_stage * 0.03);
+  const plateCount = pheno.plates;
+  const metallic = pheno.metallic;
+  const rand = seededRandom(creature.appearance_seed + 9999);
+
+  ctx.save();
+  for (let i = 0; i < plateCount; i++) {
+    const angle = (i / plateCount) * Math.PI * 2 + rand() * 0.4;
+    const dist = baseRadius * (0.5 + rand() * 0.4);
+    const px = cx + Math.cos(angle) * dist;
+    const py = cy + Math.sin(angle) * dist;
+    const size = (4 + rand() * 6) * (1 + creature.evolution_stage * 0.2);
+
+    ctx.beginPath();
+    const pts = 5 + Math.floor(rand() * 3);
+    for (let p = 0; p < pts; p++) {
+      const a = (p / pts) * Math.PI * 2;
+      const r = size * (0.7 + rand() * 0.3);
+      const x = px + Math.cos(a) * r;
+      const y = py + Math.sin(a) * r;
+      if (p === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+
+    // Metallic gradient
+    const g = ctx.createLinearGradient(px - size, py - size, px + size, py + size);
+    const base = metallic > 0.5 ? '#c0c0c0' : '#888888';
+    g.addColorStop(0, base + 'cc');
+    g.addColorStop(0.5, '#ffffff40');
+    g.addColorStop(1, base + '88');
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.strokeStyle = domainColor + '30';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawPhenotypeParticles(rc: RenderContext, cx: number, cy: number, pheno: CreaturePhenotype) {
+  const { ctx, time, domainColor, creature } = rc;
+  const baseRadius = rc.w * (0.12 + creature.evolution_stage * 0.03);
+  const count = pheno.ambientParticles;
+  const auraRadius = baseRadius * (1.5 + pheno.auraRadius);
+
+  ctx.save();
+  for (let i = 0; i < count; i++) {
+    const angle = time * 0.3 + (i / count) * Math.PI * 2;
+    const dist = auraRadius * (0.6 + Math.sin(time * 0.7 + i * 1.3) * 0.4);
+    const px = cx + Math.cos(angle) * dist;
+    const py = cy + Math.sin(angle) * dist;
+    const size = 1 + Math.sin(time * 2 + i * 0.7) * 1;
+    const alpha = 0.2 + Math.sin(time + i) * 0.15;
+
+    ctx.beginPath();
+    ctx.arc(px, py, Math.max(0.5, size), 0, Math.PI * 2);
+    ctx.fillStyle = domainColor + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+    ctx.fill();
+  }
+  ctx.restore();
 }

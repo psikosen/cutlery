@@ -275,22 +275,24 @@ export function LoginScreen() {
         {authState.status === 'awaiting_mfa' && renderMFAForm()}
       </div>
 
-      {/* Skip auth option */}
-      <button
-        onClick={skipAuth}
-        style={{
-          marginTop: 24,
-          background: 'none',
-          border: 'none',
-          color: 'rgba(255,255,255,0.2)',
-          fontSize: 12,
-          cursor: 'pointer',
-          fontFamily: 'Rajdhani, sans-serif',
-          padding: '8px 16px',
-        }}
-      >
-        Continue without account (local only)
-      </button>
+      {/* Skip auth option — only visible in dev mode */}
+      {import.meta.env.DEV && (
+        <button
+          onClick={skipAuth}
+          style={{
+            marginTop: 24,
+            background: 'none',
+            border: 'none',
+            color: 'rgba(255,255,255,0.2)',
+            fontSize: 12,
+            cursor: 'pointer',
+            fontFamily: 'Rajdhani, sans-serif',
+            padding: '8px 16px',
+          }}
+        >
+          Continue without account (local only)
+        </button>
+      )}
     </div>
   );
 }

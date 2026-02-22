@@ -8,6 +8,7 @@ export interface AuthUser {
   emailVerified: boolean;
   mfaEnabled: boolean;
   mfaSecret?: string; // TOTP secret (stored encrypted in production)
+  mfaPendingSecret?: string; // Pending TOTP secret during MFA setup (before verification)
   createdAt: string;
   lastLoginAt: string;
 }

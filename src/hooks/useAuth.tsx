@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { AuthState, AuthUser, MFASetupResponse } from '../services/auth/types';
+import type { AuthState, MFASetupResponse } from '../services/auth/types';
 import {
   checkAuth, loginWithEmail, verifyLoginOTP, verifyMFA,
-  enableMFA, disableMFA, logout,
+  enableMFA, confirmEnableMFA, disableMFA, logout,
 } from '../services/auth/authService';
 
 interface AuthContextValue {
@@ -11,7 +11,8 @@ interface AuthContextValue {
   verifyOTP: (email: string, code: string) => Promise<{ success: boolean; message: string }>;
   verifyMFACode: (userId: string, code: string) => Promise<{ success: boolean; message: string }>;
   enableUserMFA: (userId: string) => Promise<{ success: boolean; message: string; setup?: MFASetupResponse }>;
-  disableUserMFA: (userId: string) => Promise<{ success: boolean; message: string }>;
+  confirmUserMFA: (userId: string, code: string) => Promise<{ success: boolean; message: string }>;
+  disableUserMFA: (userId: string, code: string) => Promise<{ success: boolean; message: string }>;
   signOut: () => Promise<void>;
   skipAuth: () => void;
 }
@@ -54,17 +55,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const enableUserMFA = useCallback(async (userId: string) => {
     const result = await enableMFA(userId);
+    // Don't refresh auth state yet — MFA is not enabled until confirmed
+    return result;
+  }, []);
+
+  const confirmUserMFA = useCallback(async (userId: string, code: string) => {
+    const result = await confirmEnableMFA(userId, code);
     if (result.success) {
-      // Refresh auth state
+      // Session was invalidated, user needs to re-login
       const newState = await checkAuth();
       setAuthState(newState);
     }
     return result;
   }, []);
 
-  const disableUserMFA = useCallback(async (userId: string) => {
-    const result = await disableMFA(userId);
+  const disableUserMFA = useCallback(async (userId: string, code: string) => {
+    const result = await disableMFA(userId, code);
     if (result.success) {
+      // Session was invalidated, user needs to re-login
       const newState = await checkAuth();
       setAuthState(newState);
     }
@@ -79,7 +87,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [authState]);
 
   const skipAuth = useCallback(() => {
-    // Allow playing without auth (local-only mode)
+    // Only allow skipping auth in development mode
+    if (!import.meta.env.DEV) {
+      console.warn('Auth skip is not available in production');
+      return;
+    }
+    // Allow playing without auth (local-only mode, dev only)
     setAuthState({
       status: 'authenticated',
       user: {
@@ -106,6 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       verifyOTP: handleVerifyOTP,
       verifyMFACode,
       enableUserMFA,
+      confirmUserMFA,
       disableUserMFA,
       signOut,
       skipAuth,

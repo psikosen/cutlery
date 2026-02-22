@@ -12,6 +12,7 @@ import {
   savePlayer, loadPlayer, saveCreature, loadAllCreatures,
   saveGene, loadAllGenes, saveTasks, loadAllTasks,
   saveAchievements, loadAllAchievements,
+  saveMeta, loadMeta,
 } from '../services/persistence';
 import { generateDefaultTasks } from '../data/defaultTasks';
 import { getDefaultAchievements } from '../data/achievements';
@@ -227,12 +228,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           await saveAchievements(achievements);
         }
 
-        // Check if daily reset needed
-        const today = new Date().toISOString().split('T')[0];
-        const lastReset = tasks[0]?.completed_today ? 'check' : 'ok';
-        // Simple check: if we have a stored last_reset_date
-        // For now, just check the date from meta
-        // We'll handle this in the daily reset logic
+        // Daily reset is handled in the separate useEffect below
 
         dispatch({
           type: 'INIT_COMPLETE',
@@ -249,24 +245,47 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
-  // Daily reset check
+  // Daily reset check — runs on mount and sets up a timer for midnight
   useEffect(() => {
     if (!state.initialized || !state.player) return;
 
-    const checkDailyReset = () => {
-      // Reset daily tasks if needed
-      const today = new Date().toISOString().split('T')[0];
+    const performDailyReset = async () => {
       const s = stateRef.current;
-      // Check if any daily task is marked completed
-      // We store the reset date in player's streak_last_date comparisons
-      const needsReset = s.tasks.some(t => t.type === 'daily' && t.completed_today);
-      if (needsReset) {
-        // Only reset if a new day
-        // We'll just check on app load - tasks completed_today should be cleared
-        // The proper mechanism would be to store the date of last reset
+      const today = new Date().toISOString().split('T')[0];
+
+      // Load the last reset date from meta
+      const lastReset = (await loadMeta('last_daily_reset')) as string | undefined;
+      if (lastReset === today) return; // Already reset today
+
+      // Check if any daily task needs resetting
+      const dailyTasks = s.tasks.filter(t => t.type === 'daily' && t.completed_today);
+      if (dailyTasks.length > 0 || lastReset !== today) {
+        const resetTasks = s.tasks.map(t =>
+          t.type === 'daily' ? { ...t, completed_today: false } : t
+        );
+        await saveTasks(resetTasks);
+        await saveMeta('last_daily_reset', today);
+        dispatch({ type: 'RESET_DAILY_TASKS', tasks: resetTasks });
       }
     };
-    checkDailyReset();
+
+    performDailyReset();
+
+    // Schedule next reset at midnight
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setDate(midnight.getDate() + 1);
+    midnight.setHours(0, 0, 0, 0);
+    const msUntilMidnight = midnight.getTime() - now.getTime();
+
+    const timer = setTimeout(() => {
+      performDailyReset();
+      // After the first midnight trigger, set up a daily interval
+      const interval = setInterval(performDailyReset, 24 * 60 * 60 * 1000);
+      return () => clearInterval(interval);
+    }, msUntilMidnight);
+
+    return () => clearTimeout(timer);
   }, [state.initialized, state.player]);
 
   const initializeGame = useCallback(async (name: string) => {

@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { AuthUser, AuthSession, AuthState } from './types';
 import { requestOTP, verifyOTP } from './otpService';
 import { setupMFA, verifyTOTP } from './mfaService';
+import { encryptSecret, decryptSecret } from './crypto';
 import { openDB } from 'idb';
 
 const AUTH_DB_NAME = 'shadow_system_auth';
@@ -35,9 +36,38 @@ async function getAuthDB() {
 // USER MANAGEMENT
 // ============================================================
 
+/**
+ * Decrypt any encrypted MFA secrets on a user record after loading from DB.
+ */
+async function decryptUserSecrets(user: AuthUser): Promise<AuthUser> {
+  const result = { ...user };
+  if (result.mfaSecret) {
+    try { result.mfaSecret = await decryptSecret(result.mfaSecret); } catch { /* unencrypted legacy */ }
+  }
+  if (result.mfaPendingSecret) {
+    try { result.mfaPendingSecret = await decryptSecret(result.mfaPendingSecret); } catch { /* unencrypted legacy */ }
+  }
+  return result;
+}
+
+/**
+ * Encrypt MFA secrets before writing to DB.
+ */
+async function encryptUserSecrets(user: AuthUser): Promise<AuthUser> {
+  const result = { ...user };
+  if (result.mfaSecret) {
+    result.mfaSecret = await encryptSecret(result.mfaSecret);
+  }
+  if (result.mfaPendingSecret) {
+    result.mfaPendingSecret = await encryptSecret(result.mfaPendingSecret);
+  }
+  return result;
+}
+
 async function findUserByEmail(email: string): Promise<AuthUser | undefined> {
   const db = await getAuthDB();
-  return (await db.getFromIndex('users', 'by_email', email)) as AuthUser | undefined;
+  const raw = (await db.getFromIndex('users', 'by_email', email)) as AuthUser | undefined;
+  return raw ? decryptUserSecrets(raw) : undefined;
 }
 
 async function createUser(email: string): Promise<AuthUser> {
@@ -56,7 +86,14 @@ async function createUser(email: string): Promise<AuthUser> {
 
 async function updateUser(user: AuthUser): Promise<void> {
   const db = await getAuthDB();
-  await db.put('users', user);
+  const encrypted = await encryptUserSecrets(user);
+  await db.put('users', encrypted);
+}
+
+async function loadUser(userId: string): Promise<AuthUser | undefined> {
+  const db = await getAuthDB();
+  const raw = (await db.get('users', userId)) as AuthUser | undefined;
+  return raw ? decryptUserSecrets(raw) : undefined;
 }
 
 // ============================================================
@@ -108,8 +145,7 @@ export async function checkAuth(): Promise<AuthState> {
       return { status: 'unauthenticated' };
     }
 
-    const db = await getAuthDB();
-    const user = (await db.get('users', session.userId)) as AuthUser | undefined;
+    const user = await loadUser(session.userId);
     if (!user) {
       await clearSession(session.userId);
       return { status: 'unauthenticated' };
@@ -187,7 +223,7 @@ export async function verifyMFA(userId: string, code: string): Promise<{
   state?: AuthState;
 }> {
   const db = await getAuthDB();
-  const user = (await db.get('users', userId)) as AuthUser | undefined;
+  const user = await loadUser(userId);
 
   if (!user || !user.mfaSecret) {
     return { success: false, message: 'User not found or MFA not configured' };
@@ -241,8 +277,9 @@ export async function verifyMFA(userId: string, code: string): Promise<{
 }
 
 /**
- * Enable MFA for the current user.
- * Returns the setup data (secret, QR URI, backup codes).
+ * Begin MFA setup for the current user.
+ * Returns the setup data (secret, QR URI, backup codes) but does NOT enable MFA yet.
+ * The user must verify a TOTP code via confirmEnableMFA() to actually enable it.
  */
 export async function enableMFA(userId: string): Promise<{
   success: boolean;
@@ -250,7 +287,7 @@ export async function enableMFA(userId: string): Promise<{
   setup?: { secret: string; qrCodeUrl: string; backupCodes: string[] };
 }> {
   const db = await getAuthDB();
-  const user = (await db.get('users', userId)) as AuthUser | undefined;
+  const user = await loadUser(userId);
 
   if (!user) {
     return { success: false, message: 'User not found' };
@@ -258,36 +295,105 @@ export async function enableMFA(userId: string): Promise<{
 
   const mfaSetup = setupMFA(user.email);
 
-  // Save the secret to the user
-  user.mfaEnabled = true;
-  user.mfaSecret = mfaSetup.secret;
+  // Store the pending secret but do NOT enable MFA yet
+  user.mfaPendingSecret = mfaSetup.secret;
   await updateUser(user);
 
-  // Save backup codes
-  await db.put('backup_codes', { userId, codes: mfaSetup.backupCodes });
+  // Temporarily store backup codes under a pending key
+  await db.put('backup_codes', { userId: `${userId}_pending`, codes: mfaSetup.backupCodes });
 
   return {
     success: true,
-    message: 'MFA enabled successfully',
+    message: 'Scan the QR code, then enter the 6-digit code to confirm',
     setup: mfaSetup,
   };
 }
 
 /**
- * Disable MFA for the current user.
+ * Confirm MFA setup by verifying a TOTP code.
+ * Only after successful verification is MFA actually enabled.
  */
-export async function disableMFA(userId: string): Promise<{ success: boolean; message: string }> {
+export async function confirmEnableMFA(userId: string, code: string): Promise<{
+  success: boolean;
+  message: string;
+}> {
   const db = await getAuthDB();
-  const user = (await db.get('users', userId)) as AuthUser | undefined;
+  const user = await loadUser(userId);
+
+  if (!user || !user.mfaPendingSecret) {
+    return { success: false, message: 'No pending MFA setup found' };
+  }
+
+  // Verify the TOTP code against the pending secret
+  const valid = await verifyTOTP(user.mfaPendingSecret, code);
+  if (!valid) {
+    return { success: false, message: 'Invalid code. Please try again.' };
+  }
+
+  // Verification passed — now enable MFA
+  user.mfaEnabled = true;
+  user.mfaSecret = user.mfaPendingSecret;
+  user.mfaPendingSecret = undefined;
+  await updateUser(user);
+
+  // Move backup codes from pending to active
+  const pendingCodes = (await db.get('backup_codes', `${userId}_pending`)) as { userId: string; codes: string[] } | undefined;
+  if (pendingCodes) {
+    await db.put('backup_codes', { userId, codes: pendingCodes.codes });
+    await db.delete('backup_codes', `${userId}_pending`);
+  }
+
+  // Invalidate existing sessions so user must re-authenticate with MFA
+  await clearSession(userId);
+
+  return { success: true, message: 'MFA enabled successfully' };
+}
+
+/**
+ * Disable MFA for the current user.
+ * Requires a valid TOTP code or backup code for re-authentication.
+ */
+export async function disableMFA(userId: string, code: string): Promise<{ success: boolean; message: string }> {
+  const db = await getAuthDB();
+  const user = await loadUser(userId);
 
   if (!user) {
     return { success: false, message: 'User not found' };
   }
 
+  if (!user.mfaEnabled || !user.mfaSecret) {
+    return { success: false, message: 'MFA is not enabled' };
+  }
+
+  // Require re-authentication: verify TOTP code
+  const valid = await verifyTOTP(user.mfaSecret, code);
+  if (!valid) {
+    // Also check backup codes
+    const backupEntry = (await db.get('backup_codes', userId)) as { userId: string; codes: string[] } | undefined;
+    if (backupEntry) {
+      const normalizedCode = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      const backupIdx = backupEntry.codes.findIndex(
+        bc => bc.replace(/[^A-Z0-9]/g, '') === normalizedCode
+      );
+      if (backupIdx < 0) {
+        return { success: false, message: 'Invalid code. Enter your TOTP or backup code to disable MFA.' };
+      }
+      // Consume the backup code
+      backupEntry.codes.splice(backupIdx, 1);
+      await db.put('backup_codes', backupEntry);
+    } else {
+      return { success: false, message: 'Invalid code. Enter your TOTP code to disable MFA.' };
+    }
+  }
+
   user.mfaEnabled = false;
   user.mfaSecret = undefined;
+  user.mfaPendingSecret = undefined;
   await updateUser(user);
   await db.delete('backup_codes', userId);
+
+  // Invalidate sessions on MFA state change
+  await clearSession(userId);
 
   return { success: true, message: 'MFA disabled' };
 }

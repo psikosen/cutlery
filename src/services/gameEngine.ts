@@ -6,10 +6,14 @@ import type {
 } from '../types';
 import {
   DOMAIN_TO_CREATURE, GENE_STAT_VALUES, GENE_SLOT_AFFINITIES,
-  HUNTER_RANK_THRESHOLDS, GENE_STAT_KEYS,
+  HUNTER_RANK_THRESHOLDS, GENE_STAT_KEYS, EVOLUTION_THRESHOLDS,
   BILATERAL_PAIRS, BODY_SLOTS,
 } from '../types';
 import { getAllTraits } from '../data/traits';
+import {
+  generateInitialChromosome, mutateChromosome,
+  serializeChromosome, deserializeChromosome,
+} from './evolution';
 
 // ============================================================
 // PLAYER
@@ -53,19 +57,25 @@ const CREATURE_DOMAINS: Record<CreatureId, Domain> = {
 };
 
 export function createAllCreatures(playerId: string): Creature[] {
-  return (Object.keys(CREATURE_DOMAINS) as CreatureId[]).map(id => ({
+  return (Object.keys(CREATURE_DOMAINS) as CreatureId[]).map(id => {
+    const seed = Math.floor(Math.random() * 999999);
+    const domain = CREATURE_DOMAINS[id];
+    const chromosome = generateInitialChromosome(seed, domain);
+    return {
     id,
     player_id: playerId,
-    domain: CREATURE_DOMAINS[id],
+    domain,
     evolution_stage: 0 as EvolutionStage,
     total_genes: 0,
     total_power: 0,
     genes: {},
     traits: [],
     body_slots: {},
-    appearance_seed: Math.floor(Math.random() * 999999),
+    appearance_seed: seed,
+    chromosome: serializeChromosome(chromosome),
     created_at: new Date().toISOString(),
-  }));
+  };
+  });
 }
 
 export function calculateEvolutionStage(totalGenes: number): EvolutionStage {
@@ -196,6 +206,18 @@ export function applyGeneToCreature(creature: Creature, gene: Gene): {
     (sum, g) => sum + g.total_stat_value,
     0
   );
+
+  // Mutate chromosome based on new gene
+  const currentChromosome = updated.chromosome
+    ? deserializeChromosome(updated.chromosome)
+    : generateInitialChromosome(updated.appearance_seed, updated.domain);
+  const mutatedChromosome = mutateChromosome(
+    currentChromosome,
+    gene.type,
+    gene.tier,
+    gene.visual_params.procedural_seed,
+  );
+  updated.chromosome = serializeChromosome(mutatedChromosome);
 
   // Check evolution
   const oldStage = updated.evolution_stage;
