@@ -6,6 +6,7 @@
 // This module provides local TOTP generation and verification.
 
 import type { MFASetupResponse } from './types';
+import { constantTimeEqual } from './crypto';
 
 const TOTP_PERIOD = 30; // seconds
 const TOTP_DIGITS = 6;
@@ -150,11 +151,3 @@ function base32Decode(encoded: string): Uint8Array {
   return new Uint8Array(bytes);
 }
 
-function constantTimeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-  return result === 0;
-}

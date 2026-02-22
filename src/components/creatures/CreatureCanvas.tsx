@@ -10,7 +10,7 @@ interface CreatureCanvasProps {
   onClick?: () => void;
 }
 
-export function CreatureCanvas({ creature, width = 300, height = 300, style, onClick }: CreatureCanvasProps) {
+export const CreatureCanvas = React.memo(function CreatureCanvas({ creature, width = 300, height = 300, style, onClick }: CreatureCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animFrameRef = useRef<number>(0);
   const startTimeRef = useRef<number>(Date.now());
@@ -49,4 +49,12 @@ export function CreatureCanvas({ creature, width = 300, height = 300, style, onC
       }}
     />
   );
-}
+}, (prev, next) => {
+  // Only re-render if creature data actually changed
+  return prev.creature.id === next.creature.id
+    && prev.creature.total_genes === next.creature.total_genes
+    && prev.creature.evolution_stage === next.creature.evolution_stage
+    && prev.creature.total_power === next.creature.total_power
+    && prev.width === next.width
+    && prev.height === next.height;
+});

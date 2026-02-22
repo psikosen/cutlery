@@ -9,8 +9,8 @@ import {
 } from '../services/gameEngine';
 import type { TaskCompletionResult } from '../services/gameEngine';
 import {
-  savePlayer, loadPlayer, saveCreature, loadAllCreatures,
-  saveGene, loadAllGenes, saveTasks, loadAllTasks,
+  savePlayer, loadPlayer, saveCreature, saveCreaturesBatch, loadAllCreatures,
+  saveGene, loadAllGenes, deleteGenes, saveTasks, loadAllTasks,
   saveAchievements, loadAllAchievements,
   saveSkills, loadAllSkills as loadAllSkillsDB,
   saveAbilities, loadAllAbilities as loadAllAbilitiesDB,
@@ -288,14 +288,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     midnight.setHours(0, 0, 0, 0);
     const msUntilMidnight = midnight.getTime() - now.getTime();
 
+    let intervalId: ReturnType<typeof setInterval> | null = null;
     const timer = setTimeout(() => {
       performDailyReset();
       // After the first midnight trigger, set up a daily interval
-      const interval = setInterval(performDailyReset, 24 * 60 * 60 * 1000);
-      return () => clearInterval(interval);
+      intervalId = setInterval(performDailyReset, 24 * 60 * 60 * 1000);
     }, msUntilMidnight);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (intervalId !== null) clearInterval(intervalId);
+    };
   }, [state.initialized, state.player]);
 
   const initializeGame = useCallback(async (name: string) => {
@@ -307,7 +310,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const abilities = getAllAbilities();
 
     await savePlayer(player);
-    for (const c of creatures) await saveCreature(c);
+    await saveCreaturesBatch(creatures);
     await saveTasks(tasks);
     await saveAchievements(achievements);
     await saveSkills(skills);
@@ -342,10 +345,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     );
     await saveTasks(updatedTasks);
 
-    // Save all creatures that changed (primary + chain_wraith from streak genes)
+    // Save creatures that actually changed (primary creature + chain_wraith from streak genes)
+    // Use total_genes/total_power comparison instead of reference equality
     for (const c of result.updatedCreatures) {
       const original = s.creatures.find(o => o.id === c.id);
-      if (original !== c) await saveCreature(c);
+      if (!original || original.total_genes !== c.total_genes || original.total_power !== c.total_power || original.evolution_stage !== c.evolution_stage) {
+        await saveCreature(c);
+      }
     }
 
     // Re-check achievements with full state
@@ -374,7 +380,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     await saveCreature(result.creature);
     await saveGene(result.newGene);
-    // Note: we don't delete genes from IDB for simplicity; they're filtered in state
+    await deleteGenes(result.removedGeneIds);
 
     dispatch({
       type: 'GENE_FUSED',

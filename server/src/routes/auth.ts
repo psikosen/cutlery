@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import crypto from 'node:crypto';
@@ -6,11 +7,38 @@ import { authenticator } from 'otplib';
 import pool from '../db/pool.js';
 import { generateToken, requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
 
+// In-memory rate limiter for MFA verification (per userId)
+const MFA_MAX_ATTEMPTS = 5;
+const MFA_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const mfaAttempts = new Map<string, { count: number; firstAttempt: number }>();
+
+function checkMfaRateLimit(userId: string): { allowed: boolean; retryAfterMs?: number } {
+  const now = Date.now();
+  const entry = mfaAttempts.get(userId);
+  if (!entry || (now - entry.firstAttempt > MFA_WINDOW_MS)) {
+    mfaAttempts.set(userId, { count: 1, firstAttempt: now });
+    return { allowed: true };
+  }
+  if (entry.count >= MFA_MAX_ATTEMPTS) {
+    const retryAfterMs = MFA_WINDOW_MS - (now - entry.firstAttempt);
+    return { allowed: false, retryAfterMs };
+  }
+  entry.count++;
+  return { allowed: true };
+}
+
+function resetMfaRateLimit(userId: string): void {
+  mfaAttempts.delete(userId);
+}
+
 const router = Router();
 
 const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 const OTP_MAX_ATTEMPTS = 3;
 const BCRYPT_ROUNDS = 12;
+if (!process.env.MFA_ENCRYPTION_KEY && process.env.NODE_ENV === 'production') {
+  throw new Error('MFA_ENCRYPTION_KEY environment variable is required in production');
+}
 const MFA_ENC_KEY = process.env.MFA_ENCRYPTION_KEY || '0'.repeat(64);
 
 // ============================================================
@@ -216,6 +244,14 @@ router.post('/mfa/verify', requireAuth, async (req: AuthenticatedRequest, res) =
     const { code } = req.body;
     const userId = req.userId!;
 
+    // Rate limit MFA verification attempts
+    const rateCheck = checkMfaRateLimit(userId);
+    if (!rateCheck.allowed) {
+      const retrySeconds = Math.ceil((rateCheck.retryAfterMs || 0) / 1000);
+      res.status(429).json({ success: false, message: `Too many MFA attempts. Try again in ${retrySeconds}s.` });
+      return;
+    }
+
     const { rows: users } = await pool.query(
       'SELECT id, email, mfa_enabled, mfa_secret_encrypted FROM users WHERE id = $1',
       [userId],
@@ -237,11 +273,17 @@ router.post('/mfa/verify', requireAuth, async (req: AuthenticatedRequest, res) =
       const normalizedCode = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
       if (await bcrypt.compare(normalizedCode, backup.code_hash)) {
         await pool.query('UPDATE backup_codes SET used = TRUE WHERE id = $1', [backup.id]);
+        // Invalidate other partial sessions for this user before upgrading
+        await pool.query(
+          'DELETE FROM sessions WHERE user_id = $1 AND mfa_verified = FALSE AND id != $2',
+          [userId, req.sessionId],
+        );
         // Upgrade session
         await pool.query(
           'UPDATE sessions SET mfa_verified = TRUE, expires_at = NOW() + INTERVAL \'7 days\' WHERE id = $1',
           [req.sessionId],
         );
+        resetMfaRateLimit(userId);
         const token = generateToken(userId, req.sessionId!);
         res.json({ success: true, message: 'Backup code accepted', token });
         return;
@@ -255,11 +297,17 @@ router.post('/mfa/verify', requireAuth, async (req: AuthenticatedRequest, res) =
       return;
     }
 
+    // Invalidate other partial sessions for this user before upgrading
+    await pool.query(
+      'DELETE FROM sessions WHERE user_id = $1 AND mfa_verified = FALSE AND id != $2',
+      [userId, req.sessionId],
+    );
     // Upgrade session
     await pool.query(
       'UPDATE sessions SET mfa_verified = TRUE, expires_at = NOW() + INTERVAL \'7 days\' WHERE id = $1',
       [req.sessionId],
     );
+    resetMfaRateLimit(userId);
     const token = generateToken(userId, req.sessionId!);
 
     res.json({
@@ -302,15 +350,26 @@ router.post('/mfa/setup', requireAuth, async (req: AuthenticatedRequest, res) =>
       [`pending:${encryptMFASecret(secret)}`, userId],
     );
 
-    // Store pending backup codes
+    // Store pending backup codes (hash in parallel, then batch insert)
     await pool.query('DELETE FROM backup_codes WHERE user_id = $1', [userId]);
-    for (const code of backupCodes) {
-      const normalized = code.replace(/[^A-Z0-9]/g, '');
-      const hash = await bcrypt.hash(normalized, BCRYPT_ROUNDS);
-      await pool.query(
-        'INSERT INTO backup_codes (user_id, code_hash) VALUES ($1, $2)',
-        [userId, hash],
-      );
+    const hashes = await Promise.all(
+      backupCodes.map(code => bcrypt.hash(code.replace(/[^A-Z0-9]/g, ''), BCRYPT_ROUNDS))
+    );
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      for (const hash of hashes) {
+        await client.query(
+          'INSERT INTO backup_codes (user_id, code_hash) VALUES ($1, $2)',
+          [userId, hash],
+        );
+      }
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
     }
 
     res.json({

@@ -9,6 +9,60 @@ const router = Router();
 router.use(requireAuth);
 
 // ============================================================
+// VALIDATION HELPERS
+// ============================================================
+
+const VALID_HUNTER_RANKS = ['E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS', 'National', 'Monarch'] as const;
+const VALID_DOMAINS = ['health', 'mind', 'discipline', 'career', 'finance', 'social'] as const;
+const VALID_CREATURE_IDS = ['gore_maw', 'mind_weaver', 'chain_wraith', 'rot_engine', 'gilt_horror', 'hollow_singer'] as const;
+const VALID_GENE_TIERS = ['base', 'dense', 'hyper', 'titan'] as const;
+const VALID_TASK_TYPES = ['daily', 'weekly', 'boss', 'emergency'] as const;
+
+function isString(v: unknown): v is string {
+  return typeof v === 'string';
+}
+function isNonNegInt(v: unknown): v is number {
+  return typeof v === 'number' && Number.isInteger(v) && v >= 0;
+}
+function isBoolean(v: unknown): v is boolean {
+  return typeof v === 'boolean';
+}
+
+function validatePlayerBody(body: Record<string, unknown>): string | null {
+  if (!isString(body.name) || body.name.length === 0 || body.name.length > 50) return 'Invalid name';
+  if (!VALID_HUNTER_RANKS.includes(body.hunter_rank as typeof VALID_HUNTER_RANKS[number])) return 'Invalid hunter_rank';
+  if (!isNonNegInt(body.total_power)) return 'Invalid total_power';
+  if (!isNonNegInt(body.gold)) return 'Invalid gold';
+  if (!isNonNegInt(body.streak_current)) return 'Invalid streak_current';
+  if (!isNonNegInt(body.streak_best)) return 'Invalid streak_best';
+  if (!isNonNegInt(body.total_tasks_completed)) return 'Invalid total_tasks_completed';
+  if (!isNonNegInt(body.total_genes_acquired)) return 'Invalid total_genes_acquired';
+  if (!Array.isArray(body.achievements)) return 'Invalid achievements';
+  return null;
+}
+
+function validateCreatureBody(body: Record<string, unknown>): string | null {
+  if (!isNonNegInt(body.evolution_stage) || (body.evolution_stage as number) > 5) return 'Invalid evolution_stage';
+  if (!isNonNegInt(body.total_genes)) return 'Invalid total_genes';
+  if (!isNonNegInt(body.total_power)) return 'Invalid total_power';
+  if (typeof body.genes !== 'object' || body.genes === null) return 'Invalid genes';
+  if (!Array.isArray(body.traits)) return 'Invalid traits';
+  if (typeof body.body_slots !== 'object' || body.body_slots === null) return 'Invalid body_slots';
+  return null;
+}
+
+function validateGeneBody(body: Record<string, unknown>): string | null {
+  if (!isString(body.id)) return 'Invalid id';
+  if (!isString(body.type)) return 'Invalid type';
+  if (!VALID_DOMAINS.includes(body.domain as typeof VALID_DOMAINS[number])) return 'Invalid domain';
+  if (!VALID_GENE_TIERS.includes(body.tier as typeof VALID_GENE_TIERS[number])) return 'Invalid tier';
+  if (!isString(body.stat_key)) return 'Invalid stat_key';
+  if (typeof body.stat_value !== 'number' || body.stat_value < 0) return 'Invalid stat_value';
+  if (typeof body.visual_params !== 'object' || body.visual_params === null) return 'Invalid visual_params';
+  return null;
+}
+
+// ============================================================
 // GET /game/state — Load full game state
 // ============================================================
 router.get('/state', async (req: AuthenticatedRequest, res) => {
@@ -193,6 +247,12 @@ router.put('/player', async (req: AuthenticatedRequest, res) => {
     const userId = req.userId!;
     const player = req.body;
 
+    const validationError = validatePlayerBody(player);
+    if (validationError) {
+      res.status(400).json({ error: validationError });
+      return;
+    }
+
     await pool.query(
       `UPDATE players SET name = $1, hunter_rank = $2, total_power = $3, gold = $4, streak_current = $5, streak_best = $6, streak_last_date = $7, total_tasks_completed = $8, total_genes_acquired = $9, achievements = $10
        WHERE user_id = $11`,
@@ -214,6 +274,17 @@ router.put('/creature/:id', async (req: AuthenticatedRequest, res) => {
     const userId = req.userId!;
     const creatureId = req.params.id;
     const c = req.body;
+
+    if (!VALID_CREATURE_IDS.includes(creatureId as typeof VALID_CREATURE_IDS[number])) {
+      res.status(400).json({ error: 'Invalid creature ID' });
+      return;
+    }
+
+    const creatureError = validateCreatureBody(c);
+    if (creatureError) {
+      res.status(400).json({ error: creatureError });
+      return;
+    }
 
     // Get player ID
     const { rows: players } = await pool.query('SELECT id FROM players WHERE user_id = $1', [userId]);
@@ -243,6 +314,12 @@ router.post('/gene', async (req: AuthenticatedRequest, res) => {
     const userId = req.userId!;
     const g = req.body;
 
+    const geneError = validateGeneBody(g);
+    if (geneError) {
+      res.status(400).json({ error: geneError });
+      return;
+    }
+
     const { rows: players } = await pool.query('SELECT id FROM players WHERE user_id = $1', [userId]);
     if (players.length === 0) {
       res.status(404).json({ error: 'Player not found' });
@@ -270,6 +347,17 @@ router.put('/tasks', async (req: AuthenticatedRequest, res) => {
   try {
     const userId = req.userId!;
     const tasks = req.body.tasks;
+
+    if (!Array.isArray(tasks)) {
+      res.status(400).json({ error: 'tasks must be an array' });
+      return;
+    }
+    for (const t of tasks) {
+      if (!isString(t.id) || !isBoolean(t.completed_today) || !isNonNegInt(t.completed_count)) {
+        res.status(400).json({ error: 'Invalid task entry' });
+        return;
+      }
+    }
 
     const { rows: players } = await pool.query('SELECT id FROM players WHERE user_id = $1', [userId]);
     if (players.length === 0) {
@@ -308,6 +396,17 @@ router.put('/achievements', async (req: AuthenticatedRequest, res) => {
   try {
     const userId = req.userId!;
     const achievements = req.body.achievements;
+
+    if (!Array.isArray(achievements)) {
+      res.status(400).json({ error: 'achievements must be an array' });
+      return;
+    }
+    for (const a of achievements) {
+      if (!isString(a.id) || !isBoolean(a.unlocked)) {
+        res.status(400).json({ error: 'Invalid achievement entry' });
+        return;
+      }
+    }
 
     const { rows: players } = await pool.query('SELECT id FROM players WHERE user_id = $1', [userId]);
     if (players.length === 0) {

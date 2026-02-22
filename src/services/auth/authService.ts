@@ -1,8 +1,18 @@
 // ============================================================
-// AUTH SERVICE — Main authentication orchestrator
+// AUTH SERVICE — Client-side authentication (offline/dev fallback)
 // ============================================================
-// Manages user registration, login via OTP, MFA setup/verification,
-// and session management. Uses IndexedDB for local persistence.
+// This is the CLIENT-SIDE auth system using IndexedDB. It provides
+// offline login capability and local dev mode without a running server.
+//
+// In production, the PRIMARY auth system is the server-side PostgreSQL
+// implementation in server/src/routes/auth.ts. The server issues JWTs,
+// and sessions are validated against the sessions table on each request.
+//
+// This client-side module is used as a FALLBACK when:
+//   1. The server is unreachable (offline PWA mode)
+//   2. Running in local dev without a database
+//
+// The two systems are NOT meant to run simultaneously for the same user.
 
 import { v4 as uuidv4 } from 'uuid';
 import type { AuthUser, AuthSession, AuthState } from './types';
@@ -11,20 +21,35 @@ import { setupMFA, verifyTOTP } from './mfaService';
 import { encryptSecret, decryptSecret } from './crypto';
 import { openDB } from 'idb';
 
+// Hash backup codes with SHA-256 before storing in IndexedDB
+async function hashBackupCode(code: string): Promise<string> {
+  const normalized = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const encoded = new TextEncoder().encode(normalized);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function hashBackupCodes(codes: string[]): Promise<string[]> {
+  return Promise.all(codes.map(hashBackupCode));
+}
+
 const AUTH_DB_NAME = 'shadow_system_auth';
 const AUTH_DB_VERSION = 1;
 const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 async function getAuthDB() {
-  return openDB(AUTH_DB_NAME, AUTH_DB_VERSION, {
+  return openDB(AUTH_DB_NAME, AUTH_DB_VERSION + 1, {
     upgrade(db) {
       if (!db.objectStoreNames.contains('users')) {
         const store = db.createObjectStore('users', { keyPath: 'id' });
         store.createIndex('by_email', 'email', { unique: true });
       }
-      if (!db.objectStoreNames.contains('sessions')) {
-        db.createObjectStore('sessions', { keyPath: 'userId' });
+      // Sessions keyed by unique token, indexed by userId for cleanup
+      if (db.objectStoreNames.contains('sessions')) {
+        db.deleteObjectStore('sessions');
       }
+      const sessionStore = db.createObjectStore('sessions', { keyPath: 'token' });
+      sessionStore.createIndex('by_userId', 'userId', { unique: false });
       if (!db.objectStoreNames.contains('backup_codes')) {
         db.createObjectStore('backup_codes', { keyPath: 'userId' });
       }
@@ -121,13 +146,28 @@ async function createSession(userId: string, mfaVerified: boolean): Promise<Auth
 async function getSession(): Promise<AuthSession | undefined> {
   const db = await getAuthDB();
   const all = await db.getAll('sessions');
-  const valid = all.find((s: any) => s.expiresAt > Date.now()) as AuthSession | undefined;
-  return valid;
+  // Clean up expired sessions, return the first valid one
+  let validSession: AuthSession | undefined;
+  const tx = db.transaction('sessions', 'readwrite');
+  for (const s of all) {
+    if ((s as AuthSession).expiresAt <= Date.now()) {
+      await tx.store.delete((s as AuthSession).token);
+    } else if (!validSession) {
+      validSession = s as AuthSession;
+    }
+  }
+  await tx.done;
+  return validSession;
 }
 
 async function clearSession(userId: string): Promise<void> {
   const db = await getAuthDB();
-  await db.delete('sessions', userId);
+  const sessions = await db.getAllFromIndex('sessions', 'by_userId', userId);
+  const tx = db.transaction('sessions', 'readwrite');
+  for (const s of sessions) {
+    await tx.store.delete(s.token);
+  }
+  await tx.done;
 }
 
 // ============================================================
@@ -229,13 +269,11 @@ export async function verifyMFA(userId: string, code: string): Promise<{
     return { success: false, message: 'User not found or MFA not configured' };
   }
 
-  // Check backup codes first
+  // Check backup codes first (stored as SHA-256 hashes)
   const backupEntry = (await db.get('backup_codes', userId)) as { userId: string; codes: string[] } | undefined;
   if (backupEntry) {
-    const normalizedCode = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    const backupIdx = backupEntry.codes.findIndex(
-      bc => bc.replace(/[^A-Z0-9]/g, '') === normalizedCode
-    );
+    const codeHash = await hashBackupCode(code);
+    const backupIdx = backupEntry.codes.findIndex(bc => bc === codeHash);
     if (backupIdx >= 0) {
       // Use and remove the backup code
       backupEntry.codes.splice(backupIdx, 1);
@@ -299,8 +337,9 @@ export async function enableMFA(userId: string): Promise<{
   user.mfaPendingSecret = mfaSetup.secret;
   await updateUser(user);
 
-  // Temporarily store backup codes under a pending key
-  await db.put('backup_codes', { userId: `${userId}_pending`, codes: mfaSetup.backupCodes });
+  // Hash backup codes before storing in IndexedDB
+  const hashedCodes = await hashBackupCodes(mfaSetup.backupCodes);
+  await db.put('backup_codes', { userId: `${userId}_pending`, codes: hashedCodes });
 
   return {
     success: true,
@@ -368,13 +407,11 @@ export async function disableMFA(userId: string, code: string): Promise<{ succes
   // Require re-authentication: verify TOTP code
   const valid = await verifyTOTP(user.mfaSecret, code);
   if (!valid) {
-    // Also check backup codes
+    // Also check backup codes (stored as SHA-256 hashes)
     const backupEntry = (await db.get('backup_codes', userId)) as { userId: string; codes: string[] } | undefined;
     if (backupEntry) {
-      const normalizedCode = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
-      const backupIdx = backupEntry.codes.findIndex(
-        bc => bc.replace(/[^A-Z0-9]/g, '') === normalizedCode
-      );
+      const codeHash = await hashBackupCode(code);
+      const backupIdx = backupEntry.codes.findIndex(bc => bc === codeHash);
       if (backupIdx < 0) {
         return { success: false, message: 'Invalid code. Enter your TOTP or backup code to disable MFA.' };
       }

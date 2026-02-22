@@ -85,6 +85,25 @@ export async function loadGenesByDomain(domain: string): Promise<Gene[]> {
   return (await db.getAllFromIndex('genes', 'by_domain', domain)) as Gene[];
 }
 
+export async function deleteGenes(geneIds: string[]): Promise<void> {
+  if (geneIds.length === 0) return;
+  const db = await getDB();
+  const tx = db.transaction('genes', 'readwrite');
+  for (const id of geneIds) {
+    await tx.store.delete(id);
+  }
+  await tx.done;
+}
+
+export async function saveCreaturesBatch(creatures: Creature[]): Promise<void> {
+  const db = await getDB();
+  const tx = db.transaction('creatures', 'readwrite');
+  for (const c of creatures) {
+    await tx.store.put(c);
+  }
+  await tx.done;
+}
+
 // --- Tasks ---
 export async function saveTasks(tasks: Task[]): Promise<void> {
   const db = await getDB();

@@ -2,10 +2,13 @@
 // SERVICE WORKER — Shadow System PWA Offline Support
 // ============================================================
 
-const CACHE_NAME = 'shadow-system-v1';
+const CACHE_NAME = 'shadow-system-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png',
 ];
 
 // Install: cache shell assets
@@ -63,15 +66,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For static assets: cache-first, then network
+  // For static assets (JS, CSS, images, fonts): cache-first, then network
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).then((response) => {
-        // Cache successful GET responses for static assets
+        // Cache successful GET responses for static assets and fonts
         if (response.ok && event.request.method === 'GET') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          const shouldCache =
+            url.pathname.startsWith('/assets/') ||
+            url.pathname.endsWith('.js') ||
+            url.pathname.endsWith('.css') ||
+            url.pathname.endsWith('.png') ||
+            url.pathname.endsWith('.json') ||
+            url.hostname === 'fonts.googleapis.com' ||
+            url.hostname === 'fonts.gstatic.com';
+          if (shouldCache) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
         }
         return response;
       });
