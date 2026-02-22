@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useGame } from '../hooks/useGameState';
 import { useAuth } from '../hooks/useAuth';
 import { CreatureCanvas } from '../components/creatures/CreatureCanvas';
 import { MFASetup } from '../components/auth/MFASetup';
+import { RadarChart } from '../components/RadarChart';
 import type { CreatureId, Domain } from '../types';
 import {
   CREATURE_NAMES, EVOLUTION_STAGE_NAMES, DOMAIN_COLORS,
@@ -28,6 +29,17 @@ export function HubScreen() {
 
   const todayCompleted = state.tasks.filter(t => t.completed_today).length;
   const todayTotal = state.tasks.filter(t => t.type === 'daily').length;
+
+  // Domain power data for radar chart
+  const domainPower = useMemo(() => {
+    const power: Record<Domain, number> = {
+      health: 0, mind: 0, discipline: 0, career: 0, finance: 0, social: 0,
+    };
+    for (const c of creatures) {
+      power[c.domain] = c.total_power;
+    }
+    return power;
+  }, [creatures]);
 
   // Recent gene feed (last 5)
   const recentGenes = genes.slice(-5).reverse();
@@ -140,6 +152,11 @@ export function HubScreen() {
             {todayCompleted}/{todayTotal}
           </div>
         </div>
+      </div>
+
+      {/* Domain Power Radar Chart */}
+      <div style={{ marginBottom: 16 }}>
+        <RadarChart data={domainPower} size={280} />
       </div>
 
       {/* Domain Creature Quick-Switch */}

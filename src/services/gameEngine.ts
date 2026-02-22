@@ -634,6 +634,7 @@ export function checkAchievements(
 export interface TaskCompletionResult {
   gene: Gene;
   creature: Creature;
+  updatedCreatures: Creature[];
   player: Player;
   evolved: boolean;
   oldStage: EvolutionStage;
@@ -812,6 +813,7 @@ export function completeTask(
   return {
     gene,
     creature: result.creature,
+    updatedCreatures,
     player: updatedPlayer,
     evolved: result.evolved,
     oldStage: result.oldStage,

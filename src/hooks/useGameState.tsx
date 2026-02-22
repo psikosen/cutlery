@@ -109,26 +109,10 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       const updatedTasks = state.tasks.map(t =>
         t.id === task.id ? { ...t, completed_today: true, completed_count: t.completed_count + 1 } : t
       );
-      const updatedCreatures = state.creatures.map(c => {
-        if (c.id === result.creature.id) return result.creature;
-        return c;
-      });
-      // If streak genes affected chain_wraith separately
-      if (result.streakGenes.length > 0) {
-        const chainIdx = updatedCreatures.findIndex(c => c.id === 'chain_wraith');
-        if (chainIdx >= 0 && result.creature.id !== 'chain_wraith') {
-          // The chain wraith was updated inside the engine — find it
-          const latestChain = state.creatures.find(c => c.id === 'chain_wraith');
-          if (latestChain) {
-            // The engine returns the updated creature — we need to extract it
-            // The updated chain_wraith is embedded in the result indirectly
-          }
-        }
-      }
       return {
         ...state,
         player: result.player,
-        creatures: updatedCreatures,
+        creatures: result.updatedCreatures,
         genes: [...state.genes, result.gene, ...result.streakGenes],
         tasks: updatedTasks,
         achievements: action.achievements,
@@ -358,22 +342,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     );
     await saveTasks(updatedTasks);
 
+    // Save all creatures that changed (primary + chain_wraith from streak genes)
+    for (const c of result.updatedCreatures) {
+      const original = s.creatures.find(o => o.id === c.id);
+      if (original !== c) await saveCreature(c);
+    }
+
     // Re-check achievements with full state
-    const allCreatures = s.creatures.map(c =>
-      c.id === result.creature.id ? result.creature : c
-    );
-    const achResult = checkAchievements(result.player, allCreatures, s.achievements, result.updatedSkills, result.updatedAbilities);
+    const achResult = checkAchievements(result.player, result.updatedCreatures, s.achievements, result.updatedSkills, result.updatedAbilities);
     await saveAchievements(achResult.achievements);
 
     // Save updated skills and abilities
     if (result.updatedSkills) await saveSkills(result.updatedSkills);
     if (result.updatedAbilities) await saveAbilities(result.updatedAbilities);
-
-    // If chain wraith was updated (streak genes), save it too
-    if (result.streakGenes.length > 0 && result.creature.id !== 'chain_wraith') {
-      const chainWraith = allCreatures.find(c => c.id === 'chain_wraith');
-      if (chainWraith) await saveCreature(chainWraith);
-    }
 
     dispatch({
       type: 'TASK_COMPLETED',
