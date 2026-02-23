@@ -18,6 +18,11 @@ const TIER_COLORS: Record<GeneTier, string> = {
   titan: '#FFD700',
 };
 
+function getGeneCatalogNote(geneType: GeneType): string {
+  const statKey = (GENE_STAT_KEYS[geneType] || 'Power').toLowerCase();
+  return `Enhances ${statKey} through adaptive ${geneType.replace(/_/g, ' ')} tissue.`;
+}
+
 export function LabScreen() {
   const { state, fuseGenes } = useGame();
   const [selectedCreature, setSelectedCreature] = useState<CreatureId>('gore_maw');
@@ -59,7 +64,7 @@ export function LabScreen() {
   };
 
   return (
-    <div style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
+    <div className="app-screen lab-screen" style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
       <div style={{ fontSize: 11, letterSpacing: 3, color: '#ff44ff', marginBottom: 16, fontWeight: 600 }}>
         ⌜ MUTATION LAB ⌝
       </div>
@@ -221,8 +226,10 @@ export function LabScreen() {
         <div style={{ marginTop: 16 }}>
           <div style={{ fontSize: 11, letterSpacing: 2, color: color, marginBottom: 8 }}>GENE CATALOG</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
-            {Object.entries(creature.genes).map(([geneType, entry]) => (
-              <div key={geneType} style={{
+            {Object.entries(creature.genes).map(([geneType, entry]) => {
+              const typedGeneType = geneType as GeneType;
+              return (
+                <div key={geneType} style={{
                 padding: '8px',
                 background: 'rgba(10, 15, 30, 0.8)',
                 borderRadius: 6,
@@ -238,8 +245,12 @@ export function LabScreen() {
                 <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>
                   +{entry.total_stat_value}
                 </div>
+                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.45)', lineHeight: 1.3, marginTop: 3 }}>
+                  {getGeneCatalogNote(typedGeneType)}
+                </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

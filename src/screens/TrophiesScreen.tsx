@@ -25,7 +25,7 @@ export function TrophiesScreen() {
   const locked = achievements.filter(a => !a.unlocked);
 
   return (
-    <div style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
+    <div className="app-screen trophies-screen" style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
       <div style={{ fontSize: 11, letterSpacing: 3, color: '#FFD700', marginBottom: 8, fontWeight: 600 }}>
         ⌜ TROPHIES ⌝
       </div>

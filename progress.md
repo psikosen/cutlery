@@ -192,3 +192,98 @@ Original prompt: Ok awesome  take a look at this then work on getting it running
   - Confirmed `assets/` contains renamed monster files `mon15.png` through `mon53.png`.
   - Confirmed `src/screens/QuestScreen.tsx` uses `import.meta.glob('../../assets/mon*.png', ...)` with numeric sort + deterministic hash mapping.
   - Re-ran frontend production build: `npm run build` passes.
+- Quest card image crop alignment fix:
+  - Updated `/src/screens/QuestScreen.tsx` image style to `objectPosition: 'center top'` so monster art anchors from the top instead of middle clipping.
+  - Re-ran `npm run build`; passes.
+- Quest card subtitle readability tweak:
+  - Increased task description text on quest cards in `src/screens/QuestScreen.tsx`.
+  - Updated style to `fontSize: 13`, `fontWeight: 600`, `color: rgba(255,255,255,0.72)`, `lineHeight: 1.45`.
+  - Re-ran `npm run build`; passes.
+- Desktop web-layout pass (UI/UX-focused):
+  - Added responsive desktop shell in `src/App.tsx`:
+    - New desktop breakpoint logic (`>=1024px`) with left sidebar navigation.
+    - Mobile keeps existing bottom tab bar unchanged.
+  - Added desktop layout system in `src/index.css`:
+    - Sidebar/nav styling, content frame spacing, background atmosphere.
+    - Responsive overrides for `.app-screen` containers.
+  - Converted major screens to desktop-aware containers by adding `.app-screen` class hooks:
+    - `HubScreen`, `QuestScreen`, `CreaturesScreen`, `CalendarScreen`, `LabScreen`, `TrophiesScreen`.
+  - Implemented desktop quest card grid:
+    - `QuestScreen` now uses class hooks (`quest-card-grid`, `quest-card`, etc.) and desktop CSS renders multi-column grid.
+  - Implemented desktop Hub grid composition:
+    - Hub sections now map to a 12-column desktop layout (active creature panel + progress/nutrition/account cards arranged in web-friendly grid).
+- Validation (desktop web view):
+  - Frontend build passes: `npm run build`.
+  - Skill Playwright client run: `output/web-game-desktop-layout/` (`errors.json` empty).
+  - Manual desktop viewport validation:
+    - `output/manual-web-desktop-layout-v2/desktop-hub-grid.png`
+    - `output/manual-web-desktop-layout-v2/desktop-quests-grid.png`
+    - `output/manual-web-desktop-layout-v2/errors.json` is empty (`[]`).
+- Online inspiration/research references consulted for this pass:
+  - Laws of UX (Fitts/Hick/Jakob/Consistency patterns): https://lawsofux.com
+  - Responsive web layout guidance: https://web.dev/learn/design
+  - UI inspiration baseline for sidebar + card dashboard composition: https://pixelcave.com/themes/pulse/docs/3.8/
+- Creature tab default behavior update:
+  - Updated `src/screens/CreaturesScreen.tsx` so the Creatures tab now always opens on the Shadow Army list (grid), not a pre-selected creature detail.
+  - Change: initialized `detailCreature` to `null` instead of `state.selectedCreature`.
+- Validation:
+  - Frontend build passes: `npm run build`.
+  - Skill Playwright client run: `output/web-game-creature-default/`.
+  - Targeted runtime check: `output/manual-creatures-default-shadow-army/`
+    - `checks.json`: `shadowArmyHeaderVisible: true`
+    - `errors.json`: `[]`
+    - screenshot confirms default list view.
+- Hub/account navigation update + Hub reorder (current turn):
+  - Added dedicated `account` tab to the app:
+    - `TabId` extended in `src/types/index.ts`.
+    - New screen: `src/screens/AccountScreen.tsx`.
+    - Added menu button in `src/App.tsx` (`🔐 Account`) and route rendering for `AccountScreen`.
+  - Removed `ACCOUNT & SECURITY` section from `HubScreen`.
+  - Moved creature selector (`.hub-domain-switch`) up in Hub to directly follow `DAILY PROGRESS`.
+  - Expanded recent genes from 5 to 10 (`genes.slice(-10).reverse()`).
+  - Ensured `RECENT GENES` always renders under radar chart with an empty-state placeholder when no genes exist.
+- Validation:
+  - Frontend build passes: `npm run build`.
+  - Skill Playwright client run: `output/web-game-account-tab-v2/`.
+  - Targeted runtime checks (mobile viewport): `output/manual-account-tab-hub-order-v2/`
+    - `checks.json` confirms:
+      - `selectorBelowDaily: true`
+      - `geneFeedBelowRadar: true`
+      - `accountInHub: false`
+      - `hasAccountButton: true`
+      - `accountHeaderVisible: true`
+    - `errors.json`: `[]`
+- Mutation Lab gene catalog info text update:
+  - Added short per-gene info sentence in catalog cards in `src/screens/LabScreen.tsx`.
+  - New helper: `getGeneCatalogNote(geneType)` produces one-line description using each gene's mapped stat key.
+  - Gene catalog cards now render this sentence under count/stat totals.
+- Validation:
+  - Frontend build passes: `npm run build`.
+  - Skill Playwright run: `output/web-game-lab-gene-notes/`.
+  - Manual Lab capture: `output/manual-lab-gene-notes/lab-gene-notes-mobile.png`; no runtime errors (`errors.json = []`).
+  - Note visibility check returned false in this run because the test profile had no genes yet (catalog section only appears when genes exist).
+- Hub alignment/spacing fix (current turn):
+  - Resolved large whitespace artifacts in desktop Hub by removing the desktop 12-column section grid for Hub cards.
+  - Updated `src/index.css` so `.app-desktop .hub-screen` uses a clean aligned stacked layout (`display: block`, `max-width: 980px`) with consistent spacing across Hub sections.
+  - Kept requested Hub ordering intact: `Daily Progress` -> creature selector, and `Recent Genes` below radar.
+- Validation:
+  - Frontend build passes: `npm run build`.
+  - Skill Playwright run: `output/web-game-hub-align-fix/`.
+  - Manual visual validation:
+    - `output/manual-hub-align-fix/hub-desktop-aligned.png`
+    - `output/manual-hub-align-fix/hub-mobile-aligned.png`
+    - `output/manual-hub-align-fix/errors.json` is empty (`[]`).
+- Hub layout tweak: moved `WEEKLY PULSE` to the right of creature selector on desktop.
+  - In `src/screens/HubScreen.tsx`, created `hub-selector-pulse-row` containing:
+    - `hub-domain-switch` (selector)
+    - `hub-weekly-pulse` card
+  - Removed duplicate weekly pulse card from nutrition block.
+  - In `src/index.css`, added desktop rule for side-by-side layout:
+    - `.app-desktop .hub-selector-pulse-row { grid-template-columns: minmax(0, 1fr) 340px; }`
+- Validation:
+  - Frontend build passes: `npm run build`.
+  - Skill Playwright run: `output/web-game-pulse-right-selector/`.
+  - Manual screenshots:
+    - `output/manual-pulse-right-selector/hub-desktop-pulse-right.png`
+    - `output/manual-pulse-right-selector/hub-mobile-pulse-stack.png`
+  - `checks.json` confirms `pulseRightOfSelector: true`, `sameRow: true`; `errors.json` is `[]`.

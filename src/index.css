@@ -32,6 +32,224 @@ html, body {
   min-height: 100vh;
 }
 
+.app-shell {
+  position: relative;
+  overflow-x: hidden;
+}
+
+.app-shell::before,
+.app-shell::after {
+  content: '';
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-shell::before {
+  width: 560px;
+  height: 560px;
+  top: -220px;
+  left: -180px;
+  background: radial-gradient(circle, rgba(0, 204, 255, 0.14), transparent 70%);
+}
+
+.app-shell::after {
+  width: 640px;
+  height: 640px;
+  right: -240px;
+  bottom: -300px;
+  background: radial-gradient(circle, rgba(255, 68, 255, 0.12), transparent 72%);
+}
+
+.app-frame-desktop {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 24px;
+  padding: 20px 20px 24px;
+}
+
+.app-sidebar {
+  background: linear-gradient(180deg, rgba(9, 18, 36, 0.9), rgba(7, 12, 30, 0.75));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px 14px;
+  position: sticky;
+  top: 20px;
+  height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+}
+
+.app-sidebar-brand {
+  padding: 6px 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 14px;
+}
+
+.app-sidebar-system {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #00ccff;
+  margin-bottom: 8px;
+}
+
+.app-sidebar-title {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.app-sidebar-subtitle {
+  margin-top: 6px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 1px;
+}
+
+.app-sidebar-nav {
+  display: grid;
+  gap: 8px;
+}
+
+.app-sidebar-tab {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(10, 18, 36, 0.6);
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.app-sidebar-tab:hover {
+  border-color: rgba(0, 204, 255, 0.3);
+  color: rgba(255, 255, 255, 0.86);
+  transform: translateX(2px);
+}
+
+.app-sidebar-tab.active {
+  background: rgba(0, 204, 255, 0.15);
+  border-color: rgba(0, 204, 255, 0.5);
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 204, 255, 0.16) inset;
+}
+
+.app-sidebar-tab-icon {
+  width: 22px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.app-sidebar-tab-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.app-main {
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.app-screen {
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 1024px) {
+  .app-desktop .app-screen {
+    max-width: 1200px !important;
+    margin: 0 !important;
+    padding: 24px 24px 36px !important;
+  }
+
+  .app-desktop .hub-screen {
+    display: block;
+    max-width: 980px !important;
+  }
+
+  .app-desktop .hub-rank-header,
+  .app-desktop .hub-player-bar,
+  .app-desktop .hub-active-card,
+  .app-desktop .hub-daily-progress,
+  .app-desktop .hub-selector-pulse-row,
+  .app-desktop .hub-radar,
+  .app-desktop .hub-nutrition-block,
+  .app-desktop .hub-gene-feed {
+    margin-bottom: 16px !important;
+  }
+
+  .app-desktop .hub-split-row {
+    flex-wrap: wrap;
+  }
+
+  .app-desktop .hub-split-row > div {
+    min-width: 220px;
+    flex: 1 1 220px;
+  }
+
+  .app-desktop .hub-domain-switch {
+    overflow: visible !important;
+    flex-wrap: wrap;
+    gap: 10px !important;
+  }
+
+  .app-desktop .hub-selector-pulse-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: start;
+    gap: 12px !important;
+  }
+
+  .app-desktop .hub-selector-pulse-row .hub-domain-switch,
+  .app-desktop .hub-selector-pulse-row .hub-weekly-pulse {
+    margin-bottom: 0 !important;
+  }
+
+  .app-desktop .quest-filter-row,
+  .app-desktop .quest-domain-row {
+    flex-wrap: wrap;
+    overflow: visible !important;
+    gap: 8px !important;
+  }
+
+  .app-desktop .quest-card-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px !important;
+    align-items: start;
+  }
+
+  .app-desktop .quest-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-desktop .quest-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .app-desktop .quest-card-body button {
+    margin-top: auto;
+  }
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 4px;

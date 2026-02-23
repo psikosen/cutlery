@@ -229,7 +229,7 @@ export interface SpecialAbility {
 
 // --- UI State ---
 
-export type TabId = 'quests' | 'creatures' | 'hub' | 'calendar' | 'lab' | 'trophies';
+export type TabId = 'quests' | 'creatures' | 'hub' | 'calendar' | 'lab' | 'trophies' | 'account';
 
 export interface Notification {
   id: string;

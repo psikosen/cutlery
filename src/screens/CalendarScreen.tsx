@@ -24,7 +24,7 @@ export function CalendarScreen() {
   if (!player) return null;
 
   return (
-    <div style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
+    <div className="app-screen calendar-screen" style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
       <div style={{ fontSize: 11, letterSpacing: 3, color: '#ffd778', marginBottom: 12, fontWeight: 600 }}>
         ⌜ DAILY CALENDAR ⌝
       </div>

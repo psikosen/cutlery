@@ -64,13 +64,13 @@ export function QuestScreen() {
   };
 
   return (
-    <div style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
+    <div className="app-screen quest-screen" style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
       <div style={{ fontSize: 11, letterSpacing: 3, color: '#00ccff', marginBottom: 12, fontWeight: 600 }}>
         ⌜ QUESTS ⌝
       </div>
 
       {/* Type Filter */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 8, overflowX: 'auto' }}>
+      <div className="quest-filter-row" style={{ display: 'flex', gap: 6, marginBottom: 8, overflowX: 'auto' }}>
         {TASK_TYPES.map(tt => (
           <button
             key={tt.value}
@@ -94,7 +94,7 @@ export function QuestScreen() {
       </div>
 
       {/* Domain Filter */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
+      <div className="quest-domain-row" style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
         {DOMAINS.map(d => {
           const c = d.value !== 'all' ? DOMAIN_COLORS[d.value as Domain] : '#888';
           return (
@@ -120,7 +120,7 @@ export function QuestScreen() {
       </div>
 
       {/* Task Cards */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div className="quest-card-grid" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {filteredTasks.map(task => {
           const color = DOMAIN_COLORS[task.domain];
           const isCompleted = task.completed_today;
@@ -131,6 +131,7 @@ export function QuestScreen() {
           return (
             <div
               key={task.id}
+              className="quest-card"
               style={{
                 background: 'rgba(10, 15, 30, 0.9)',
                 borderRadius: 12,
@@ -151,6 +152,7 @@ export function QuestScreen() {
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover',
+                      objectPosition: 'center top',
                       filter: 'brightness(0.72) saturate(1.05)',
                     }}
                   />
@@ -201,7 +203,7 @@ export function QuestScreen() {
               </div>
 
               {/* Card body */}
-              <div style={{ padding: '12px 16px 16px' }}>
+              <div className="quest-card-body" style={{ padding: '12px 16px 16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                   <span style={{ fontSize: 18 }}>{task.icon}</span>
                   <span style={{ fontSize: 16, fontWeight: 700, color: '#fff', flex: 1 }}>
@@ -218,7 +220,15 @@ export function QuestScreen() {
                   </div>
                 </div>
 
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 10, lineHeight: 1.4 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: 'rgba(255,255,255,0.72)',
+                    marginBottom: 10,
+                    lineHeight: 1.45,
+                  }}
+                >
                   {task.description}
                 </div>
 

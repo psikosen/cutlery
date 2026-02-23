@@ -10,7 +10,7 @@ import { getNextEvolutionThreshold } from '../services/gameEngine';
 
 export function CreaturesScreen() {
   const { state } = useGame();
-  const [detailCreature, setDetailCreature] = useState<CreatureId | null>(state.selectedCreature);
+  const [detailCreature, setDetailCreature] = useState<CreatureId | null>(null);
 
   const creature = detailCreature
     ? state.creatures.find(c => c.id === detailCreature)
@@ -21,7 +21,7 @@ export function CreaturesScreen() {
   }
 
   return (
-    <div style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
+    <div className="app-screen creatures-screen" style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
       <div style={{ fontSize: 11, letterSpacing: 3, color: '#aa66ff', marginBottom: 16, fontWeight: 600 }}>
         ⌜ SHADOW ARMY ⌝
       </div>
@@ -112,7 +112,7 @@ function CreatureDetail({ creature, onBack }: { creature: Creature; onBack: () =
   }
 
   return (
-    <div style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
+    <div className="app-screen creature-detail-screen" style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
       {/* Back button */}
       <button
         onClick={onBack}

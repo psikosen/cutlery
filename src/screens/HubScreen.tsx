@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useGame } from '../hooks/useGameState';
-import { useAuth } from '../hooks/useAuth';
 import { CreatureCanvas } from '../components/creatures/CreatureCanvas';
-import { MFASetup } from '../components/auth/MFASetup';
 import { RadarChart } from '../components/RadarChart';
 import type { Domain } from '../types';
 import {
@@ -23,8 +21,6 @@ export function HubScreen() {
     addWatchTimeForCreature,
     claimWeeklyPulseReward,
   } = useGame();
-  const { authState, signOut } = useAuth();
-  const [showMFASetup, setShowMFASetup] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const [feedBurstKey, setFeedBurstKey] = useState(0);
@@ -119,13 +115,13 @@ export function HubScreen() {
     return power;
   }, [creatures]);
 
-  // Recent gene feed (last 5)
-  const recentGenes = genes.slice(-5).reverse();
+  // Recent gene feed (expanded for web/mobile visibility)
+  const recentGenes = genes.slice(-10).reverse();
 
   return (
-    <div style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
+    <div className="app-screen hub-screen" style={{ padding: '16px 16px 80px', maxWidth: 480, margin: '0 auto' }}>
       {/* Hunter Rank Header */}
-      <div style={{
+      <div className="hub-rank-header" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -146,7 +142,7 @@ export function HubScreen() {
       </div>
 
       {/* Player Info Bar */}
-      <div style={{
+      <div className="hub-player-bar" style={{
         display: 'flex',
         gap: 16,
         marginBottom: 16,
@@ -172,7 +168,7 @@ export function HubScreen() {
       </div>
 
       {/* Active Creature Display */}
-      <div style={{
+      <div className="hub-active-card" style={{
         position: 'relative',
         background: 'rgba(10, 15, 30, 0.6)',
         borderRadius: 12,
@@ -366,7 +362,7 @@ export function HubScreen() {
       </div>
 
       {/* Daily Summary */}
-      <div style={{
+      <div className="hub-daily-progress" style={{
         padding: '12px 14px',
         background: 'rgba(10, 15, 30, 0.8)',
         borderRadius: 8,
@@ -391,8 +387,105 @@ export function HubScreen() {
         </div>
       </div>
 
+      <div className="hub-selector-pulse-row" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+        {/* Domain Creature Quick-Switch */}
+        <div className="hub-domain-switch" style={{
+          display: 'flex',
+          gap: 8,
+          overflowX: 'auto',
+          paddingBottom: 8,
+        }}>
+          {DOMAINS.map(domain => {
+            const cId = DOMAIN_TO_CREATURE[domain];
+            const c = creatures.find(cr => cr.id === cId);
+            const isActive = cId === activeCreatureId;
+            return (
+              <div
+                key={domain}
+                onClick={() => selectCreature(cId)}
+                style={{
+                  minWidth: 64,
+                  padding: '8px 6px',
+                  background: isActive ? `${DOMAIN_COLORS[domain]}15` : 'rgba(10, 15, 30, 0.8)',
+                  border: `1px solid ${isActive ? DOMAIN_COLORS[domain] + '60' : 'rgba(255,255,255,0.06)'}`,
+                  borderRadius: 8,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {c && <CreatureCanvas creature={c} width={48} height={48} style={{ margin: '0 auto' }} />}
+                <div style={{ fontSize: 9, color: DOMAIN_COLORS[domain], marginTop: 4, fontWeight: 600 }}>
+                  {domain.slice(0, 6).toUpperCase()}
+                </div>
+                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)' }}>
+                  {c?.total_genes || 0}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="hub-weekly-pulse" style={{
+          background: 'rgba(10, 15, 30, 0.84)',
+          borderRadius: 10,
+          border: '1px solid rgba(0, 204, 255, 0.25)',
+          padding: '12px 12px 10px',
+        }}>
+          <div style={{ fontSize: 11, letterSpacing: 2, color: '#00ccff', marginBottom: 8 }}>WEEKLY PULSE</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <svg width="56" height="56" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r={pulseRingRadius} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="5" />
+              <circle
+                cx="28"
+                cy="28"
+                r={pulseRingRadius}
+                fill="none"
+                stroke="#00ccff"
+                strokeWidth="5"
+                strokeLinecap="round"
+                strokeDasharray={`${pulseRingDash} ${pulseRingCircumference - pulseRingDash}`}
+                transform="rotate(-90 28 28)"
+              />
+              <text x="28" y="32" textAnchor="middle" fill="#fff" style={{ fontSize: 11, fontWeight: 700, fontFamily: 'Rajdhani, sans-serif' }}>
+                {weeklyPulse.servings}/{weeklyPulse.target}
+              </text>
+            </svg>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>
+                Week starts: {weeklyPulse.week_start}
+              </div>
+              <button
+                onClick={async () => {
+                  const result = await claimWeeklyPulseReward();
+                  setPulseStatus(result.message);
+                }}
+                disabled={!canClaimPulseReward}
+                style={{
+                  width: '100%',
+                  padding: '6px 8px',
+                  borderRadius: 7,
+                  border: `1px solid ${canClaimPulseReward ? '#00ccff66' : 'rgba(255,255,255,0.15)'}`,
+                  background: canClaimPulseReward ? 'rgba(0,204,255,0.12)' : 'rgba(255,255,255,0.04)',
+                  color: canClaimPulseReward ? '#fff' : 'rgba(255,255,255,0.35)',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  cursor: canClaimPulseReward ? 'pointer' : 'default',
+                }}
+              >
+                {weeklyPulse.reward_claimed ? 'REWARD CLAIMED' : `CLAIM +${weeklyPulse.reward_gold}G`}
+              </button>
+            </div>
+          </div>
+          {pulseStatus && (
+            <div style={{ marginTop: 6, fontSize: 10, color: 'rgba(255,255,255,0.48)' }}>{pulseStatus}</div>
+          )}
+        </div>
+      </div>
+
       {/* Longevity + Nutrition Systems */}
-      <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div className="hub-nutrition-block" style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{
           background: 'rgba(10, 15, 30, 0.84)',
           borderRadius: 10,
@@ -446,65 +539,7 @@ export function HubScreen() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          <div style={{
-            flex: 1,
-            background: 'rgba(10, 15, 30, 0.84)',
-            borderRadius: 10,
-            border: '1px solid rgba(0, 204, 255, 0.25)',
-            padding: '12px 12px 10px',
-          }}>
-            <div style={{ fontSize: 11, letterSpacing: 2, color: '#00ccff', marginBottom: 8 }}>WEEKLY PULSE</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <svg width="56" height="56" viewBox="0 0 56 56">
-                <circle cx="28" cy="28" r={pulseRingRadius} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="5" />
-                <circle
-                  cx="28"
-                  cy="28"
-                  r={pulseRingRadius}
-                  fill="none"
-                  stroke="#00ccff"
-                  strokeWidth="5"
-                  strokeLinecap="round"
-                  strokeDasharray={`${pulseRingDash} ${pulseRingCircumference - pulseRingDash}`}
-                  transform="rotate(-90 28 28)"
-                />
-                <text x="28" y="32" textAnchor="middle" fill="#fff" style={{ fontSize: 11, fontWeight: 700, fontFamily: 'Rajdhani, sans-serif' }}>
-                  {weeklyPulse.servings}/{weeklyPulse.target}
-                </text>
-              </svg>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>
-                  Week starts: {weeklyPulse.week_start}
-                </div>
-                <button
-                  onClick={async () => {
-                    const result = await claimWeeklyPulseReward();
-                    setPulseStatus(result.message);
-                  }}
-                  disabled={!canClaimPulseReward}
-                  style={{
-                    width: '100%',
-                    padding: '6px 8px',
-                    borderRadius: 7,
-                    border: `1px solid ${canClaimPulseReward ? '#00ccff66' : 'rgba(255,255,255,0.15)'}`,
-                    background: canClaimPulseReward ? 'rgba(0,204,255,0.12)' : 'rgba(255,255,255,0.04)',
-                    color: canClaimPulseReward ? '#fff' : 'rgba(255,255,255,0.35)',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    letterSpacing: 1,
-                    cursor: canClaimPulseReward ? 'pointer' : 'default',
-                  }}
-                >
-                  {weeklyPulse.reward_claimed ? 'REWARD CLAIMED' : `CLAIM +${weeklyPulse.reward_gold}G`}
-                </button>
-              </div>
-            </div>
-            {pulseStatus && (
-              <div style={{ marginTop: 6, fontSize: 10, color: 'rgba(255,255,255,0.48)' }}>{pulseStatus}</div>
-            )}
-          </div>
-
+        <div className="hub-split-row" style={{ display: 'flex', gap: 10 }}>
           <div style={{
             flex: 1,
             background: 'rgba(10, 15, 30, 0.84)',
@@ -540,7 +575,7 @@ export function HubScreen() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div className="hub-split-row" style={{ display: 'flex', gap: 10 }}>
           <div style={{
             flex: 1,
             background: 'rgba(10, 15, 30, 0.84)',
@@ -631,54 +666,15 @@ export function HubScreen() {
       </div>
 
       {/* Domain Power Radar Chart */}
-      <div style={{ marginBottom: 16 }}>
+      <div className="hub-radar" style={{ marginBottom: 16 }}>
         <RadarChart data={domainPower} size={280} />
       </div>
 
-      {/* Domain Creature Quick-Switch */}
-      <div style={{
-        display: 'flex',
-        gap: 8,
-        overflowX: 'auto',
-        paddingBottom: 8,
-        marginBottom: 16,
-      }}>
-        {DOMAINS.map(domain => {
-          const cId = DOMAIN_TO_CREATURE[domain];
-          const c = creatures.find(cr => cr.id === cId);
-          const isActive = cId === activeCreatureId;
-          return (
-            <div
-              key={domain}
-              onClick={() => selectCreature(cId)}
-              style={{
-                minWidth: 64,
-                padding: '8px 6px',
-                background: isActive ? `${DOMAIN_COLORS[domain]}15` : 'rgba(10, 15, 30, 0.8)',
-                border: `1px solid ${isActive ? DOMAIN_COLORS[domain] + '60' : 'rgba(255,255,255,0.06)'}`,
-                borderRadius: 8,
-                textAlign: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              {c && <CreatureCanvas creature={c} width={48} height={48} style={{ margin: '0 auto' }} />}
-              <div style={{ fontSize: 9, color: DOMAIN_COLORS[domain], marginTop: 4, fontWeight: 600 }}>
-                {domain.slice(0, 6).toUpperCase()}
-              </div>
-              <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)' }}>
-                {c?.total_genes || 0}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
       {/* Gene Feed */}
-      {recentGenes.length > 0 && (
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 11, letterSpacing: 2, color: '#aa66ff', marginBottom: 8 }}>RECENT GENES</div>
-          {recentGenes.map(gene => (
+      <div className="hub-gene-feed" style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: '#aa66ff', marginBottom: 8 }}>RECENT GENES</div>
+        {recentGenes.length > 0 ? (
+          recentGenes.map(gene => (
             <div key={gene.id} style={{
               display: 'flex',
               alignItems: 'center',
@@ -708,100 +704,20 @@ export function HubScreen() {
                 {gene.domain}
               </div>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* Account & Security */}
-      <div style={{
-        background: 'rgba(10, 15, 30, 0.8)',
-        borderRadius: 8,
-        padding: '12px 14px',
-        border: '1px solid rgba(255,255,255,0.06)',
-      }}>
-        <div style={{ fontSize: 11, letterSpacing: 2, color: 'rgba(255,255,255,0.3)', marginBottom: 10 }}>ACCOUNT & SECURITY</div>
-
-        {authState.status === 'authenticated' && (
-          <>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '8px 0',
-              borderBottom: '1px solid rgba(255,255,255,0.04)',
-            }}>
-              <div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Email</div>
-                <div style={{ fontSize: 13, color: '#fff' }}>{authState.user.email}</div>
-              </div>
-              {authState.user.emailVerified && (
-                <div style={{ fontSize: 10, color: '#44dd44', padding: '2px 6px', border: '1px solid #44dd4440', borderRadius: 4 }}>
-                  Verified
-                </div>
-              )}
-            </div>
-
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '10px 0',
-              borderBottom: '1px solid rgba(255,255,255,0.04)',
-            }}>
-              <div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>MFA (Authenticator)</div>
-                <div style={{ fontSize: 13, color: authState.user.mfaEnabled ? '#44dd44' : 'rgba(255,255,255,0.4)' }}>
-                  {authState.user.mfaEnabled ? 'Enabled' : 'Disabled'}
-                </div>
-              </div>
-              <button
-                onClick={() => setShowMFASetup(true)}
-                style={{
-                  padding: '6px 12px',
-                  background: authState.user.mfaEnabled ? 'rgba(255,255,255,0.05)' : '#aa66ff15',
-                  border: `1px solid ${authState.user.mfaEnabled ? 'rgba(255,255,255,0.1)' : '#aa66ff40'}`,
-                  borderRadius: 4,
-                  color: authState.user.mfaEnabled ? 'rgba(255,255,255,0.5)' : '#aa66ff',
-                  fontSize: 11,
-                  cursor: 'pointer',
-                  fontFamily: 'Rajdhani, sans-serif',
-                  fontWeight: 600,
-                }}
-              >
-                {authState.user.mfaEnabled ? 'Manage' : 'Enable'}
-              </button>
-            </div>
-
-            <button
-              onClick={signOut}
-              style={{
-                width: '100%',
-                marginTop: 10,
-                padding: '8px 0',
-                background: 'rgba(255, 50, 50, 0.08)',
-                border: '1px solid rgba(255, 50, 50, 0.2)',
-                borderRadius: 4,
-                color: '#ff6666',
-                fontSize: 12,
-                cursor: 'pointer',
-                fontFamily: 'Rajdhani, sans-serif',
-                fontWeight: 600,
-              }}
-            >
-              Sign Out
-            </button>
-          </>
+          ))
+        ) : (
+          <div style={{
+            padding: '10px 12px',
+            background: 'rgba(10, 15, 30, 0.6)',
+            borderRadius: 6,
+            border: '1px solid rgba(255,255,255,0.08)',
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.45)',
+          }}>
+            No genes acquired yet. Complete quests to start mutation logs.
+          </div>
         )}
       </div>
-
-      {/* MFA Setup Modal */}
-      {showMFASetup && authState.status === 'authenticated' && (
-        <MFASetup
-          userId={authState.user.id}
-          mfaEnabled={authState.user.mfaEnabled}
-          onClose={() => setShowMFASetup(false)}
-        />
-      )}
     </div>
   );
 }

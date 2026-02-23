@@ -1,0 +1,17 @@
+{
+  "hasDaily": true,
+  "hasSelector": true,
+  "hasRadar": true,
+  "hasGeneFeed": true,
+  "selectorBelowDaily": true,
+  "geneFeedBelowRadar": true,
+  "accountInHub": false,
+  "tops": {
+    "daily": 704.125,
+    "selector": 785.703125,
+    "radar": 1392.21875,
+    "geneFeed": 1733.609375
+  },
+  "hasAccountButton": true,
+  "accountHeaderVisible": true
+}
