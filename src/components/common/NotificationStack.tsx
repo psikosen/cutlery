@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Notification } from '../../types';
 import { SystemNotification } from './SystemNotification';
 

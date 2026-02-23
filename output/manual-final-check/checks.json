@@ -1,0 +1,8 @@
+{
+  "hasLongevityCard": true,
+  "hasWeeklyPulseCard": true,
+  "hasRitualStreakCard": true,
+  "hasFeedButton": true,
+  "hasClaimButton": true,
+  "claimButtonEnabled": false
+}

@@ -27,30 +27,86 @@ export function renderGeneMutation(rc: RenderContext, slot: BodySlot, entry: Bod
     case 'synapse_arc': drawSynapseArc(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'memory_sac': drawMemorySac(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'psychic_crown': drawPsychicCrown(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'cortex_fold': drawCerebralLobe(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'dream_gland': drawAstralFiber(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'third_eye': drawInsightLens(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'chain_link': drawChainLink(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'iron_plate': drawIronPlate(ctx, x + offset, y + offset, tierScale, time, rand); break;
     case 'lock_core': drawLockCore(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'ember_node': drawEmberNode(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'spectral_layer': drawSpectralLayer(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'wardens_eye': drawWardensEye(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'anchor_bone': drawIronSpine(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'scar_tissue': drawBonePlate(ctx, x + offset, y + offset, tierScale, time, rand); break;
+    case 'ritual_glyph': drawRitualGlyph(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'gear_assembly': drawGearAssembly(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'cable_nerve': drawCableNerve(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'piston_limb': drawPistonLimb(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'furnace_core': drawFurnaceCore(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'blueprint_glyph': drawBlueprintGlyph(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'exhaust_vent': drawExhaustVent(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'spark_plug': drawSparkPlug(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'conduit_wire': drawConduitWire(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'output_valve': drawOutputValve(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'gold_scale': drawGoldScale(ctx, x + offset, y + offset, tierScale, time, rand); break;
     case 'coin_disc': drawCoinDisc(ctx, x + offset, y + offset, tierScale, time, rand); break;
     case 'vault_door': drawVaultDoor(ctx, x + offset, y + offset, tierScale, time, rand); break;
     case 'investment_tendril': drawInvestmentTendril(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'ledger_glyph': drawLedgerGlyph(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'crown_jewel': drawCrownJewel(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'debt_fang': drawToothRow(ctx, x + offset, y + offset, tierScale, time, rand); break;
+    case 'compound_crystal': drawCompoundCrystal(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'trade_tendril': drawTradeTendril(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'mouth': drawMouthMutation(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'face_mask': drawFaceMask(ctx, x + offset, y + offset, tierScale, time, rand); break;
     case 'vocal_cord': drawVocalCord(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'echo_chamber': drawEchoChamber(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'harmony_thread': drawHarmonyThread(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'memory_face': drawMemoryFace(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'mirror_shard': drawMirrorShard(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'pulse_drum': drawPulseDrum(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    case 'bond_marrow': drawBondMarrow(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
+    // --- Research-inspired expansions (40 genes) ---
+    case 'actn3_fiber': drawMuscleFiber(ctx, x + offset, y + offset, tierScale, time, '#ff6644', rand); break;
+    case 'mstn_inhibitor': drawBonePlate(ctx, x + offset, y + offset, tierScale, time, rand); break;
+    case 'col1a1_weave': drawTendonWhip(ctx, x + offset, y + offset, tierScale, time, '#d8c39a', rand); break;
+    case 'vegf_capillary': drawVeinNetwork(ctx, x + offset, y + offset, tierScale, time, '#ff3344', rand); break;
+    case 'ppargc1a_core': drawHeartPump(ctx, x + offset, y + offset, tierScale, time, '#ff7744', rand); break;
+    case 'igf1_driver': drawOrganSac(ctx, x + offset, y + offset, tierScale, time, '#ff8866', rand); break;
+    case 'nos3_flow': drawVeinNetwork(ctx, x + offset, y + offset, tierScale, time, '#66b3ff', rand); break;
+    case 'bdnf_burst': drawPsionicNode(ctx, x + offset, y + offset, tierScale, time, '#aa66ff', rand); break;
+    case 'comt_filter': drawLogicMatrix(ctx, x + offset, y + offset, tierScale, time, '#8899ff', rand); break;
+    case 'grin2b_gate': drawInsightLens(ctx, x + offset, y + offset, tierScale, time, '#66ddff', rand); break;
+    case 'slc6a4_tide': drawMemorySac(ctx, x + offset, y + offset, tierScale, time, '#bb77ff', rand); break;
+    case 'foxp2_phrase': drawResonanceHorn(ctx, x + offset, y + offset, tierScale, time, '#ff88c0', rand); break;
+    case 'wwc1_trace': drawTemporalGland(ctx, x + offset, y + offset, tierScale, time, '#9f8bff', rand); break;
+    case 'chrna4_focus': drawWardensEye(ctx, x + offset, y + offset, tierScale, time, '#66ccff', rand); break;
+    case 'clock_anchor': drawLockCore(ctx, x + offset, y + offset, tierScale, time, '#00ccff', rand); break;
+    case 'bmal1_cycle': drawRitualGlyph(ctx, x + offset, y + offset, tierScale, time, '#44ddff', rand); break;
+    case 'per3_stride': drawChainLink(ctx, x + offset, y + offset, tierScale, time, '#00bbee', rand); break;
+    case 'cry1_quiet': drawSpectralLayer(ctx, x + offset, y + offset, tierScale, time, '#7ac4ff', rand); break;
+    case 'adora2a_brake': drawIronPlate(ctx, x + offset, y + offset, tierScale, time, rand); break;
+    case 'nr3c1_steel': drawIronSpine(ctx, x + offset, y + offset, tierScale, time, '#00ccff', rand); break;
+    case 'creb1_forge': drawBlueprintGlyph(ctx, x + offset, y + offset, tierScale, time, '#44dd44', rand); break;
+    case 'mtor_engine': drawFurnaceCore(ctx, x + offset, y + offset, tierScale, time, '#66ff66', rand); break;
+    case 'ampk_switch': drawConduitWire(ctx, x + offset, y + offset, tierScale, time, '#55ee88', rand); break;
+    case 'nrf2_shield': drawIronPlate(ctx, x + offset, y + offset, tierScale, time, rand); break;
+    case 'hif1a_drive': drawExhaustVent(ctx, x + offset, y + offset, tierScale, time, '#66ff99', rand); break;
+    case 'klotho_thread': drawHarmonyThread(ctx, x + offset, y + offset, tierScale, time, '#9cff9c', rand); break;
+    case 'sirt1_focus': drawSparkPlug(ctx, x + offset, y + offset, tierScale, time, '#77ffcc', rand); break;
+    case 'apoe_vault': drawVaultDoor(ctx, x + offset, y + offset, tierScale, time, rand); break;
+    case 'lpl_stream': drawTradeTendril(ctx, x + offset, y + offset, tierScale, time, '#ffaa00', rand); break;
+    case 'abca1_cache': drawCoinDisc(ctx, x + offset, y + offset, tierScale, time, rand); break;
+    case 'cpt1_furnace': drawTreasureOrgan(ctx, x + offset, y + offset, tierScale, time, '#ffd166', rand); break;
+    case 'ppara_yield': drawCompoundCrystal(ctx, x + offset, y + offset, tierScale, time, '#ffcc66', rand); break;
+    case 'hmgcr_mint': drawGoldScale(ctx, x + offset, y + offset, tierScale, time, rand); break;
+    case 'oxtr_bridge': drawBondMarrow(ctx, x + offset, y + offset, tierScale, time, '#ff7aa8', rand); break;
+    case 'avpr1a_signal': drawVocalCord(ctx, x + offset, y + offset, tierScale, time, '#ff6b9d', rand); break;
+    case 'cd38_resonance': drawPulseDrum(ctx, x + offset, y + offset, tierScale, time, '#ff77b5', rand); break;
+    case 'shank3_mesh': drawMemoryFace(ctx, x + offset, y + offset, tierScale, time, '#ff8dc8', rand); break;
+    case 'cntnap2_dialogue': drawResonanceHorn(ctx, x + offset, y + offset, tierScale, time, '#ff95cf', rand); break;
+    case 'grin2a_sync': drawHarmonyThread(ctx, x + offset, y + offset, tierScale, time, '#ffa7d8', rand); break;
+    case 'gabra2_calm': drawEchoChamber(ctx, x + offset, y + offset, tierScale, time, '#ffb2df', rand); break;
     // --- New Organs & Appendages ---
     case 'lung_bellows': drawLungBellows(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
     case 'heart_pump': drawHeartPump(ctx, x + offset, y + offset, tierScale, time, domainColor, rand); break;
@@ -92,7 +148,7 @@ function drawMuscleFiber(ctx: CanvasRenderingContext2D, x: number, y: number, sc
   ctx.restore();
 }
 
-function drawBonePlate(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, rand: () => number) {
+function drawBonePlate(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, _time: number, rand: () => number) {
   const size = (7 + rand() * 3) * scale;
   ctx.save();
   ctx.beginPath();
@@ -125,7 +181,7 @@ function drawBonePlate(ctx: CanvasRenderingContext2D, x: number, y: number, scal
   ctx.restore();
 }
 
-function drawVeinNetwork(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawVeinNetwork(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   ctx.save();
   const branches = 3 + Math.floor(rand() * 3);
   for (let b = 0; b < branches; b++) {
@@ -148,7 +204,7 @@ function drawVeinNetwork(ctx: CanvasRenderingContext2D, x: number, y: number, sc
   ctx.restore();
 }
 
-function drawTendonWhip(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawTendonWhip(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   const len = (15 + rand() * 10) * scale;
   const angle = rand() * Math.PI * 2;
   ctx.save();
@@ -187,7 +243,7 @@ function drawOrganSac(ctx: CanvasRenderingContext2D, x: number, y: number, scale
   ctx.restore();
 }
 
-function drawToothRow(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, rand: () => number) {
+function drawToothRow(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, _time: number, rand: () => number) {
   const count = 3 + Math.floor(rand() * 4);
   ctx.save();
   for (let i = 0; i < count; i++) {
@@ -258,7 +314,7 @@ function drawNeuralTendril(ctx: CanvasRenderingContext2D, x: number, y: number, 
   ctx.restore();
 }
 
-function drawSkullGraft(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, rand: () => number) {
+function drawSkullGraft(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, _time: number, rand: () => number) {
   const size = (5 + rand() * 3) * scale;
   ctx.save();
   // Skull shape
@@ -280,7 +336,7 @@ function drawSkullGraft(ctx: CanvasRenderingContext2D, x: number, y: number, sca
   ctx.restore();
 }
 
-function drawSynapseArc(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawSynapseArc(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, _time: number, color: string, rand: () => number) {
   ctx.save();
   const len = (8 + rand() * 6) * scale;
   const angle = rand() * Math.PI * 2;
@@ -330,7 +386,7 @@ function drawPsychicCrown(ctx: CanvasRenderingContext2D, x: number, y: number, s
   ctx.restore();
 }
 
-function drawChainLink(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawChainLink(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, _time: number, color: string, rand: () => number) {
   const size = (4 + rand() * 2) * scale;
   ctx.save();
   ctx.beginPath();
@@ -345,7 +401,7 @@ function drawChainLink(ctx: CanvasRenderingContext2D, x: number, y: number, scal
   ctx.restore();
 }
 
-function drawIronPlate(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, rand: () => number) {
+function drawIronPlate(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, _time: number, rand: () => number) {
   const size = (6 + rand() * 4) * scale;
   ctx.save();
   ctx.beginPath();
@@ -368,7 +424,7 @@ function drawIronPlate(ctx: CanvasRenderingContext2D, x: number, y: number, scal
   ctx.restore();
 }
 
-function drawLockCore(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawLockCore(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, _time: number, color: string, rand: () => number) {
   const size = (5 + rand() * 3) * scale;
   ctx.save();
   // Lock body
@@ -393,7 +449,7 @@ function drawLockCore(ctx: CanvasRenderingContext2D, x: number, y: number, scale
   ctx.restore();
 }
 
-function drawEmberNode(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawEmberNode(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   const size = (3 + rand() * 2) * scale;
   const pulse = 0.5 + Math.sin(time * 4 + rand() * 6) * 0.5;
   ctx.save();
@@ -425,7 +481,7 @@ function drawWardensEye(ctx: CanvasRenderingContext2D, x: number, y: number, sca
   drawEyeCluster(ctx, x, y, scale * 0.8, time, color, rand);
 }
 
-function drawGearAssembly(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawGearAssembly(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   const size = (5 + rand() * 3) * scale;
   const teeth = 6 + Math.floor(rand() * 4);
   const rotation = time * 0.5;
@@ -455,11 +511,11 @@ function drawGearAssembly(ctx: CanvasRenderingContext2D, x: number, y: number, s
   ctx.restore();
 }
 
-function drawCableNerve(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawCableNerve(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   drawNeuralTendril(ctx, x, y, scale, time, '#44dd44', rand);
 }
 
-function drawPistonLimb(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawPistonLimb(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   const size = (8 + rand() * 4) * scale;
   const extension = Math.sin(time * 3 + rand() * 5) * size * 0.2;
   ctx.save();
@@ -479,7 +535,7 @@ function drawPistonLimb(ctx: CanvasRenderingContext2D, x: number, y: number, sca
   ctx.restore();
 }
 
-function drawFurnaceCore(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawFurnaceCore(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   const size = (6 + rand() * 3) * scale;
   const pulse = 0.5 + Math.sin(time * 3) * 0.3;
   ctx.save();
@@ -496,7 +552,7 @@ function drawFurnaceCore(ctx: CanvasRenderingContext2D, x: number, y: number, sc
   ctx.restore();
 }
 
-function drawBlueprintGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawBlueprintGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, _time: number, color: string, rand: () => number) {
   const size = (6 + rand() * 3) * scale;
   ctx.save();
   ctx.strokeStyle = color + '60';
@@ -519,7 +575,7 @@ function drawBlueprintGlyph(ctx: CanvasRenderingContext2D, x: number, y: number,
   ctx.restore();
 }
 
-function drawExhaustVent(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawExhaustVent(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   const size = (5 + rand() * 3) * scale;
   ctx.save();
   // Vent grills
@@ -543,7 +599,7 @@ function drawExhaustVent(ctx: CanvasRenderingContext2D, x: number, y: number, sc
   ctx.restore();
 }
 
-function drawGoldScale(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, rand: () => number) {
+function drawGoldScale(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, _time: number, rand: () => number) {
   const size = (5 + rand() * 3) * scale;
   ctx.save();
   ctx.beginPath();
@@ -562,7 +618,7 @@ function drawGoldScale(ctx: CanvasRenderingContext2D, x: number, y: number, scal
   ctx.restore();
 }
 
-function drawCoinDisc(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, rand: () => number) {
+function drawCoinDisc(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, _time: number, rand: () => number) {
   const size = (4 + rand() * 2) * scale;
   ctx.save();
   ctx.beginPath();
@@ -588,15 +644,15 @@ function drawVaultDoor(ctx: CanvasRenderingContext2D, x: number, y: number, scal
   drawIronPlate(ctx, x, y, scale * 1.2, time, rand);
 }
 
-function drawInvestmentTendril(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawInvestmentTendril(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   drawTendonWhip(ctx, x, y, scale, time, '#FFD700', rand);
 }
 
-function drawLedgerGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawLedgerGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   drawBlueprintGlyph(ctx, x, y, scale, time, '#FFD700', rand);
 }
 
-function drawCrownJewel(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawCrownJewel(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   const size = (4 + rand() * 3) * scale;
   const pulse = 0.8 + Math.sin(time * 2) * 0.2;
   ctx.save();
@@ -632,7 +688,7 @@ function drawMouthMutation(ctx: CanvasRenderingContext2D, x: number, y: number, 
   ctx.restore();
 }
 
-function drawFaceMask(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, rand: () => number) {
+function drawFaceMask(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, _time: number, rand: () => number) {
   const size = (6 + rand() * 3) * scale;
   ctx.save();
   ctx.beginPath();
@@ -689,7 +745,7 @@ function drawHarmonyThread(ctx: CanvasRenderingContext2D, x: number, y: number, 
   drawNeuralTendril(ctx, x, y, scale, time, color, rand);
 }
 
-function drawMemoryFace(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawMemoryFace(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   drawFaceMask(ctx, x, y, scale * 0.8, time, rand);
 }
 
@@ -735,7 +791,7 @@ function drawLungBellows(ctx: CanvasRenderingContext2D, x: number, y: number, sc
   ctx.restore();
 }
 
-function drawHeartPump(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawHeartPump(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   const size = (5 + rand() * 3) * scale;
   const beat = 1 + Math.abs(Math.sin(time * 3.5 + rand() * 4)) * 0.2;
   ctx.save();
@@ -767,7 +823,7 @@ function drawHeartPump(ctx: CanvasRenderingContext2D, x: number, y: number, scal
   ctx.restore();
 }
 
-function drawClawHook(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawClawHook(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   const size = (7 + rand() * 4) * scale;
   const grip = Math.sin(time * 2 + rand() * 5) * 0.15;
   ctx.save();
@@ -1018,7 +1074,7 @@ function drawInsightLens(ctx: CanvasRenderingContext2D, x: number, y: number, sc
 
 // --- Discipline Organs & Appendages ---
 
-function drawIronSpine(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawIronSpine(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   const len = (10 + rand() * 5) * scale;
   const segments = 5 + Math.floor(rand() * 3);
   ctx.save();
@@ -1164,7 +1220,7 @@ function drawCraneClaw(ctx: CanvasRenderingContext2D, x: number, y: number, scal
 
 // --- Finance Organs & Appendages ---
 
-function drawGildedClaw(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawGildedClaw(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   const size = (7 + rand() * 4) * scale;
   const grip = Math.sin(time * 1.8 + rand() * 5) * 0.12;
   ctx.save();
@@ -1197,7 +1253,7 @@ function drawGildedClaw(ctx: CanvasRenderingContext2D, x: number, y: number, sca
   ctx.restore();
 }
 
-function drawTreasureOrgan(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+function drawTreasureOrgan(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, _color: string, rand: () => number) {
   const size = (6 + rand() * 3) * scale;
   const pulse = 1 + Math.sin(time * 1.5 + rand() * 4) * 0.15;
   ctx.save();
@@ -1314,4 +1370,39 @@ function drawResonanceHorn(ctx: CanvasRenderingContext2D, x: number, y: number, 
   }
   ctx.restore();
 }
+
+function drawRitualGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  drawBlueprintGlyph(ctx, x, y, scale, time, color, rand);
+}
+
+function drawSparkPlug(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  drawEmberNode(ctx, x, y, scale, time, color, rand);
+}
+
+function drawConduitWire(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  drawCableNerve(ctx, x, y, scale, time, color, rand);
+}
+
+function drawOutputValve(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  drawExhaustVent(ctx, x, y, scale, time, color, rand);
+}
+
+function drawCompoundCrystal(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  drawCrownJewel(ctx, x, y, scale, time, color, rand);
+}
+
+function drawTradeTendril(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  drawInvestmentTendril(ctx, x, y, scale, time, color, rand);
+}
+
+function drawMirrorShard(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  drawCrownJewel(ctx, x, y, scale, time, color, rand);
+}
+
+function drawPulseDrum(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  drawEchoChamber(ctx, x, y, scale, time, color, rand);
+}
+
+function drawBondMarrow(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, time: number, color: string, rand: () => number) {
+  drawMemorySac(ctx, x, y, scale, time, color, rand);
 }

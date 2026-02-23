@@ -1,0 +1,8 @@
+{
+  "before_happiness": 50,
+  "after_pet_happiness": 53,
+  "after_watch_happiness": 54,
+  "pet_increase": 3,
+  "watch_increase": 1,
+  "has_pet_message": true
+}

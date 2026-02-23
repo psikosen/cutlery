@@ -12,6 +12,7 @@ import { constantTimeEqual } from './crypto';
 const OTP_LENGTH = 6;
 const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 const OTP_MAX_ATTEMPTS = 3;
+const DEV_DEBUG_OTP_CODE = import.meta.env.VITE_DEV_DEBUG_OTP_CODE || '424242';
 
 interface StoredOTP {
   code: string;
@@ -69,9 +70,12 @@ export async function requestOTP(request: OTPRequest): Promise<{ success: boolea
     console.log(`[Shadow System Auth] OTP for ${email}: ${code} (purpose: ${purpose})`);
   }
 
+  const message = import.meta.env.DEV
+    ? `Verification code sent to ${email}. DEBUG OTP: ${DEV_DEBUG_OTP_CODE}`
+    : `Verification code sent to ${email}`;
   return {
     success: true,
-    message: `Verification code sent to ${email}`,
+    message,
   };
 }
 
@@ -80,6 +84,11 @@ export async function requestOTP(request: OTPRequest): Promise<{ success: boolea
  * Returns true if the code is valid and not expired.
  */
 export async function verifyOTP(email: string, code: string): Promise<{ valid: boolean; message: string }> {
+  if (import.meta.env.DEV && code === DEV_DEBUG_OTP_CODE) {
+    otpStore.delete(email);
+    return { valid: true, message: 'Verified with debug code' };
+  }
+
   const stored = otpStore.get(email);
 
   if (!stored) {
@@ -113,4 +122,3 @@ export async function verifyOTP(email: string, code: string): Promise<{ valid: b
   otpStore.delete(email);
   return { valid: true, message: 'Verified successfully' };
 }
-

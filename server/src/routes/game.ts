@@ -42,6 +42,7 @@ function validatePlayerBody(body: Record<string, unknown>): string | null {
 }
 
 function validateCreatureBody(body: Record<string, unknown>): string | null {
+  if (body.custom_name !== undefined && (!isString(body.custom_name) || body.custom_name.length > 28)) return 'Invalid custom_name';
   if (!isNonNegInt(body.evolution_stage) || (body.evolution_stage as number) > 5) return 'Invalid evolution_stage';
   if (!isNonNegInt(body.total_genes)) return 'Invalid total_genes';
   if (!isNonNegInt(body.total_power)) return 'Invalid total_power';
@@ -110,6 +111,7 @@ router.get('/state', async (req: AuthenticatedRequest, res) => {
         id: c.id,
         player_id: c.player_id,
         domain: c.domain,
+        custom_name: c.custom_name || undefined,
         evolution_stage: c.evolution_stage,
         total_genes: c.total_genes,
         total_power: c.total_power,
@@ -201,9 +203,9 @@ router.post('/initialize', async (req: AuthenticatedRequest, res) => {
       // Insert creatures
       for (const c of creatures) {
         await client.query(
-          `INSERT INTO creatures (id, player_id, domain, evolution_stage, total_genes, total_power, genes, traits, body_slots, appearance_seed, created_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-          [c.id, player.id, c.domain, c.evolution_stage, c.total_genes, c.total_power, JSON.stringify(c.genes), c.traits || [], JSON.stringify(c.body_slots), c.appearance_seed, c.created_at],
+          `INSERT INTO creatures (id, player_id, domain, custom_name, evolution_stage, total_genes, total_power, genes, traits, body_slots, appearance_seed, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+          [c.id, player.id, c.domain, c.custom_name || null, c.evolution_stage, c.total_genes, c.total_power, JSON.stringify(c.genes), c.traits || [], JSON.stringify(c.body_slots), c.appearance_seed, c.created_at],
         );
       }
 
@@ -294,9 +296,9 @@ router.put('/creature/:id', async (req: AuthenticatedRequest, res) => {
     }
 
     await pool.query(
-      `UPDATE creatures SET evolution_stage = $1, total_genes = $2, total_power = $3, genes = $4, traits = $5, body_slots = $6
-       WHERE id = $7 AND player_id = $8`,
-      [c.evolution_stage, c.total_genes, c.total_power, JSON.stringify(c.genes), c.traits || [], JSON.stringify(c.body_slots), creatureId, players[0].id],
+      `UPDATE creatures SET custom_name = $1, evolution_stage = $2, total_genes = $3, total_power = $4, genes = $5, traits = $6, body_slots = $7
+       WHERE id = $8 AND player_id = $9`,
+      [c.custom_name || null, c.evolution_stage, c.total_genes, c.total_power, JSON.stringify(c.genes), c.traits || [], JSON.stringify(c.body_slots), creatureId, players[0].id],
     );
 
     res.json({ success: true });

@@ -1,4 +1,3 @@
-import React from 'react';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { GameProvider, useGame } from './hooks/useGameState';
 import { LoginScreen } from './components/auth/LoginScreen';
@@ -6,6 +5,7 @@ import { NameInput } from './components/common/NameInput';
 import { NotificationStack } from './components/common/NotificationStack';
 import { EvolutionOverlay } from './components/common/EvolutionOverlay';
 import { HubScreen } from './screens/HubScreen';
+import { CalendarScreen } from './screens/CalendarScreen';
 import { QuestScreen } from './screens/QuestScreen';
 import { CreaturesScreen } from './screens/CreaturesScreen';
 import { LabScreen } from './screens/LabScreen';
@@ -16,12 +16,20 @@ const TAB_CONFIG: { id: TabId; icon: string; label: string }[] = [
   { id: 'quests', icon: '⚔️', label: 'Quests' },
   { id: 'creatures', icon: '🧬', label: 'Creatures' },
   { id: 'hub', icon: '🏠', label: 'Hub' },
+  { id: 'calendar', icon: '📅', label: 'Calendar' },
   { id: 'lab', icon: '🧪', label: 'Lab' },
   { id: 'trophies', icon: '🏆', label: 'Trophies' },
 ];
 
 function GameContent() {
-  const { state, initializeGame, setTab, dismissNotification, dismissEvolution } = useGame();
+  const {
+    state,
+    initializeGame,
+    setTab,
+    selectCreature,
+    dismissNotification,
+    dismissEvolution,
+  } = useGame();
 
   if (state.loading) {
     return (
@@ -70,12 +78,20 @@ function GameContent() {
           creatureId={state.showEvolution.creatureId}
           oldStage={state.showEvolution.oldStage}
           newStage={state.showEvolution.newStage}
-          onDismiss={dismissEvolution}
+          onDismiss={() => {
+            const evolvedCreatureId = state.showEvolution?.creatureId ?? null;
+            if (evolvedCreatureId) {
+              selectCreature(evolvedCreatureId);
+              setTab('creatures');
+            }
+            dismissEvolution();
+          }}
         />
       )}
 
       <div style={{ opacity: 1, transition: 'opacity 0.2s ease' }}>
         {state.activeTab === 'hub' && <HubScreen />}
+        {state.activeTab === 'calendar' && <CalendarScreen />}
         {state.activeTab === 'quests' && <QuestScreen />}
         {state.activeTab === 'creatures' && <CreaturesScreen />}
         {state.activeTab === 'lab' && <LabScreen />}

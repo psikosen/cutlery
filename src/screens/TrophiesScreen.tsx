@@ -1,4 +1,3 @@
-import React from 'react';
 import { useGame } from '../hooks/useGameState';
 import type { AchievementRarity } from '../types';
 
@@ -20,7 +19,7 @@ const RARITY_LABELS: Record<AchievementRarity, string> = {
 
 export function TrophiesScreen() {
   const { state } = useGame();
-  const { achievements, player } = state;
+  const { achievements } = state;
 
   const unlocked = achievements.filter(a => a.unlocked);
   const locked = achievements.filter(a => !a.unlocked);

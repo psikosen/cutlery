@@ -1,0 +1,61 @@
+{
+  "card_count": 6,
+  "swim_samples": [
+    {
+      "x": 46.25587467362924,
+      "y": 169.90078328981724,
+      "count": 766
+    },
+    {
+      "x": 80.90346534653466,
+      "y": 102.9059405940594,
+      "count": 808
+    },
+    {
+      "x": 149.63947368421051,
+      "y": 163.23947368421054,
+      "count": 760
+    }
+  ],
+  "swim_max_delta": 103.597980627242,
+  "feed_health_before": {
+    "text": "FEED PARTICLES (DAILY)",
+    "enabled": true
+  },
+  "feed_health_after": {
+    "text": "FED TODAY (THIS CREATURE)",
+    "enabled": false
+  },
+  "per_creature_feed_state": [
+    {
+      "cardIndex": 0,
+      "text": "FED TODAY (THIS CREATURE)",
+      "enabled": false
+    },
+    {
+      "cardIndex": 1,
+      "text": "FEED PARTICLES (DAILY)",
+      "enabled": true
+    },
+    {
+      "cardIndex": 2,
+      "text": "FEED PARTICLES (DAILY)",
+      "enabled": true
+    },
+    {
+      "cardIndex": 3,
+      "text": "FEED PARTICLES (DAILY)",
+      "enabled": true
+    },
+    {
+      "cardIndex": 4,
+      "text": "FEED PARTICLES (DAILY)",
+      "enabled": true
+    },
+    {
+      "cardIndex": 5,
+      "text": "FEED PARTICLES (DAILY)",
+      "enabled": true
+    }
+  ]
+}

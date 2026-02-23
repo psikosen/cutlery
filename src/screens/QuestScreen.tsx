@@ -1,8 +1,29 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useGame } from '../hooks/useGameState';
-import { FallbackImage } from '../components/common/FallbackImage';
 import type { Task, Domain, TaskType } from '../types';
 import { DOMAIN_COLORS, GENE_STAT_KEYS } from '../types';
+
+function extractMonIndex(path: string): number {
+  const match = path.match(/mon(\d+)\.png$/i);
+  return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
+}
+
+const MON_CARD_IMAGES = Object.entries(
+  import.meta.glob('../../assets/mon*.png', { eager: true, import: 'default' }) as Record<string, string>,
+)
+  .sort((a, b) => extractMonIndex(a[0]) - extractMonIndex(b[0]))
+  .map(([, src]) => src);
+
+function getTaskCardImage(taskId: string): string {
+  if (MON_CARD_IMAGES.length === 0) return '';
+  let hash = 2166136261;
+  for (let i = 0; i < taskId.length; i += 1) {
+    hash ^= taskId.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  const index = (hash >>> 0) % MON_CARD_IMAGES.length;
+  return MON_CARD_IMAGES[index];
+}
 
 const TASK_TYPES: { label: string; value: TaskType | 'all' }[] = [
   { label: 'All', value: 'all' },
@@ -105,6 +126,7 @@ export function QuestScreen() {
           const isCompleted = task.completed_today;
           const isCompleting = completing === task.id;
           const statKey = GENE_STAT_KEYS[task.rewards.gene_type] || 'Power';
+          const cardImage = getTaskCardImage(task.id);
 
           return (
             <div
@@ -121,12 +143,24 @@ export function QuestScreen() {
             >
               {/* Image area - fallback */}
               <div style={{ position: 'relative', height: 120, overflow: 'hidden' }}>
-                <FallbackImage
-                  width={480}
-                  height={120}
-                  seed={task.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0)}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
+                {cardImage ? (
+                  <img
+                    src={cardImage}
+                    alt=""
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      filter: 'brightness(0.72) saturate(1.05)',
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    width: '100%',
+                    height: '100%',
+                    background: 'linear-gradient(120deg, #132343, #2a1d3f)',
+                  }} />
+                )}
                 <div style={{
                   position: 'absolute',
                   bottom: 0,

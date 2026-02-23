@@ -29,6 +29,7 @@ export function renderCreature(
   width: number,
   height: number,
   time: number,
+  options?: { skipClear?: boolean },
 ) {
   const domainColor = DOMAIN_COLORS[creature.domain];
   const rand = seededRandom(creature.appearance_seed);
@@ -41,7 +42,9 @@ export function renderCreature(
   }
 
   // Clear
-  ctx.clearRect(0, 0, width, height);
+  if (!options?.skipClear) {
+    ctx.clearRect(0, 0, width, height);
+  }
 
   const rc: RenderContext = { ctx, w: width, h: height, time, creature, domainColor, rand, phenotype };
 

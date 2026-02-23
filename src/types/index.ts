@@ -34,12 +34,12 @@ export type BodySlot =
 
 // --- Gene Types per Domain ---
 
-export type HealthGeneType = 'muscle_fiber' | 'bone_plate' | 'vein_network' | 'tendon_whip' | 'organ_sac' | 'tooth_row' | 'blood_shard' | 'nerve_bundle' | 'marrow_core' | 'lung_bellows' | 'heart_pump' | 'claw_hook';
-export type MindGeneType = 'eye_cluster' | 'neural_tendril' | 'skull_graft' | 'synapse_arc' | 'memory_sac' | 'psychic_crown' | 'cortex_fold' | 'dream_gland' | 'third_eye' | 'cerebral_lobe' | 'psionic_node' | 'temporal_gland' | 'logic_matrix' | 'astral_fiber' | 'insight_lens';
-export type DisciplineGeneType = 'chain_link' | 'iron_plate' | 'lock_core' | 'ember_node' | 'spectral_layer' | 'wardens_eye' | 'anchor_bone' | 'scar_tissue' | 'ritual_glyph' | 'iron_spine' | 'will_node';
-export type CareerGeneType = 'gear_assembly' | 'cable_nerve' | 'piston_limb' | 'furnace_core' | 'blueprint_glyph' | 'exhaust_vent' | 'spark_plug' | 'conduit_wire' | 'output_valve' | 'turbine_arm' | 'crane_claw';
-export type FinanceGeneType = 'gold_scale' | 'coin_disc' | 'vault_door' | 'investment_tendril' | 'ledger_glyph' | 'crown_jewel' | 'debt_fang' | 'compound_crystal' | 'trade_tendril' | 'gilded_claw' | 'treasure_organ';
-export type SocialGeneType = 'mouth' | 'face_mask' | 'vocal_cord' | 'echo_chamber' | 'harmony_thread' | 'memory_face' | 'mirror_shard' | 'pulse_drum' | 'bond_marrow' | 'empathy_lobe' | 'resonance_horn';
+export type HealthGeneType = 'muscle_fiber' | 'bone_plate' | 'vein_network' | 'tendon_whip' | 'organ_sac' | 'tooth_row' | 'blood_shard' | 'nerve_bundle' | 'marrow_core' | 'lung_bellows' | 'heart_pump' | 'claw_hook' | 'actn3_fiber' | 'mstn_inhibitor' | 'col1a1_weave' | 'vegf_capillary' | 'ppargc1a_core' | 'igf1_driver' | 'nos3_flow';
+export type MindGeneType = 'eye_cluster' | 'neural_tendril' | 'skull_graft' | 'synapse_arc' | 'memory_sac' | 'psychic_crown' | 'cortex_fold' | 'dream_gland' | 'third_eye' | 'cerebral_lobe' | 'psionic_node' | 'temporal_gland' | 'logic_matrix' | 'astral_fiber' | 'insight_lens' | 'bdnf_burst' | 'comt_filter' | 'grin2b_gate' | 'slc6a4_tide' | 'foxp2_phrase' | 'wwc1_trace' | 'chrna4_focus';
+export type DisciplineGeneType = 'chain_link' | 'iron_plate' | 'lock_core' | 'ember_node' | 'spectral_layer' | 'wardens_eye' | 'anchor_bone' | 'scar_tissue' | 'ritual_glyph' | 'iron_spine' | 'will_node' | 'clock_anchor' | 'bmal1_cycle' | 'per3_stride' | 'cry1_quiet' | 'adora2a_brake' | 'nr3c1_steel';
+export type CareerGeneType = 'gear_assembly' | 'cable_nerve' | 'piston_limb' | 'furnace_core' | 'blueprint_glyph' | 'exhaust_vent' | 'spark_plug' | 'conduit_wire' | 'output_valve' | 'turbine_arm' | 'crane_claw' | 'creb1_forge' | 'mtor_engine' | 'ampk_switch' | 'nrf2_shield' | 'hif1a_drive' | 'klotho_thread' | 'sirt1_focus';
+export type FinanceGeneType = 'gold_scale' | 'coin_disc' | 'vault_door' | 'investment_tendril' | 'ledger_glyph' | 'crown_jewel' | 'debt_fang' | 'compound_crystal' | 'trade_tendril' | 'gilded_claw' | 'treasure_organ' | 'apoe_vault' | 'lpl_stream' | 'abca1_cache' | 'cpt1_furnace' | 'ppara_yield' | 'hmgcr_mint';
+export type SocialGeneType = 'mouth' | 'face_mask' | 'vocal_cord' | 'echo_chamber' | 'harmony_thread' | 'memory_face' | 'mirror_shard' | 'pulse_drum' | 'bond_marrow' | 'empathy_lobe' | 'resonance_horn' | 'oxtr_bridge' | 'avpr1a_signal' | 'cd38_resonance' | 'shank3_mesh' | 'cntnap2_dialogue' | 'grin2a_sync' | 'gabra2_calm';
 
 export type GeneType =
   | HealthGeneType | MindGeneType | DisciplineGeneType
@@ -99,6 +99,7 @@ export interface Creature {
   id: CreatureId;
   player_id: string;
   domain: Domain;
+  custom_name?: string;
   evolution_stage: EvolutionStage;
   total_genes: number;
   total_power: number;
@@ -228,7 +229,7 @@ export interface SpecialAbility {
 
 // --- UI State ---
 
-export type TabId = 'quests' | 'creatures' | 'hub' | 'lab' | 'trophies';
+export type TabId = 'quests' | 'creatures' | 'hub' | 'calendar' | 'lab' | 'trophies';
 
 export interface Notification {
   id: string;
@@ -432,6 +433,53 @@ export const GENE_SLOT_AFFINITIES: Partial<Record<GeneType, BodySlot[]>> = {
   // Social - Hollow Singer (empathy organ + communication appendage)
   empathy_lobe: ['crown', 'chest', 'core', 'left_shoulder', 'right_shoulder'],
   resonance_horn: ['left_horn', 'right_horn', 'crown', 'left_shoulder', 'right_shoulder'],
+  // --- Research-inspired gene expansions ---
+  // Health
+  actn3_fiber: ['left_arm', 'right_arm', 'left_leg', 'right_leg', 'chest'],
+  mstn_inhibitor: ['core', 'chest', 'left_shoulder', 'right_shoulder'],
+  col1a1_weave: ['left_leg', 'right_leg', 'left_arm', 'right_arm', 'chest'],
+  vegf_capillary: ['core', 'chest', 'left_arm', 'right_arm', 'left_leg', 'right_leg'],
+  ppargc1a_core: ['core', 'chest', 'left_leg', 'right_leg'],
+  igf1_driver: ['core', 'chest', 'left_shoulder', 'right_shoulder'],
+  nos3_flow: ['core', 'left_arm', 'right_arm', 'left_leg', 'right_leg'],
+  // Mind
+  bdnf_burst: ['crown', 'left_horn', 'right_horn', 'aura'],
+  comt_filter: ['crown', 'left_shoulder', 'right_shoulder', 'chest'],
+  grin2b_gate: ['crown', 'left_horn', 'right_horn'],
+  slc6a4_tide: ['core', 'chest', 'aura'],
+  foxp2_phrase: ['crown', 'chest', 'left_shoulder', 'right_shoulder'],
+  wwc1_trace: ['crown', 'core', 'chest'],
+  chrna4_focus: ['crown', 'left_horn', 'right_horn', 'chest'],
+  // Discipline
+  clock_anchor: ['core', 'chest', 'crown'],
+  bmal1_cycle: ['core', 'aura', 'crown'],
+  per3_stride: ['left_leg', 'right_leg', 'core', 'chest'],
+  cry1_quiet: ['aura', 'core', 'chest'],
+  adora2a_brake: ['core', 'left_arm', 'right_arm', 'chest'],
+  nr3c1_steel: ['core', 'chest', 'left_shoulder', 'right_shoulder'],
+  // Career
+  creb1_forge: ['crown', 'chest', 'core'],
+  mtor_engine: ['core', 'chest', 'left_arm', 'right_arm'],
+  ampk_switch: ['core', 'left_leg', 'right_leg', 'chest'],
+  nrf2_shield: ['left_shoulder', 'right_shoulder', 'chest', 'core'],
+  hif1a_drive: ['core', 'chest', 'left_leg', 'right_leg'],
+  klotho_thread: ['aura', 'core', 'chest'],
+  sirt1_focus: ['crown', 'core', 'chest', 'left_horn', 'right_horn'],
+  // Finance
+  apoe_vault: ['core', 'chest', 'left_shoulder', 'right_shoulder'],
+  lpl_stream: ['left_arm', 'right_arm', 'left_leg', 'right_leg', 'core'],
+  abca1_cache: ['chest', 'core', 'left_shoulder', 'right_shoulder'],
+  cpt1_furnace: ['core', 'chest', 'left_leg', 'right_leg'],
+  ppara_yield: ['core', 'chest', 'left_arm', 'right_arm'],
+  hmgcr_mint: ['core', 'chest', 'crown'],
+  // Social
+  oxtr_bridge: ['chest', 'core', 'aura'],
+  avpr1a_signal: ['crown', 'chest', 'aura'],
+  cd38_resonance: ['core', 'chest', 'left_shoulder', 'right_shoulder'],
+  shank3_mesh: ['crown', 'left_shoulder', 'right_shoulder', 'chest'],
+  cntnap2_dialogue: ['crown', 'chest', 'left_arm', 'right_arm'],
+  grin2a_sync: ['crown', 'aura', 'left_horn', 'right_horn'],
+  gabra2_calm: ['aura', 'core', 'chest'],
 };
 
 export const GENE_STAT_KEYS: Record<GeneType, string> = {
@@ -461,4 +509,21 @@ export const GENE_STAT_KEYS: Record<GeneType, string> = {
   turbine_arm: 'Throughput', crane_claw: 'Precision',
   gilded_claw: 'Acquisition', treasure_organ: 'Accumulation',
   empathy_lobe: 'Compassion', resonance_horn: 'Broadcast',
+  // Research-inspired gene expansions
+  actn3_fiber: 'Burst Force', mstn_inhibitor: 'Hypertrophy', col1a1_weave: 'Tissue Integrity',
+  vegf_capillary: 'Oxygen Delivery', ppargc1a_core: 'Endurance Adaptation', igf1_driver: 'Repair Rate',
+  nos3_flow: 'Blood Flow',
+  bdnf_burst: 'Plasticity', comt_filter: 'Cognitive Control', grin2b_gate: 'Learning Velocity',
+  slc6a4_tide: 'Mood Stability', foxp2_phrase: 'Expression', wwc1_trace: 'Recall Retention',
+  chrna4_focus: 'Sustained Attention',
+  clock_anchor: 'Rhythm Lock', bmal1_cycle: 'Cycle Precision', per3_stride: 'Daily Momentum',
+  cry1_quiet: 'Impulse Quieting', adora2a_brake: 'Fatigue Control', nr3c1_steel: 'Stress Recovery',
+  creb1_forge: 'Skill Encoding', mtor_engine: 'Output Growth', ampk_switch: 'Energy Allocation',
+  nrf2_shield: 'Resilience', hif1a_drive: 'Load Tolerance', klotho_thread: 'Maintenance',
+  sirt1_focus: 'Efficiency',
+  apoe_vault: 'Reserve Strategy', lpl_stream: 'Asset Flow', abca1_cache: 'Resource Transport',
+  cpt1_furnace: 'Capital Burn', ppara_yield: 'Compounding Yield', hmgcr_mint: 'Value Minting',
+  oxtr_bridge: 'Bonding', avpr1a_signal: 'Social Signaling', cd38_resonance: 'Warmth',
+  shank3_mesh: 'Reciprocity', cntnap2_dialogue: 'Dialogue Clarity', grin2a_sync: 'Coordination',
+  gabra2_calm: 'Social Calm',
 };

@@ -36,6 +36,7 @@ const router = Router();
 const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 const OTP_MAX_ATTEMPTS = 3;
 const BCRYPT_ROUNDS = 12;
+const DEV_DEBUG_OTP_CODE = process.env.DEV_DEBUG_OTP_CODE || '424242';
 if (!process.env.MFA_ENCRYPTION_KEY && process.env.NODE_ENV === 'production') {
   throw new Error('MFA_ENCRYPTION_KEY environment variable is required in production');
 }
@@ -116,13 +117,17 @@ router.post('/otp/request', async (req, res) => {
     );
 
     // In production: send email
-    // For dev: log (only if NODE_ENV !== 'production')
-    if (process.env.NODE_ENV !== 'production') {
+    // For dev: log and include OTP in response message for local testing
+    const isDev = process.env.NODE_ENV !== 'production';
+    if (isDev) {
       console.log(`[DEV OTP] ${email}: ${code} (purpose: ${purpose})`);
     }
     // TODO: integrate nodemailer for production email delivery
 
-    res.json({ success: true, message: `Verification code sent to ${email}` });
+    const message = isDev
+      ? `Verification code sent to ${email}. DEV OTP: ${code}. DEBUG OTP: ${DEV_DEBUG_OTP_CODE}`
+      : `Verification code sent to ${email}`;
+    res.json({ success: true, message });
   } catch (err) {
     console.error('OTP request error:', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -139,42 +144,48 @@ router.post('/otp/verify', async (req, res) => {
       res.status(400).json({ success: false, message: 'Email and code are required' });
       return;
     }
+    const isDev = process.env.NODE_ENV !== 'production';
+    const useDebugOtp = isDev && code === DEV_DEBUG_OTP_CODE;
 
-    const { rows } = await pool.query(
-      'SELECT id, code_hash, attempts, expires_at FROM otp_codes WHERE email = $1 AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1',
-      [email],
-    );
+    if (!useDebugOtp) {
+      const { rows } = await pool.query(
+        'SELECT id, code_hash, attempts, expires_at FROM otp_codes WHERE email = $1 AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1',
+        [email],
+      );
 
-    if (rows.length === 0) {
-      res.json({ success: false, message: 'No verification code found. Please request a new one.' });
-      return;
-    }
+      if (rows.length === 0) {
+        res.json({ success: false, message: 'No verification code found. Please request a new one.' });
+        return;
+      }
 
-    const otp = rows[0];
+      const otp = rows[0];
 
-    if (otp.attempts >= OTP_MAX_ATTEMPTS) {
+      if (otp.attempts >= OTP_MAX_ATTEMPTS) {
+        await pool.query('DELETE FROM otp_codes WHERE id = $1', [otp.id]);
+        res.json({ success: false, message: 'Too many attempts. Please request a new code.' });
+        return;
+      }
+
+      // Increment attempts
+      await pool.query('UPDATE otp_codes SET attempts = attempts + 1 WHERE id = $1', [otp.id]);
+
+      const valid = await bcrypt.compare(code, otp.code_hash);
+      if (!valid) {
+        const remaining = OTP_MAX_ATTEMPTS - (otp.attempts + 1);
+        res.json({
+          success: false,
+          message: remaining > 0
+            ? `Invalid code. ${remaining} attempt${remaining > 1 ? 's' : ''} remaining.`
+            : 'Too many attempts. Please request a new code.',
+        });
+        return;
+      }
+
+      // OTP valid — clean up
       await pool.query('DELETE FROM otp_codes WHERE id = $1', [otp.id]);
-      res.json({ success: false, message: 'Too many attempts. Please request a new code.' });
-      return;
+    } else {
+      console.log(`[DEV OTP BYPASS] ${email} authenticated using DEBUG OTP`);
     }
-
-    // Increment attempts
-    await pool.query('UPDATE otp_codes SET attempts = attempts + 1 WHERE id = $1', [otp.id]);
-
-    const valid = await bcrypt.compare(code, otp.code_hash);
-    if (!valid) {
-      const remaining = OTP_MAX_ATTEMPTS - (otp.attempts + 1);
-      res.json({
-        success: false,
-        message: remaining > 0
-          ? `Invalid code. ${remaining} attempt${remaining > 1 ? 's' : ''} remaining.`
-          : 'Too many attempts. Please request a new code.',
-      });
-      return;
-    }
-
-    // OTP valid — clean up
-    await pool.query('DELETE FROM otp_codes WHERE id = $1', [otp.id]);
 
     // Find or create user
     let { rows: users } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);

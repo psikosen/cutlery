@@ -1,0 +1,194 @@
+Original prompt: Ok awesome  take a look at this then work on getting it running  in a web page look for any issues  you may use my local postgres but do not remove any current data just make a new seperate db and then hook it in
+
+- Initialized investigation.
+- Detected Vite frontend + Express/TypeScript backend with PostgreSQL via DATABASE_URL.
+- Next: install deps, create isolated local DB, configure env, run migrations, start app, validate and fix issues.
+- Installed frontend dependencies.
+- Fixed backend install blocker by changing `server/package.json` devDependency `@types/bcrypt` from `^5.0.3` to existing `^6.0.0`.
+- Installed backend dependencies.
+- Created isolated PostgreSQL database `cutlery_shadow_system`.
+- Wrote `server/.env` with `DATABASE_URL=postgresql://raymondgonzalez@localhost:5432/cutlery_shadow_system` and generated local dev secrets.
+- Running migrations next.
+- Started backend/frontend dev servers.
+- Found blocking frontend compile error: `src/renderer/mutations.ts` has an unexpected `}` near line 1317.
+- Fixed frontend syntax blocker by removing stray trailing `}` in `src/renderer/mutations.ts`.
+- Installed `playwright` as a dev dependency to run the web-game browser validation client.
+- Running Playwright interaction loop for visual/console validation.
+- Ran skill Playwright client against login screen; screenshots captured under `output/web-game/` with no console error artifacts.
+- Ran second client pass through local-only entry to name screen (`output/web-game-local/`) with no console error artifacts.
+- Ran direct Playwright onboarding flow (`Continue without account` -> name entry -> `Awaken`) and captured hub screen (`output/manual-playwright/after-awaken.png`), with `ERROR_COUNT=0`.
+- Fixed backend TypeScript build error in `server/src/middleware/auth.ts` by typing `JWT_EXPIRES_IN` as `SignOptions['expiresIn']`; `npm run build` now passes in `server/`.
+- Cleaned up validation OTP test row from `cutlery_shadow_system` (`otp_codes` count returned to 0).
+- Updated frontend API base fallback to relative `/api` (port/proxy based, no hardcoded https/http).
+- Updated CSP `connect-src` to allow localhost/127.0.0.1 over http/ws with ports.
+- Verified dev frontend+backend startup after change.
+- Changed `src/services/api.ts` default API URL from `http://localhost:3001/api` to relative `/api` so requests use the active frontend port/proxy.
+- Expanded CSP `connect-src` in `vite.config.ts` to include localhost/127.0.0.1 over http/ws with any port.
+- Verified proxy-based API calls on frontend port (`http://127.0.0.1:5173/api/...`) returned HTTP 200.
+- Cleaned OTP test rows used during validation.
+- Changed default frontend dev port to `3000` in `vite.config.ts`.
+- Updated backend CORS defaults to `http://localhost:3000` in `server/src/index.ts`, `server/.env`, and `server/.env.example`.
+- Fixed Vite host binding issue by setting `server.host = true` so both `localhost:3000` and `127.0.0.1:3000` load.
+- Verified HTTP 200 on both `http://localhost:3000` and `http://127.0.0.1:3000`.
+- Set default login email prefill to `raymondgonzalez22@Gmail.com` in `src/components/auth/LoginScreen.tsx`.
+- Updated dev OTP behavior in `server/src/routes/auth.ts`: response message now includes `DEV OTP: <code>` when `NODE_ENV !== 'production'`.
+- Added dev-only debug OTP bypass in `server/src/routes/auth.ts`: `DEV_DEBUG_OTP_CODE` (default `424242`) can verify login when `NODE_ENV !== 'production'`.
+- Updated OTP request response in dev to include both generated `DEV OTP` and static `DEBUG OTP`.
+- Added `DEV_DEBUG_OTP_CODE=424242` to `server/.env` and `server/.env.example`.
+- Verified login with `raymondgonzalez22@gmail.com` and debug code `424242`.
+- Root cause for invalid debug code: frontend auth currently uses local IndexedDB OTP service (`src/services/auth/authService.ts` -> `otpService.ts`), not backend routes.
+- Added local dev debug OTP in `src/services/auth/otpService.ts` (`VITE_DEV_DEBUG_OTP_CODE` default `424242`) and included it in dev OTP request message.
+- Verified full auth transition with Playwright: email form -> OTP form -> hunter name form using `424242`.
+- Added creature rename support in state and persistence (`custom_name` in `Creature`, new `renameCreature` action/API in `useGameState`).
+- Added daily feed state (`last_feed_date` meta), `feedCreature` action, and hub UI controls (once-per-day lockout + status feedback).
+- Added wandering movement + feed particle burst animation in `CreatureCanvas` and renderer `skipClear` option.
+- Added backend support for custom creature names (`migration v2`, `server/src/routes/game.ts` load/save/validate updates).
+- Added 40 research-inspired genes across domains (health/mind/discipline/career/finance/social) in `src/types/index.ts` and fully wired stat keys + slot affinities.
+- Added mutation rendering support in `src/renderer/mutations.ts` for the new 40 genes plus missing existing cases, with shared render wrappers where appropriate.
+- Added 40 matching task templates in `src/data/defaultTasks.ts` so all new genes are obtainable in gameplay.
+- Verified: server migration v2 applied (`creature_custom_name`), frontend loads, and Playwright flow confirms rename + daily feed lockout works.
+- Added `GENE_RESEARCH_NOTES.md` documenting online research sources (NCBI gene references) used to derive the 40 new gene/mutation additions.
+- Validation script confirmed all 40 added genes are present in types + task templates + mutation switch cases.
+- Added upgraded feed behavior in `src/components/creatures/CreatureCanvas.tsx`: a single random-color food drop spawns per feed event, creature swims toward it, and consumption visuals vary by creature style (`eat`, `absorb`, `grab`).
+- Tuned feed visuals after screenshot review: moved spawn zone into the visible creature card area, slowed consumption timing, and rendered food overlay after creature so the particle remains visible.
+- Added a new "LIVE RESEARCH QUEST PACK" in `src/data/defaultTasks.ts` (26 additional quests across health/mind/discipline/career/finance/social, based on current guidance themes).
+- Added incremental quest sync in `src/hooks/useGameState.tsx` so existing users keep progress but automatically receive newly introduced default quests (append missing task IDs only).
+- Validation loop:
+  - `npm run build` in `/server` passes.
+  - Frontend `npm run build` still fails on pre-existing strict TS issues unrelated to this feature (unused imports/vars in multiple files, existing MFA typing issue).
+  - Skill Playwright client run: `output/web-game-postsync/` (2 screenshots, no error artifacts).
+  - Manual Playwright visual runs for feed behavior and style mapping with no console/page errors:
+    - `output/manual-feed-seq-gore-v2/`
+    - `output/manual-feed-seq-mind-v3/`
+    - `output/manual-feed-seq-discipline/`
+- Fixed deterministic task ID generation in `src/data/defaultTasks.ts` by removing module-level counter usage and deriving IDs from the template index (`task_<domain>_<index+1>`). This prevents ID drift across repeated `generateDefaultTasks()` calls.
+- Re-validated incremental quest sync for existing saves:
+  - Simulated old save by trimming tasks from 238 -> 230 in IndexedDB.
+  - After re-entering local mode and app init, task count auto-restored to 238.
+- Additional runtime validation after ID fix:
+  - Skill Playwright client run: `output/web-game-postsync-v2/` (2 screenshots, no error artifacts).
+- Added "EU + CENTENARIAN NUTRITION PACK" in `src/data/defaultTasks.ts` with 26 additional food/diet quests (legumes, fibre, produce, salt/sugar limits, hydration, social meal rituals, prep/budget loops).
+- Added `EU_CENTENARIAN_FEATURES.md` with prioritized feature ideas for next iteration (nutrition score, pulse tracker, centenarian ritual streaks, pantry/budget systems, etc.).
+- Source-backed direction used for this pack: WHO healthy diet guidance, EU country FBDG legume frequencies (JRC), EFSA practical healthy plate guidance, and centenarian dietary pattern reviews.
+- Validation: task template count now `264` (`src/data/defaultTasks.ts`); frontend dev server hot-reloaded successfully; skill Playwright pass captured screenshots in `output/web-game-eu-centenarian/`.
+- Implemented three requested nutrition systems:
+  1) Longevity Nutrition Score (daily, 0-100) with pillar breakdown from completed quest patterns.
+  2) Weekly Pulse Tracker (servings/week, target=4) with claimable reward (+75 gold).
+  3) Centenarian Ritual Streaks (current/best, today-completed flag).
+- Added persistent meta models in `useGameState` (`nutrition_weekly_pulse_v1`, `nutrition_ritual_streak_v1`) and normalization logic for week/day rollover.
+- Added `claimWeeklyPulseReward` action to game context, including persistence + notification.
+- Added Hub UI cards for longevity score, pulse tracker ring + claim button, and ritual streak stats.
+- Runtime validation:
+  - Manual Playwright scenario in `output/manual-nutrition-systems/` confirms cards render and claim flow updates gold (0 -> 75) with notification.
+  - `errors.json` in that folder is empty.
+- Frontend build remains blocked by pre-existing repository-wide TS strict errors (unused imports/vars and existing MFA typing issue), not by these new features.
+- Final validation pass (skill `develop-web-game`) on `http://localhost:3000`:
+  - Ran web-game client (`output/web-game-final-pass/`) and local-entry pass (`output/web-game-final-local/`) with no generated error artifacts.
+  - Ran targeted Playwright flow with local mode + name entry; captured `output/manual-final-check/hub.png`.
+  - Verified new cards render on Hub: `LONGEVITY SCORE`, `WEEKLY PULSE`, `RITUAL STREAK`.
+  - Verified feed button presence and pulse claim button state logic (`hasClaimButton=true`, `claimButtonEnabled=false` when target unmet).
+  - `output/manual-final-check/errors.json` is empty (`[]`).
+- Build stabilization pass (Feb 22, 2026):
+  - Fixed frontend strict TypeScript build blockers so `npm run build` now passes in repo root.
+  - Removed unused React imports/locals across screens/components.
+  - Renamed intentionally-unused renderer function params to underscore-prefixed names in `src/renderer/mutations.ts`.
+  - Fixed WebCrypto importKey typing in `src/services/auth/mfaService.ts` by copying secret bytes into ArrayBuffer-backed `Uint8Array` (`keyMaterial`).
+  - Confirmed `npm run build` also passes in `/server`.
+- Request: make creatures swim around more and enforce feeding once per day per creature.
+- Implemented per-creature feed cooldown in `src/hooks/useGameState.tsx`:
+  - Added `LastFeedDates` map state (`lastFeedDates`) instead of single global `lastFeedDate`.
+  - Added meta key `last_feed_dates_v1` with legacy migration from old `last_feed_date`.
+  - Updated `feedCreature` to check/update cooldown by `creatureId`.
+- Updated Hub feed UI in `src/screens/HubScreen.tsx`:
+  - Feed cooldown is now based on selected creature (`state.lastFeedDates[activeCreatureId]`).
+  - Button text when locked: `FED TODAY (THIS CREATURE)`.
+- Expanded roaming/swim behavior in `src/components/creatures/CreatureCanvas.tsx`:
+  - Replaced small sinusoidal wander with dynamic swim targets across wider bounds.
+  - Added boundary bounce/clamp so creatures roam broadly but stay visible.
+  - Food drops now spawn relative to current motion and within swim bounds.
+- Validation:
+  - `npm run build` passes in frontend after changes.
+  - Skill Playwright client run: `output/web-game-feed-per-creature/`.
+  - Targeted runtime validation: `output/manual-feed-per-creature-swim-v4/`.
+    - `errors.json` is empty (`[]`).
+    - `checks.json` confirms per-creature cooldown behavior:
+      - After feeding card 0 (health), card 0 is disabled, cards 1..5 remain enabled.
+    - `swim_max_delta` measured ~103.6 canvas pixels across samples, confirming broad movement.
+- Evolution redirect UX update:
+  - In `src/App.tsx`, evolution overlay dismiss now routes directly to the evolved creature detail.
+  - On `onDismiss`, app now does: `selectCreature(evolvedCreatureId)` + `setTab('creatures')` + `dismissEvolution()`.
+  - Result: after evolution popup is closed, user is taken to the actual creature that evolved.
+- Validation: `npm run build` passes after this change.
+- Movement speed tuning update (Feb 22, 2026):
+  - Added deterministic per-creature speed tiers in `src/components/creatures/CreatureCanvas.tsx` using creature seed hashing.
+  - Speed tiers are now randomized across creatures but stable per creature: `2/3` speed or `1/2` speed.
+  - Applied the tier scaling to movement steering so roaming and food-chase motion are both slower per assigned tier.
+- Validation after speed-tier update:
+  - Frontend build passes: `npm run build` in repo root.
+  - Skill web-game client pass: `output/web-game-speed-tier/` (no generated error files).
+  - Targeted local-mode runtime check: `output/manual-speed-tier-check/` (`errors.json` empty; `hub-before.png` and `hub-after.png` confirm ongoing roam movement).
+- Implemented requested feature set (#16, #17, #7):
+  - Added `calendar` tab + screen (`src/screens/CalendarScreen.tsx`) with a 30-day reward loop and daily claim action.
+  - Added daily calendar reward definitions (`src/data/dailyCalendarRewards.ts`) and state/meta persistence in `useGameState` (`daily_reward_calendar_v1`).
+  - Added claim API in game context: `claimDailyCalendarReward()` with streak tracking + notification + gold payout.
+  - Expanded nutrition insights model with:
+    - `targets_v2` (produce/fiber/legumes/hydration/salt/sugar/healthy fats/whole foods targets)
+    - `mediterranean_arc` progression (completed/total/progress/phase/next quest).
+  - Hub now renders two new cards:
+    - `NUTRITION TARGETS V2`
+    - `MEDITERRANEAN ARC`
+- Added new quest content in `src/data/defaultTasks.ts`:
+  - Nutrition v2 targets pack.
+  - Mediterranean weekly questline chapters (`Mediterranean Arc I..X`).
+- Updated tab model:
+  - `TabId` now includes `'calendar'`.
+  - App nav includes `Calendar` and route rendering.
+- Validation:
+  - Frontend build passes: `npm run build`.
+  - Runtime Playwright validation: `output/manual-calendar-nutrition-v2/`
+    - `hub-nutrition-v2.png` shows new nutrition/arc cards.
+    - `calendar-before-claim.png` and `calendar-after-claim.png` show claim flow.
+    - `errors.json` is empty (`[]`).
+- Added creature interaction happiness system:
+  - Click active creature to pet it on Hub; this now triggers a shake reaction in `CreatureCanvas` and grants happiness.
+  - Feeding now also grants happiness (in addition to daily feed behavior).
+  - Passive watch-time gain added: while Hub is visible, active creature gains +1 happiness every 20s.
+- Implemented persistent per-creature happiness map (`creature_happiness_v1`) in `useGameState`:
+  - New context methods: `petCreature(creatureId)`, `addWatchTimeForCreature(creatureId, watchedSeconds)`.
+  - New state slice: `state.creatureHappiness`.
+  - New reducer action: `SET_CREATURE_HAPPINESS`.
+- Hub UI updates:
+  - Added `HAPPINESS` meter under active creature card.
+  - Added pet status message and maintained feed status.
+  - Switched creature click behavior to petting; added explicit `VIEW CREATURE DETAILS` button.
+- Creature animation update:
+  - Added `petBurstKey` prop to `CreatureCanvas` and shake-window handling so pet clicks visibly shake creature.
+- Validation:
+  - `npm run build` passes.
+  - Runtime Playwright check: `output/manual-pet-happiness/` with `errors.json = []`.
+  - `checks.json` confirms behavior: happiness 50 -> 53 after pet click, then 54 after 20s watch-time.
+- Integrated user-provided monster image assets as quest card backgrounds:
+  - Added static imports for `assets/mon2.png` through `assets/mon8.png` in `src/screens/QuestScreen.tsx`.
+  - Replaced `FallbackImage` usage with image backgrounds selected via deterministic hash of `task.id` (`getTaskCardImage`), giving random-looking but stable per-card backgrounds.
+  - Added subtle filter (`brightness/saturation`) to preserve readability under existing gradient overlay.
+- Validation:
+  - `npm run build` passes.
+  - Runtime screenshot confirms monster backgrounds on quest cards: `output/manual-quest-mon-backgrounds/quests-mon-backgrounds.png`.
+  - `output/manual-quest-mon-backgrounds/errors.json` is empty (`[]`).
+- Asset rename pass (user request): renamed image assets to numbered monster naming starting at `mon15.png` onward.
+  - Assets folder now contains `mon15.png` through `mon53.png`.
+- Quest background loader upgraded for future-proofing:
+  - Replaced fixed imports in `src/screens/QuestScreen.tsx` with Vite glob auto-discovery:
+    - `import.meta.glob('../../assets/mon*.png', { eager: true, import: 'default' })`
+  - Added numeric sorting by `mon<number>` so selection remains deterministic.
+  - Kept hash-based stable random assignment per task (`getTaskCardImage`).
+  - Added fallback gradient if no image assets are present.
+- Validation:
+  - `npm run build` passes.
+  - Runtime screenshot confirms quest cards render renamed monster backgrounds:
+    - `output/manual-quest-mon-renamed/quests-mon-renamed.png`
+  - `output/manual-quest-mon-renamed/errors.json` is empty (`[]`).
+- Follow-up validation (current turn):
+  - Confirmed `assets/` contains renamed monster files `mon15.png` through `mon53.png`.
+  - Confirmed `src/screens/QuestScreen.tsx` uses `import.meta.glob('../../assets/mon*.png', ...)` with numeric sort + deterministic hash mapping.
+  - Re-ran frontend production build: `npm run build` passes.

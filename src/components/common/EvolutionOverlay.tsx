@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { CreatureId } from '../../types';
 import { CREATURE_NAMES, DOMAIN_COLORS, CREATURE_TO_DOMAIN, EVOLUTION_STAGE_NAMES } from '../../types';
 

@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useGame } from '../hooks/useGameState';
 import type { CreatureId, GeneType, GeneTier } from '../types';
 import { CREATURE_NAMES, DOMAIN_COLORS, CREATURE_TO_DOMAIN, GENE_STAT_KEYS } from '../types';
-import { canFuseGenes, getNextTier } from '../services/gameEngine';
+import { getNextTier } from '../services/gameEngine';
 
 const TIER_LABELS: Record<GeneTier, string> = {
   base: 'Base',

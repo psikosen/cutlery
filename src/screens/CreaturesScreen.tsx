@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useGame } from '../hooks/useGameState';
 import { CreatureCanvas } from '../components/creatures/CreatureCanvas';
 import type { CreatureId, Creature, GeneType } from '../types';
@@ -9,7 +9,7 @@ import { getAllTraits } from '../data/traits';
 import { getNextEvolutionThreshold } from '../services/gameEngine';
 
 export function CreaturesScreen() {
-  const { state, selectCreature } = useGame();
+  const { state } = useGame();
   const [detailCreature, setDetailCreature] = useState<CreatureId | null>(state.selectedCreature);
 
   const creature = detailCreature
@@ -61,7 +61,7 @@ export function CreaturesScreen() {
                 marginTop: 8,
               }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', fontFamily: 'Cinzel, serif' }}>
-                  {CREATURE_NAMES[c.id]}
+                  {c.custom_name?.trim() || CREATURE_NAMES[c.id]}
                 </div>
                 <div style={{ fontSize: 11, color: color, fontWeight: 600 }}>
                   {EVOLUTION_STAGE_NAMES[c.evolution_stage]}
@@ -136,7 +136,7 @@ function CreatureDetail({ creature, onBack }: { creature: Creature; onBack: () =
           {creature.domain.toUpperCase()}
         </div>
         <div style={{ fontSize: 24, fontWeight: 700, color: '#fff', fontFamily: 'Cinzel, serif' }}>
-          {CREATURE_NAMES[creature.id]}
+          {creature.custom_name?.trim() || CREATURE_NAMES[creature.id]}
         </div>
       </div>
 

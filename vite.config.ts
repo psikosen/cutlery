@@ -16,7 +16,7 @@ export default defineConfig({
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "font-src 'self' https://fonts.gstatic.com",
           "img-src 'self' data: blob:",
-          "connect-src 'self' https://*.shadow.system",
+          "connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:* https://*.shadow.system",
           "worker-src 'self'",
           "frame-src 'none'",
           "object-src 'none'",
@@ -42,6 +42,8 @@ export default defineConfig({
     },
   },
   server: {
+    host: true,
+    port: 3000,
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

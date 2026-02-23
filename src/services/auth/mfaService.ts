@@ -81,9 +81,11 @@ async function computeHOTP(secret: string, counter: number): Promise<string> {
   view.setUint32(4, counter, false); // Big-endian
 
   // HMAC-SHA1
+  // Create a copy backed by ArrayBuffer (not SharedArrayBuffer) for WebCrypto typing.
+  const keyMaterial = Uint8Array.from(secretBytes);
   const key = await crypto.subtle.importKey(
     'raw',
-    secretBytes,
+    keyMaterial,
     { name: 'HMAC', hash: 'SHA-1' },
     false,
     ['sign']

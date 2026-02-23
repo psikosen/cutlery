@@ -1,0 +1,38 @@
+{
+  "swim_samples": [
+    {
+      "x": 154.3844580777096,
+      "y": 195.48466257668713,
+      "count": 978
+    },
+    {
+      "x": 160.64875621890548,
+      "y": 76.29651741293533,
+      "count": 1005
+    },
+    {
+      "x": 216.00407747196738,
+      "y": 213.43119266055047,
+      "count": 981
+    }
+  ],
+  "swim_max_delta": 147.8855325794195,
+  "feed_checks": {
+    "healthBefore": {
+      "text": "FEED PARTICLES (DAILY)",
+      "enabled": true
+    },
+    "healthAfterFeed": {
+      "text": "FED TODAY (THIS CREATURE)",
+      "enabled": false
+    },
+    "discipline": {
+      "text": "FED TODAY (THIS CREATURE)",
+      "enabled": false
+    },
+    "healthReturn": {
+      "text": "FED TODAY (THIS CREATURE)",
+      "enabled": false
+    }
+  }
+}

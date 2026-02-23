@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 
 export function LoginScreen() {
   const { authState, sendOTP, verifyOTP, verifyMFACode, skipAuth } = useAuth();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('raymondgonzalez22@Gmail.com');
   const [otpCode, setOtpCode] = useState('');
   const [mfaCode, setMfaCode] = useState('');
   const [loading, setLoading] = useState(false);

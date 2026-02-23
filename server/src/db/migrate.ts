@@ -137,6 +137,14 @@ const MIGRATIONS = [
       );
     `,
   },
+  {
+    version: 2,
+    name: 'creature_custom_name',
+    sql: `
+      ALTER TABLE creatures
+      ADD COLUMN IF NOT EXISTS custom_name TEXT;
+    `,
+  },
 ];
 
 async function migrate() {
