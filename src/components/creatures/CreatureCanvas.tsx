@@ -1,11 +1,20 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { Creature, CreatureId } from '../../types';
 import { renderCreature } from '../../renderer/creatureRenderer';
+import {
+  createSeededRng,
+  deriveSeed,
+  randomInt,
+  randomRange,
+  samplePoissonDiskPoints,
+  type RectBounds,
+} from '../../utils/prng';
 
 interface CreatureCanvasProps {
   creature: Creature;
   width?: number;
   height?: number;
+  fillWidth?: boolean;
   style?: React.CSSProperties;
   onClick?: () => void;
   wander?: boolean;
@@ -52,22 +61,17 @@ const CONSUME_STYLE_BY_CREATURE: Record<CreatureId, ConsumeStyle> = {
 };
 
 const SPEED_TIERS = [2 / 3, 1 / 2] as const;
+const GLOBAL_SPEED_MULTIPLIER = 0.92;
 
 function getCreatureSpeedScale(creature: Creature) {
-  const seed = `${creature.id}:${creature.appearance_seed}`;
-  let hash = 2166136261;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash ^= seed.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  const bucket = (hash >>> 0) % SPEED_TIERS.length;
-  return SPEED_TIERS[bucket];
+  const bucket = deriveSeed(creature.id, creature.appearance_seed, 'speed-tier') % SPEED_TIERS.length;
+  return SPEED_TIERS[bucket] * GLOBAL_SPEED_MULTIPLIER;
 }
 
-function randomFoodColor() {
-  const hue = Math.floor(Math.random() * 360);
-  const saturation = 72 + Math.floor(Math.random() * 18);
-  const lightness = 56 + Math.floor(Math.random() * 14);
+function randomFoodColor(rand: () => number) {
+  const hue = randomInt(rand, 0, 359);
+  const saturation = 72 + randomInt(rand, 0, 17);
+  const lightness = 56 + randomInt(rand, 0, 13);
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
@@ -75,6 +79,7 @@ export const CreatureCanvas = React.memo(function CreatureCanvas({
   creature,
   width = 300,
   height = 300,
+  fillWidth = false,
   style,
   onClick,
   wander = true,
@@ -82,6 +87,7 @@ export const CreatureCanvas = React.memo(function CreatureCanvas({
   petBurstKey = 0,
 }: CreatureCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const hostRef = useRef<HTMLDivElement>(null);
   const animFrameRef = useRef<number>(0);
   const startTimeRef = useRef<number>(0);
   const foodDropRef = useRef<FoodDrop | null>(null);
@@ -91,6 +97,32 @@ export const CreatureCanvas = React.memo(function CreatureCanvas({
   const lastFoodBurstKeyRef = useRef<number>(0);
   const lastPetBurstKeyRef = useRef<number>(0);
   const shakeUntilRef = useRef<number>(0);
+  const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+  const [measuredWidth, setMeasuredWidth] = useState(width);
+
+  useEffect(() => {
+    if (!fillWidth) {
+      setMeasuredWidth(width);
+      return undefined;
+    }
+    const host = hostRef.current;
+    if (!host) return undefined;
+
+    const updateSize = () => {
+      // Use host width (content box) so padding on parent cards doesn't cause overflow.
+      const nextWidth = Math.max(1, Math.floor(host.clientWidth));
+      setMeasuredWidth(nextWidth);
+    };
+
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, [fillWidth, width]);
+
+  const renderWidth = useMemo(() => (
+    fillWidth ? Math.max(1, measuredWidth) : width
+  ), [fillWidth, measuredWidth, width]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -100,48 +132,117 @@ export const CreatureCanvas = React.memo(function CreatureCanvas({
 
     startTimeRef.current = performance.now();
     const speedScale = getCreatureSpeedScale(creature);
+    const visualWidth = fillWidth ? width * dpr : canvas.width;
+    const visualHeight = canvas.height;
+    const rand = createSeededRng(
+      deriveSeed(
+        creature.id,
+        creature.appearance_seed,
+        renderWidth,
+        height,
+        foodBurstKey,
+        petBurstKey,
+        'creature-canvas-motion',
+      ),
+    );
 
     const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
-    const getSwimBounds = () => {
-      const marginX = canvas.width * 0.16;
-      const marginTop = canvas.height * 0.2;
-      const marginBottom = canvas.height * 0.18;
-      return {
-        minX: marginX,
-        maxX: canvas.width - marginX,
-        minY: marginTop,
-        maxY: canvas.height - marginBottom,
-      };
+    const marginX = canvas.width * 0.08;
+    const marginTop = canvas.height * 0.2;
+    const marginBottom = canvas.height * 0.18;
+    const swimBounds: RectBounds = {
+      minX: marginX,
+      maxX: canvas.width - marginX,
+      minY: marginTop,
+      maxY: canvas.height - marginBottom,
     };
+    const swimWidth = swimBounds.maxX - swimBounds.minX;
+    const swimHeight = swimBounds.maxY - swimBounds.minY;
+    const swimCenterX = (swimBounds.minX + swimBounds.maxX) * 0.5;
+    const swimCenterY = (swimBounds.minY + swimBounds.maxY) * 0.5;
+
+    const swimAnchorDistance = Math.max(
+      28,
+      Math.min(swimWidth, swimHeight) * 0.28,
+    );
+    const swimAnchors = samplePoissonDiskPoints(swimBounds, {
+      minDistance: swimAnchorDistance,
+      maxPoints: 12,
+      random: rand,
+    });
+    if (swimAnchors.length === 0) {
+      swimAnchors.push({ x: swimCenterX, y: swimCenterY });
+    }
+
+    const foodAnchorDistance = Math.max(
+      22,
+      Math.min(swimWidth, swimHeight) * 0.22,
+    );
+    const foodAnchors = samplePoissonDiskPoints(swimBounds, {
+      minDistance: foodAnchorDistance,
+      maxPoints: 18,
+      random: rand,
+    });
+    if (foodAnchors.length === 0) {
+      foodAnchors.push(...swimAnchors);
+    }
+    let foodAnchorCursor = randomInt(rand, 0, foodAnchors.length - 1);
+    let lastFoodAnchor: { x: number; y: number } | null = null;
 
     const pickSwimTarget = (elapsed: number): SwimTarget => {
-      const bounds = getSwimBounds();
+      const anchor = swimAnchors[randomInt(rand, 0, swimAnchors.length - 1)];
+      const jitter = Math.max(12, Math.min(swimWidth, swimHeight) * 0.09);
       return {
-        x: bounds.minX + Math.random() * (bounds.maxX - bounds.minX),
-        y: bounds.minY + Math.random() * (bounds.maxY - bounds.minY),
-        nextShiftAt: elapsed + 1.9 + Math.random() * 2.7,
+        x: clamp(anchor.x + randomRange(rand, -jitter, jitter), swimBounds.minX, swimBounds.maxX),
+        y: clamp(anchor.y + randomRange(rand, -jitter, jitter), swimBounds.minY, swimBounds.maxY),
+        nextShiftAt: elapsed + randomRange(rand, 2.0, 4.6),
       };
     };
 
     const spawnFoodDrop = (baseX: number, baseY: number, elapsed: number) => {
-      const bounds = getSwimBounds();
-      const side = Math.random() < 0.5 ? -1 : 1;
-      const spread = (bounds.maxX - bounds.minX) * (0.2 + Math.random() * 0.15);
-      const x = clamp(baseX + side * spread, bounds.minX, bounds.maxX);
-      const hoverY = clamp(baseY + (Math.random() - 0.5) * 70, bounds.minY, bounds.maxY);
-      const y = Math.max(bounds.minY - 60, hoverY - (34 + Math.random() * 26));
-      const vy = 0.7 + Math.random() * 0.55;
+      let bestAnchor = foodAnchors[foodAnchorCursor];
+      let bestScore = -Infinity;
+      const scans = Math.min(foodAnchors.length, 7);
+      for (let i = 0; i < scans; i += 1) {
+        const idx = (foodAnchorCursor + i) % foodAnchors.length;
+        const candidate = foodAnchors[idx];
+        const distanceFromCreature = Math.hypot(candidate.x - baseX, candidate.y - baseY);
+        const distanceFromLast = lastFoodAnchor
+          ? Math.hypot(candidate.x - lastFoodAnchor.x, candidate.y - lastFoodAnchor.y)
+          : Math.max(swimWidth, swimHeight);
+        const score = distanceFromCreature * 0.72 + distanceFromLast * 0.28;
+        if (score > bestScore) {
+          bestScore = score;
+          bestAnchor = candidate;
+          foodAnchorCursor = idx;
+        }
+      }
+      foodAnchorCursor = (foodAnchorCursor + 1) % foodAnchors.length;
+      lastFoodAnchor = bestAnchor;
+
+      const x = clamp(
+        bestAnchor.x + randomRange(rand, -swimWidth * 0.035, swimWidth * 0.035),
+        swimBounds.minX,
+        swimBounds.maxX,
+      );
+      const hoverY = clamp(
+        bestAnchor.y + randomRange(rand, -swimHeight * 0.08, swimHeight * 0.08),
+        swimBounds.minY,
+        swimBounds.maxY,
+      );
+      const y = Math.max(swimBounds.minY - 60, hoverY - randomRange(rand, 34, 60));
+      const vy = randomRange(rand, 0.7, 1.25);
       const styleForCreature = CONSUME_STYLE_BY_CREATURE[creature.id] || 'eat';
       foodDropRef.current = {
         x,
         y,
-        vx: (Math.random() - 0.5) * 0.65,
+        vx: randomRange(rand, -0.35, 0.35),
         vy,
         hoverY,
-        bobPhase: Math.random() * Math.PI * 2,
-        radius: 6 + Math.random() * 3,
-        color: randomFoodColor(),
+        bobPhase: randomRange(rand, 0, Math.PI * 2),
+        radius: randomRange(rand, 6, 9),
+        color: randomFoodColor(rand),
         phase: 'dropping',
         consumeProgress: 0,
         style: styleForCreature,
@@ -241,9 +342,9 @@ export const CreatureCanvas = React.memo(function CreatureCanvas({
 
     const frame = (now: number) => {
       const elapsed = (now - startTimeRef.current) / 1000;
-      const bounds = getSwimBounds();
-      const centerX = (bounds.minX + bounds.maxX) * 0.5;
-      const centerY = (bounds.minY + bounds.maxY) * 0.5;
+      const bounds = swimBounds;
+      const centerX = swimCenterX;
+      const centerY = swimCenterY;
 
       if (!motionInitializedRef.current) {
         motionRef.current = { x: centerX, y: centerY, vx: 0, vy: 0 };
@@ -353,17 +454,17 @@ export const CreatureCanvas = React.memo(function CreatureCanvas({
       if (elapsed < shakeUntilRef.current) {
         const t = (shakeUntilRef.current - elapsed) / 0.42;
         const strength = Math.max(0, t) * 8;
-        shakeOffsetX = (Math.random() - 0.5) * strength;
-        shakeOffsetY = (Math.random() - 0.5) * strength * 0.6;
+        shakeOffsetX = randomRange(rand, -0.5, 0.5) * strength;
+        shakeOffsetY = randomRange(rand, -0.5, 0.5) * strength * 0.6;
       }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
       ctx.translate(
-        motion.x - canvas.width / 2 + shakeOffsetX,
-        motion.y - canvas.height * 0.45 + shakeOffsetY,
+        motion.x - visualWidth / 2 + shakeOffsetX,
+        motion.y - visualHeight * 0.45 + shakeOffsetY,
       );
-      renderCreature(ctx, creature, canvas.width, canvas.height, elapsed, { skipClear: true });
+      renderCreature(ctx, creature, visualWidth, visualHeight, elapsed, { skipClear: true });
       ctx.restore();
       if (activeFood) {
         drawFoodDrop(activeFood, motion.x, motion.y, elapsed);
@@ -380,24 +481,33 @@ export const CreatureCanvas = React.memo(function CreatureCanvas({
       motionInitializedRef.current = false;
       shakeUntilRef.current = 0;
     };
-  }, [creature, wander, foodBurstKey, petBurstKey]);
-
-  // Handle DPR for sharp rendering
-  const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+  }, [creature, wander, foodBurstKey, petBurstKey, renderWidth, height, fillWidth, width, dpr]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={width * dpr}
-      height={height * dpr}
-      onClick={onClick}
+    <div
+      ref={hostRef}
       style={{
-        width: `${width}px`,
-        height: `${height}px`,
-        cursor: onClick ? 'pointer' : 'default',
-        ...style,
+        width: '100%',
+        maxWidth: '100%',
+        display: 'block',
+        overflow: 'hidden',
+        pointerEvents: onClick ? 'auto' : 'none',
       }}
-    />
+    >
+      <canvas
+        ref={canvasRef}
+        width={renderWidth * dpr}
+        height={height * dpr}
+        onClick={onClick}
+        style={{
+          width: `${renderWidth}px`,
+          height: `${height}px`,
+          cursor: onClick ? 'pointer' : 'default',
+          pointerEvents: onClick ? 'auto' : 'none',
+          ...style,
+        }}
+      />
+    </div>
   );
 }, (prev, next) => {
   // Only re-render if creature data actually changed
@@ -408,6 +518,7 @@ export const CreatureCanvas = React.memo(function CreatureCanvas({
     && prev.creature.custom_name === next.creature.custom_name
     && prev.width === next.width
     && prev.height === next.height
+    && prev.fillWidth === next.fillWidth
     && prev.wander === next.wander
     && prev.foodBurstKey === next.foodBurstKey
     && prev.petBurstKey === next.petBurstKey;

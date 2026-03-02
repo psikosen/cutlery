@@ -4,14 +4,11 @@
 
 import type { Creature, BodySlot } from '../types';
 import type { CreaturePhenotype } from '../services/evolution';
+import { createSeededRng } from '../utils/prng';
 
 // Seeded random for deterministic rendering
 export function seededRandom(seed: number): () => number {
-  let s = seed;
-  return () => {
-    s = (s * 16807 + 0) % 2147483647;
-    return (s - 1) / 2147483646;
-  };
+  return createSeededRng(seed);
 }
 
 // Body slot positions (normalized 0-1 space)

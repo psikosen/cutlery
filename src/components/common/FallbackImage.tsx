@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { createSeededRng, deriveSeed, randomInt } from '../../utils/prng';
 
 interface FallbackImageProps {
   width: number;
@@ -17,9 +18,12 @@ export function FallbackImage({ width, height, seed = 0, style }: FallbackImageP
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Seeded random
-    let s = seed || Math.floor(Math.random() * 99999);
-    const rand = () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+    const fallbackSeed = seed > 0 ? seed : randomInt(
+      createSeededRng(deriveSeed(width, height, 'fallback-image')),
+      1,
+      99999,
+    );
+    const rand = createSeededRng(fallbackSeed);
 
     const colors = [
       ['#C0C0C0', '#2d2d2d', '#1a1a1a'],

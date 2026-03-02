@@ -382,6 +382,105 @@ const TASK_TEMPLATES: TaskTemplate[] = [
   { name: 'Mediterranean Arc VIII: Budget Longevity Basket', description: 'Complete the full healthy basket plan while staying under budget', icon: '💰', domain: 'finance', category: 'arc', difficulty: 4, type: 'weekly', gene_type: 'apoe_vault', xp: 60, gold: 35, repeatable: true },
   { name: 'Mediterranean Arc IX: Salt & Sugar Discipline', description: 'Hold low-salt and low-added-sugar targets for 6 days this week', icon: '⚖️', domain: 'discipline', category: 'arc', difficulty: 4, type: 'weekly', gene_type: 'adora2a_brake', xp: 65, gold: 36, repeatable: true },
   { name: 'Mediterranean Arc X: Longevity Ascension', description: 'Finish all arc chapters and complete a full centenarian-style week', icon: '👑', domain: 'health', category: 'arc', difficulty: 5, type: 'boss', gene_type: 'vegf_capillary', xp: 140, gold: 80, repeatable: true },
+
+  // ===== LIFE IMPROVEMENT EXPANSION PACK =====
+  // Health
+  { name: 'Morning Mobility 12', description: 'Complete 12 minutes of joint mobility after waking', icon: '🤸', domain: 'health', category: 'flexibility', difficulty: 1, type: 'daily', gene_type: 'tendon_whip', xp: 24, gold: 12, repeatable: true },
+  { name: 'Protein + Produce Plate', description: 'Build one meal with lean protein plus at least 2 produce portions', icon: '🍽️', domain: 'health', category: 'nutrition', difficulty: 2, type: 'daily', gene_type: 'igf1_driver', xp: 30, gold: 15, repeatable: true },
+  { name: 'Cardio Capacity 90', description: 'Accumulate 90 total cardio minutes across this week', icon: '🏃', domain: 'health', category: 'cardio', difficulty: 2, type: 'weekly', gene_type: 'vein_network', xp: 45, gold: 24, repeatable: true },
+  { name: 'Recovery Protocol Week', description: 'Complete sleep, hydration, and cooldown goals for 5 days this week', icon: '🛌', domain: 'health', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'blood_shard', xp: 120, gold: 60, repeatable: true },
+
+  // Mind
+  { name: 'No-Scroll Learning Hour', description: 'Study one topic for 60 minutes with social apps closed', icon: '📚', domain: 'mind', category: 'learning', difficulty: 2, type: 'daily', gene_type: 'chrna4_focus', xp: 32, gold: 16, repeatable: true },
+  { name: 'One-Page Synthesis', description: 'Write a one-page summary of something you learned today', icon: '📝', domain: 'mind', category: 'memory', difficulty: 2, type: 'daily', gene_type: 'wwc1_trace', xp: 32, gold: 16, repeatable: true },
+  { name: 'Decision Matrix Session', description: 'Use a simple decision matrix for one real choice this week', icon: '🧮', domain: 'mind', category: 'problemsolving', difficulty: 3, type: 'weekly', gene_type: 'comt_filter', xp: 48, gold: 25, repeatable: true },
+  { name: 'Teachback Challenge', description: 'Teach a complex concept clearly to another person', icon: '🎓', domain: 'mind', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'psychic_crown', xp: 125, gold: 62, repeatable: true },
+
+  // Discipline
+  { name: 'Phone-Free First Hour', description: 'Avoid phone/social apps during your first hour after waking', icon: '📵', domain: 'discipline', category: 'routine', difficulty: 2, type: 'daily', gene_type: 'chain_link', xp: 28, gold: 14, repeatable: true },
+  { name: 'Evening Shutdown Ritual', description: 'Run your planned shutdown checklist before bed', icon: '🕯️', domain: 'discipline', category: 'mindfulness', difficulty: 2, type: 'daily', gene_type: 'ritual_glyph', xp: 30, gold: 15, repeatable: true },
+  { name: 'Weekly Habit Audit', description: 'Review habits, score consistency, and adjust one friction point', icon: '📋', domain: 'discipline', category: 'planning', difficulty: 2, type: 'weekly', gene_type: 'wardens_eye', xp: 42, gold: 22, repeatable: true },
+  { name: '7-Day Consistency Chain', description: 'Hit your top 3 daily habits for 7 days straight', icon: '⛓️', domain: 'discipline', category: 'boss', difficulty: 5, type: 'boss', gene_type: 'chain_link', xp: 150, gold: 80, repeatable: true },
+
+  // Career
+  { name: 'Inbox Zero Sprint', description: 'Clear and prioritize inbox to zero actionable leftovers', icon: '📨', domain: 'career', category: 'work', difficulty: 2, type: 'daily', gene_type: 'gear_assembly', xp: 30, gold: 15, repeatable: true },
+  { name: 'Stakeholder Update Note', description: 'Send one clear status update with risks and next steps', icon: '📣', domain: 'career', category: 'communication', difficulty: 2, type: 'daily', gene_type: 'cable_nerve', xp: 30, gold: 15, repeatable: true },
+  { name: 'Deep Work Blueprint', description: 'Plan and execute 3 focused work blocks this week', icon: '📐', domain: 'career', category: 'planning', difficulty: 3, type: 'weekly', gene_type: 'blueprint_glyph', xp: 50, gold: 26, repeatable: true },
+  { name: 'Ship Meaningful Upgrade', description: 'Deliver one improvement that measurably helps users or team', icon: '🚀', domain: 'career', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'exhaust_vent', xp: 130, gold: 70, repeatable: true },
+
+  // Finance
+  { name: 'Cashflow Review 15', description: 'Run a 15-minute cashflow check and categorize all transactions', icon: '💹', domain: 'finance', category: 'tracking', difficulty: 1, type: 'daily', gene_type: 'ledger_glyph', xp: 24, gold: 12, repeatable: true },
+  { name: 'Debt Snowball Step', description: 'Make one extra principal payment toward your highest-priority debt', icon: '🧱', domain: 'finance', category: 'saving', difficulty: 2, type: 'daily', gene_type: 'debt_fang', xp: 30, gold: 15, repeatable: true },
+  { name: 'Auto-Save Raise', description: 'Increase automatic savings or investment contribution this week', icon: '📈', domain: 'finance', category: 'investing', difficulty: 3, type: 'weekly', gene_type: 'lpl_stream', xp: 48, gold: 25, repeatable: true },
+  { name: 'Budget Lock Boss', description: 'Finish a full zero-based budget and hold it for 7 days', icon: '🔐', domain: 'finance', category: 'boss', difficulty: 5, type: 'boss', gene_type: 'crown_jewel', xp: 155, gold: 85, repeatable: true },
+
+  // Social
+  { name: 'Quiet Friend Check-in', description: 'Reach out intentionally to someone who is usually quiet or isolated', icon: '💬', domain: 'social', category: 'maintain', difficulty: 1, type: 'daily', gene_type: 'bond_marrow', xp: 24, gold: 12, repeatable: true },
+  { name: 'Conflict Repair Message', description: 'Send one respectful message to repair or clarify tension', icon: '🕊️', domain: 'social', category: 'empathy', difficulty: 2, type: 'daily', gene_type: 'gabra2_calm', xp: 30, gold: 15, repeatable: true },
+  { name: 'Community Circle Session', description: 'Join or organize one group support conversation this week', icon: '🫂', domain: 'social', category: 'team', difficulty: 3, type: 'weekly', gene_type: 'harmony_thread', xp: 45, gold: 24, repeatable: true },
+  { name: 'Support Meetup Lead', description: 'Host a small meetup focused on shared growth and accountability', icon: '🎤', domain: 'social', category: 'boss', difficulty: 4, type: 'boss', gene_type: 'pulse_drum', xp: 130, gold: 70, repeatable: true },
+
+  // ===== HUMAN THRIVING EXPANSION PACK =====
+  // Health
+  { name: 'Strength Circuit 30', description: 'Complete a 30-minute full-body strength circuit', icon: '🏋️', domain: 'health', category: 'strength', difficulty: 2, type: 'daily', gene_type: 'muscle_fiber', xp: 32, gold: 16, repeatable: true },
+  { name: 'Zone 2 Trio Week', description: 'Finish 3 separate low-intensity cardio sessions this week', icon: '🚴', domain: 'health', category: 'cardio', difficulty: 3, type: 'weekly', gene_type: 'vein_network', xp: 50, gold: 26, repeatable: true },
+  { name: 'Sleep Consistency 5/7', description: 'Hit your target sleep window on at least 5 nights this week', icon: '😴', domain: 'health', category: 'recovery', difficulty: 3, type: 'weekly', gene_type: 'blood_shard', xp: 52, gold: 28, repeatable: true },
+  { name: 'Longevity Foundation Boss', description: 'Complete movement, hydration, and recovery goals for 7 days', icon: '👑', domain: 'health', category: 'boss', difficulty: 5, type: 'boss', gene_type: 'marrow_core', xp: 165, gold: 90, repeatable: true },
+
+  // Mind
+  { name: 'Deep Reading + Notes', description: 'Read for 30+ minutes and capture 5 key insights', icon: '📖', domain: 'mind', category: 'reading', difficulty: 2, type: 'daily', gene_type: 'eye_cluster', xp: 30, gold: 15, repeatable: true },
+  { name: 'Skill Ladder Session', description: 'Practice one skill with progressive difficulty for 45 minutes', icon: '🧠', domain: 'mind', category: 'learning', difficulty: 3, type: 'daily', gene_type: 'neural_tendril', xp: 42, gold: 22, repeatable: true },
+  { name: 'Weekly Learning Synthesis', description: 'Summarize your top lessons from the week into one clear brief', icon: '📝', domain: 'mind', category: 'reflection', difficulty: 3, type: 'weekly', gene_type: 'memory_sac', xp: 50, gold: 26, repeatable: true },
+  { name: 'Mind Mastery Boss', description: 'Complete 12 mind-focused tasks this week with no skipped day', icon: '🧬', domain: 'mind', category: 'boss', difficulty: 5, type: 'boss', gene_type: 'psychic_crown', xp: 170, gold: 90, repeatable: true },
+
+  // Discipline
+  { name: 'Top-3 Priorities Lock', description: 'Define your top 3 priorities and complete all 3 today', icon: '🔒', domain: 'discipline', category: 'routine', difficulty: 2, type: 'daily', gene_type: 'chain_link', xp: 30, gold: 15, repeatable: true },
+  { name: 'Distraction Block 45', description: 'Work 45 minutes with all non-essential notifications disabled', icon: '🔕', domain: 'discipline', category: 'resistance', difficulty: 2, type: 'daily', gene_type: 'iron_plate', xp: 30, gold: 15, repeatable: true },
+  { name: 'Weekly Habit Retrospective', description: 'Review your habit logs and adjust one behavior bottleneck', icon: '📊', domain: 'discipline', category: 'tracking', difficulty: 2, type: 'weekly', gene_type: 'wardens_eye', xp: 42, gold: 22, repeatable: true },
+  { name: 'Discipline Chain Boss', description: 'Maintain your core habit chain for 10 straight days', icon: '⛓️', domain: 'discipline', category: 'boss', difficulty: 5, type: 'boss', gene_type: 'lock_core', xp: 170, gold: 92, repeatable: true },
+
+  // Career
+  { name: 'Impact Task First', description: 'Complete your highest-impact task before checking low-priority work', icon: '🎯', domain: 'career', category: 'focus', difficulty: 2, type: 'daily', gene_type: 'furnace_core', xp: 32, gold: 16, repeatable: true },
+  { name: 'Documentation Delta', description: 'Improve documentation so another person can execute the work', icon: '📚', domain: 'career', category: 'quality', difficulty: 2, type: 'daily', gene_type: 'crane_claw', xp: 32, gold: 16, repeatable: true },
+  { name: 'Weekly Outcome Review', description: 'Review weekly outputs and set next-week priorities with deadlines', icon: '📐', domain: 'career', category: 'planning', difficulty: 3, type: 'weekly', gene_type: 'blueprint_glyph', xp: 50, gold: 26, repeatable: true },
+  { name: 'Deliverable Streak Boss', description: 'Ship one meaningful deliverable each day for 5 workdays', icon: '🚀', domain: 'career', category: 'boss', difficulty: 5, type: 'boss', gene_type: 'exhaust_vent', xp: 175, gold: 95, repeatable: true },
+
+  // Finance
+  { name: 'Cashflow Snapshot', description: 'Review income, expenses, and net flow for the current day', icon: '💹', domain: 'finance', category: 'tracking', difficulty: 1, type: 'daily', gene_type: 'ledger_glyph', xp: 22, gold: 10, repeatable: true },
+  { name: '24h No-Spend Rule', description: 'Spend only on essentials for the entire day', icon: '🛑', domain: 'finance', category: 'saving', difficulty: 2, type: 'daily', gene_type: 'gold_scale', xp: 30, gold: 15, repeatable: true },
+  { name: 'Weekly Money Plan', description: 'Set a weekly spending and saving plan before the week begins', icon: '🧾', domain: 'finance', category: 'planning', difficulty: 2, type: 'weekly', gene_type: 'coin_disc', xp: 40, gold: 22, repeatable: true },
+  { name: 'Financial Stability Boss', description: 'Complete budget, savings, and expense-tracking goals for 4 weeks', icon: '🏆', domain: 'finance', category: 'boss', difficulty: 5, type: 'boss', gene_type: 'crown_jewel', xp: 180, gold: 100, repeatable: true },
+
+  // Social
+  { name: 'Gratitude Voice Note', description: 'Send one sincere voice note thanking someone', icon: '🎙️', domain: 'social', category: 'connection', difficulty: 1, type: 'daily', gene_type: 'vocal_cord', xp: 24, gold: 12, repeatable: true },
+  { name: 'Presence Hour', description: 'Spend 60 focused minutes with someone, fully phone-free', icon: '🫂', domain: 'social', category: 'maintain', difficulty: 2, type: 'daily', gene_type: 'memory_face', xp: 30, gold: 15, repeatable: true },
+  { name: 'Community Touchpoint', description: 'Participate in one group, club, or community check-in this week', icon: '🤝', domain: 'social', category: 'team', difficulty: 2, type: 'weekly', gene_type: 'harmony_thread', xp: 42, gold: 22, repeatable: true },
+  { name: 'Connection Builder Boss', description: 'Complete at least one meaningful social action every day for 10 days', icon: '🌟', domain: 'social', category: 'boss', difficulty: 5, type: 'boss', gene_type: 'resonance_horn', xp: 170, gold: 92, repeatable: true },
+
+  // ===== MICRO TASKS (5–10 MIN) =====
+  // Health
+  { name: 'Brisk 10 Walk', description: 'Take a brisk 10-minute walk', icon: '🚶', domain: 'health', category: 'cardio', difficulty: 1, type: 'daily', gene_type: 'vein_network', xp: 22, gold: 10, repeatable: true },
+  { name: '5-Min Calm Breathing', description: 'Complete 5 minutes of slow, controlled breathing', icon: '🌬️', domain: 'health', category: 'recovery', difficulty: 1, type: 'daily', gene_type: 'lung_bellows', xp: 20, gold: 10, repeatable: true },
+
+  // Mind
+  { name: '5-Min Recall Burst', description: 'Recall key points from what you learned today without notes', icon: '🧠', domain: 'mind', category: 'memory', difficulty: 1, type: 'daily', gene_type: 'wwc1_trace', xp: 22, gold: 10, repeatable: true },
+  { name: '10-Min Deep Read', description: 'Read one focused article or chapter segment for 10 minutes', icon: '📖', domain: 'mind', category: 'reading', difficulty: 1, type: 'daily', gene_type: 'eye_cluster', xp: 22, gold: 10, repeatable: true },
+
+  // Discipline
+  { name: '5-Min Plan Reset', description: 'Review your top priorities and reset your next action', icon: '📋', domain: 'discipline', category: 'planning', difficulty: 1, type: 'daily', gene_type: 'wardens_eye', xp: 20, gold: 10, repeatable: true },
+  { name: '10-Min Screen-Off Winddown', description: 'Spend 10 minutes device-free before sleep', icon: '🌙', domain: 'discipline', category: 'routine', difficulty: 1, type: 'daily', gene_type: 'cry1_quiet', xp: 20, gold: 10, repeatable: true },
+
+  // Career
+  { name: '10-Min Desk Triage', description: 'Clear one bottleneck: inbox, task queue, or blockers list', icon: '🧹', domain: 'career', category: 'work', difficulty: 1, type: 'daily', gene_type: 'gear_assembly', xp: 22, gold: 10, repeatable: true },
+  { name: '5-Min Quality Sweep', description: 'Do a quick quality pass before marking work complete', icon: '✅', domain: 'career', category: 'quality', difficulty: 1, type: 'daily', gene_type: 'crane_claw', xp: 22, gold: 10, repeatable: true },
+
+  // Finance
+  { name: '5-Min Spend Log', description: 'Log today’s spending in your tracker', icon: '🧾', domain: 'finance', category: 'tracking', difficulty: 1, type: 'daily', gene_type: 'ledger_glyph', xp: 20, gold: 10, repeatable: true },
+  { name: '10-Min Bill Check', description: 'Review one bill, fee, or subscription for savings opportunities', icon: '💸', domain: 'finance', category: 'analysis', difficulty: 1, type: 'daily', gene_type: 'abca1_cache', xp: 22, gold: 10, repeatable: true },
+
+  // Social
+  { name: '5-Min Kind Check-In', description: 'Send a short supportive message to someone', icon: '💌', domain: 'social', category: 'connection', difficulty: 1, type: 'daily', gene_type: 'oxtr_bridge', xp: 20, gold: 10, repeatable: true },
+  { name: '10-Min Listening Moment', description: 'Give someone 10 minutes of full, interruption-free listening', icon: '👂', domain: 'social', category: 'empathy', difficulty: 1, type: 'daily', gene_type: 'gabra2_calm', xp: 22, gold: 10, repeatable: true },
 ];
 
 export function generateDefaultTasks(): Task[] {

@@ -183,8 +183,9 @@ export function HubScreen() {
         {activeCreature && (
           <CreatureCanvas
             creature={activeCreature}
-            width={280}
+            width={320}
             height={280}
+            fillWidth
             wander
             foodBurstKey={feedBurstKey}
             petBurstKey={petBurstKey}

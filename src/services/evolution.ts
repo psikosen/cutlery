@@ -15,6 +15,7 @@
 // - Fitness: Based on gene count, diversity, and tier quality
 
 import type { Creature, GeneTier, EvolutionStage } from '../types';
+import { createSeededRng } from '../utils/prng';
 
 // ============================================================
 // CHROMOSOME STRUCTURE
@@ -76,20 +77,6 @@ const CHROMOSOME_KEYS: (keyof CreatureChromosome)[] = [
 ];
 
 // ============================================================
-// SEEDED PRNG
-// ============================================================
-
-function mulberry32(seed: number): () => number {
-  let s = seed | 0;
-  return () => {
-    s = (s + 0x6D2B79F5) | 0;
-    let t = Math.imul(s ^ (s >>> 15), 1 | s);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-// ============================================================
 // GENERATE INITIAL CHROMOSOME
 // ============================================================
 
@@ -98,7 +85,7 @@ function mulberry32(seed: number): () => number {
  * Each domain biases certain traits differently.
  */
 export function generateInitialChromosome(seed: number, domain: string): CreatureChromosome {
-  const rand = mulberry32(seed);
+  const rand = createSeededRng(seed);
   const chr: CreatureChromosome = {} as CreatureChromosome;
 
   // Start with random base values
@@ -164,7 +151,7 @@ export function mutateChromosome(
   tier: GeneTier,
   seed: number,
 ): CreatureChromosome {
-  const rand = mulberry32(seed);
+  const rand = createSeededRng(seed);
   const mutated = { ...chr };
 
   // Mutation rate scales with tier
@@ -316,7 +303,7 @@ export function crossover(
   parent2: CreatureChromosome,
   seed: number,
 ): CreatureChromosome {
-  const rand = mulberry32(seed);
+  const rand = createSeededRng(seed);
   const child: CreatureChromosome = {} as CreatureChromosome;
 
   for (const key of CHROMOSOME_KEYS) {
@@ -422,39 +409,41 @@ export interface CreaturePhenotype {
 
 export function extractPhenotype(chr: CreatureChromosome, stage: EvolutionStage): CreaturePhenotype {
   const stageMultiplier = 1 + stage * 0.4;
+  // Keep a non-zero expression floor so embryo-stage creatures still show identity.
+  const expressionFactor = 0.35 + (stage / 5) * 0.65;
 
   return {
     // Body
-    bodyPointCount: Math.floor(8 + chr.bodySegments * 40 * (stage / 5)),
+    bodyPointCount: Math.floor(8 + chr.bodySegments * 14 * expressionFactor + stage * 4),
     bodyRadiusMultiplier: 0.8 + chr.bodyElongation * 0.6,
     bodyVerticalStretch: 1 + chr.bodyElongation * 0.5,
     bodyWobbleAmplitude: 0.03 + chr.bodyAsymmetry * 0.12,
     segmentCount: Math.floor(1 + chr.bodySegments * 4),
 
     // Tentacles
-    tentacleCount: Math.floor(2 + chr.tentacleLength * 18 * (stage / 5)),
+    tentacleCount: Math.floor(2 + chr.tentacleLength * 8 * expressionFactor + stage * 2),
     tentacleBaseLength: 0.4 + chr.tentacleLength * 1.0,
     tentacleCurvature: chr.tentacleCurl * 2.0,
     tentacleWidth: 1 + chr.tentacleThickness * 4,
     tentacleBranches: Math.floor(chr.tentacleBranching * 3),
 
     // Eyes
-    eyeCount: Math.floor(1 + chr.eyeSize * 14 * (stage / 5)),
+    eyeCount: Math.max(1, Math.floor(1 + chr.eyeSize * 6 * expressionFactor + stage)),
     eyeBaseSize: 2 + chr.eyeSize * 6,
     eyeSpreadAngle: 0.6 + chr.eyeSpread * 1.8,
     eyeGlow: chr.eyeGlowIntensity * 12 * stageMultiplier,
     pupilType: chr.pupilShape < 0.25 ? 'round' : chr.pupilShape < 0.5 ? 'slit' : chr.pupilShape < 0.75 ? 'cross' : 'star',
 
     // Mouth
-    mouthCount: Math.floor(chr.mouthWidth * 3 * (stage / 5)),
+    mouthCount: Math.floor(chr.mouthWidth * 2 * expressionFactor + stage * 0.25),
     mouthScale: 0.2 + chr.mouthWidth * 0.5,
     toothCount: Math.floor(4 + chr.mouthTeeth * 12),
     jawExtension: chr.jawProtrusion * 0.4,
 
     // Surface
-    spines: Math.floor(chr.spineCount * 12 * stageMultiplier),
+    spines: Math.floor(chr.spineCount * (4 + stage * 2) * expressionFactor),
     spineScale: 0.5 + chr.spineLength * 1.5,
-    plates: Math.floor(chr.plateCount * 8 * stageMultiplier),
+    plates: Math.floor(chr.plateCount * (3 + stage * 1.8) * expressionFactor),
     scars: Math.floor(chr.scarring * 6),
 
     // Color

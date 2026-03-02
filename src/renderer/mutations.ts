@@ -342,7 +342,7 @@ function drawSynapseArc(ctx: CanvasRenderingContext2D, x: number, y: number, sca
   const angle = rand() * Math.PI * 2;
   const ex = x + Math.cos(angle) * len;
   const ey = y + Math.sin(angle) * len;
-  const flicker = Math.random() > 0.3;
+  const flicker = rand() > 0.3;
   if (flicker) {
     ctx.beginPath();
     ctx.moveTo(x, y);

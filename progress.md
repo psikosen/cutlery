@@ -287,3 +287,183 @@ Original prompt: Ok awesome  take a look at this then work on getting it running
     - `output/manual-pulse-right-selector/hub-desktop-pulse-right.png`
     - `output/manual-pulse-right-selector/hub-mobile-pulse-stack.png`
   - `checks.json` confirms `pulseRightOfSelector: true`, `sameRow: true`; `errors.json` is `[]`.
+- Procedural generation upgrade pass (in progress):
+  - Added shared deterministic RNG + seed derivation + Poisson disk sampler in `src/utils/prng.ts`.
+  - Migrated generation/mutation randomness to deterministic streams:
+    - `src/services/gameEngine.ts` (creature seeds, gene visual params, fusion gene params)
+    - `src/services/evolution.ts` (now uses shared seeded RNG)
+    - `src/renderer/renderUtils.ts` and `src/renderer/mutations.ts` (removed non-seeded flicker random)
+    - `src/components/common/FallbackImage.tsx` (deterministic fallback seed)
+  - Upgraded `src/components/creatures/CreatureCanvas.tsx`:
+    - deterministic random stream per creature canvas session
+    - Poisson-disk swim anchors and food spawn anchors for better spatial distribution
+    - removed all direct `Math.random` usage from runtime movement/feed rendering path.
+  - Added runnable benchmark harness:
+    - `scripts/pcg-benchmark.ts`
+    - npm script: `npm run benchmark:pcg`
+    - added dev dependency `tsx` for running TS benchmark scripts.
+- Procedural generation methodology hardening completed (Feb 23, 2026):
+  - Added `src/utils/prng.ts` with shared deterministic RNG (`createSeededRng`), seed derivation (`deriveSeed`), range/int helpers, and Poisson-disk sampling (`samplePoissonDiskPoints`).
+  - Removed `Math.random` usage from `src/` generation/runtime rendering paths.
+  - `src/services/gameEngine.ts` now uses deterministic seeded streams for:
+    - `createAllCreatures` appearance seeds
+    - `generateGene` visual params + procedural seed
+    - `fuseGenes` upgraded gene visual params + procedural seed.
+  - `src/services/evolution.ts` now uses shared PRNG utility (removed local duplicated PRNG implementation).
+  - `src/renderer/mutations.ts` flicker now uses seeded RNG path for deterministic mutation rendering.
+  - `src/components/creatures/CreatureCanvas.tsx` now uses deterministic RNG + Poisson-disk anchors for swim targets and food drop targets (better spacing, less clumping).
+  - Added deterministic fallback seed handling in `src/components/common/FallbackImage.tsx`.
+  - Added benchmark tooling:
+    - script `scripts/pcg-benchmark.ts`
+    - npm command `npm run benchmark:pcg`
+    - dev deps `tsx` + local `playwright` for local scripted validation.
+- Validation results:
+  - Frontend build passes: `npm run build`.
+  - Benchmark run passes: `npm run benchmark:pcg -- --samples 120 --genes 24 --determinism-samples 16`.
+  - Benchmark output (latest):
+    - `geneVisualRate=1`, `chromosomeRangeRate=1`
+    - `noveltyMean=0.1368`
+    - `deterministicRunRate=1`
+    - `genesPerSecond=45755.33`
+  - Runtime manual Playwright flow in `output/manual-pcg-upgrade/`:
+    - Local mode entry + awaken + hub + feed + movement snapshots captured.
+    - `errors.json` is empty (`[]`).
+  - Skill web-game client pass in `output/web-game-pcg-upgrade/` generated screenshots with no emitted error artifacts.
+- Roam-range follow-up tweak (Feb 23, 2026):
+  - Increased horizontal roam coverage in `src/components/creatures/CreatureCanvas.tsx` by reducing swim bound side margins (`marginX` 16% -> 8%).
+  - Kept creature visual scale stable while using fill-width movement space (no stretched look).
+  - Applied fill-width movement space in Hub and Creatures screens via `fillWidth` usage:
+    - `src/screens/HubScreen.tsx`
+    - `src/screens/CreaturesScreen.tsx`
+  - Validation:
+    - `npm run build` passes.
+    - Manual Playwright snapshots in `output/manual-roam-range-v2/`; `errors.json` is empty.
+    - Skill web-game client pass in `output/web-game-roam-range-v2/`.
+- Added additional life-improvement tasks per domain in `src/data/defaultTasks.ts` under:
+  - `HUMAN THRIVING EXPANSION PACK`
+  - `MICRO TASKS (5–10 MIN)`
+- Micro-task design focus: short 5-10 minute actions across health, mind, discipline, career, finance, and social for better daily adherence.
+- Web research used to shape micro-task patterns:
+  - CDC Move Your Way (short movement bouts still count)
+  - NHS Every Mind Matters (short breathing/calming practices)
+  - CFPB practical budgeting/spend-tracking routines (small, consistent money actions)
+- Validation:
+  - Frontend build passes: `npm run build`
+  - Playwright skill smoke pass: `output/web-game-micro-tasks/` (screenshots generated, no `errors-*.json` emitted)
+  - Task template count now `347`.
+  - Domain template distribution now: health `109`, mind `58`, discipline `50`, career `44`, finance `42`, social `44`.
+- Trophy expansion update:
+  - Added 40 new achievements/trophies in `src/data/achievements.ts` across genes, streaks, tasks, traits, rank, skills, abilities, and gene diversity.
+  - Total default trophies increased from `36` to `76`.
+- Existing-save compatibility fix:
+  - Updated `src/hooks/useGameState.tsx` init logic to append missing default achievements for players with existing local saves (preserves unlocked state and history while adding new trophy definitions).
+- Validation:
+  - Frontend build passes: `npm run build`.
+  - Duplicate achievement ID check passes (`duplicates: []`).
+  - Skill Playwright smoke run: `output/web-game-trophies-pack/` (screenshots captured, no `errors-*.json` emitted).
+- Quest UX update for completion handling:
+  - In `/src/screens/QuestScreen.tsx`, completed **daily** quests are now hidden from the active list for the rest of the day.
+  - Added a visible `Completed Today` bubble with count in Quests.
+  - Added empty-state message when all matching daily quests are done for the day.
+  - Non-daily quests still render (including completed state), avoiding weekly/arc progression regressions.
+- Daily recharge behavior:
+  - Kept day rollover reset scoped to daily quests in `/src/hooks/useGameState.tsx` (`completed_today` resets for `type === 'daily'`).
+- Validation:
+  - Frontend build passes: `npm run build`.
+- Implemented major systems for requested brainstorm set (#2/#3/#4/#5/#7/#10):
+  - Added state/meta models in `src/hooks/useGameState.tsx` for:
+    - `shadow_forecast_v1` (daily top impact quests)
+    - `rescue_mode_v1` (24h recovery line on streak break)
+    - `timebox_missions_v1` (5/10/25 minute mission rewards)
+    - `raid_state_v1` (weekly boss HP + daily attempt gate)
+    - `timeline_events_v1` (chronicle log)
+  - Added bond perks in task completion pipeline:
+    - happiness-tier gold multiplier bonus
+    - mutation spark chance for bonus gene with notifications + timeline entry
+  - Added raid and timeline tabs in navigation (`TabId`, `App.tsx`).
+  - Added new screens:
+    - `src/screens/RaidsScreen.tsx` with boss image cards, short start dialog, simple auto-battle sequence, shake visual, and persistence-backed raid damage resolution.
+    - `src/screens/TimelineScreen.tsx` with infographic activity chart and chronological event feed.
+  - Updated quests screen (`src/screens/QuestScreen.tsx`) with:
+    - Shadow Forecast panel
+    - Rescue Mode panel + countdown and objective list
+    - Timebox Missions panel (5/10/25) tied to reward actions
+- Next: run `npm run build`, resolve any TS issues, then run Playwright validation and inspect screenshots.
+- Continued implementation/validation pass for brainstorm features (2,3,4,5,7,10): Shadow Forecast, Rescue Mode, Bond Perks, Boss Raids, Timebox Missions, Timeline page.
+- Re-ran frontend build after integration changes: `npm run build` passes.
+- Skill-required Playwright client run completed against current app build:
+  - command used `web_game_playwright_client.js` with screenshot output `output/web-game-raids-timeline-final/`
+  - screenshots generated with no console/page error artifacts.
+- Added deep manual Playwright verification flow for desktop UX:
+  - local onboarding -> hub
+  - quests page -> complete a quest -> verify `COMPLETED TODAY` bubble + task removed from active list
+  - raids page -> open raid start dialog -> run auto battle -> status/timeline updates
+  - timeline page -> verify infographic chart + chronological events
+  - trophies + return hub sanity check
+  - artifacts in `output/manual-raids-timeline-validation-v2/` (`01`..`10` + `errors.json`)
+- Validation result: `errors.json` is empty (`[]`), no browser console/page runtime errors in tested flow.
+- Note: local dev launch attempted on port 3000, but system reported it already in use; Vite auto-bound to `http://127.0.0.1:3001/` for this session.
+- Fixed micro-goal visibility behavior in `/src/screens/QuestScreen.tsx` so completed timebox missions are hidden for the remainder of the day (matches daily quest behavior).
+- Added micro-goal completion counter in the timebox header and a clean empty state message once all timebox goals are claimed.
+- Validation:
+  - `npm run build` passes after the change.
+  - Manual Playwright flow confirms behavior:
+    - before claim: 3 micro goals visible
+    - after first claim: claimed item removed, 1/3 counter shown
+    - after all claims: all micro goals hidden, recharge message visible
+  - Artifacts: `output/manual-micro-goals-hide/` (`01-quests-before.png`, `02-after-first-claim.png`, `03-after-all-claims.png`, `errors.json` with `[]`).
+  - Skill client pass also run: `output/web-game-micro-goal-hide-fix/`.
+- Research requested next: procedural generation model improvement guides and papers curated for integration into Shadow System's creature/task generation pipeline.
+- Implemented a constraint-scored procedural generation layer for task selection:
+  - Added `/src/utils/proceduralGeneration.ts` with deterministic, weighted selection (`selectTasksWithConstraints`) that balances domain/type/category diversity, applies repeat-fatigue penalties, and keeps day-seeded determinism.
+  - Wired into `/src/hooks/useGameState.tsx`:
+    - `buildShadowForecast` now uses constrained selection.
+    - `pickRescueQuestIds` now uses constrained selection before fallback fill.
+- Implemented constraint-scored body-slot selection for gene placement:
+  - Updated `/src/services/gameEngine.ts`:
+    - replaced simple "fewest genes" slot pick with scored selection (`scoreBodySlotCandidate`) using soft capacity by evolution stage, bilateral balance penalty, slot overcrowding penalty, and deterministic seed jitter.
+    - updated both `generateGene` and fusion path to pass seed-aware slot selection.
+- Also completed requested micro-goal visibility behavior:
+  - `/src/screens/QuestScreen.tsx` now hides completed timebox missions for the day and shows recharge empty-state.
+- Validation:
+  - `npm run build` passes.
+  - Skill Playwright run: `output/web-game-pcg-constraints/`.
+  - Manual interaction verification: `output/manual-pcg-constraints/` (`errors.json` = `[]`).
+  - Manual micro-goal hide verification remains passing in `output/manual-micro-goals-hide/` (`errors.json` = `[]`).
+- Procedural generation references gathered for next upgrades:
+  - WFC original repo + observation/propagation constraints
+  - Unreal PCG framework docs + shape grammar workflow
+  - PCGML + SBPCG survey papers and explainability/discriminative-control papers
+- Creature visual differentiation pass (embryo readability) in `src/renderer/baseBody.ts`:
+  - Expanded per-creature signature model with silhouette controls (stretchX/stretchY, lobe frequency/amplitude, notch angle/depth, skew).
+  - Applied signature-driven body warping in point generation so each creature has a distinct base silhouette.
+  - Tuned tentacle placement by creature (arc span + orientation), plus eye arc/vertical placement and mouth placement spreads.
+  - Added lightweight per-creature signature accents (`maw`, `weaver`, `chain`, `engine`, `gilt`, `hollow`) to preserve identity at low gene counts.
+  - Switched base radius scaling to `min(width,height)` for more stable proportions across card/canvas sizes.
+- Validation:
+  - Frontend build passes: `npm run build`.
+  - Skill Playwright client run completed (`output/web-game-creature-diff-pass2/`), but selector couldn’t switch tabs in unauthenticated context.
+  - Manual Playwright flow (local mode -> awaken -> creatures/hub) captured:
+    - `output/manual-creature-diff-pass2/creatures.png`
+    - `output/manual-creature-diff-pass2/hub.png`
+    - `output/manual-creature-diff-pass2/errors.json` = `[]`.
+- Boss naming pass completed in `src/hooks/useGameState.tsx` (raid blueprints):
+  - `Crimson Colossus` -> `Lord Miserion`
+  - `Void Oracle` -> `Distractera Prime`
+  - `Gilded Hydra` -> `The Debtfang Sovereign`
+  - Updated intro + flavor text to map clearly to real-life sabotage patterns (misery/burnout, distraction, impulse spending/debt).
+- Server-time reset hardening:
+  - Added `apiGetServerTime()` in `src/services/api.ts` (reads `/health.timestamp` with no-store cache, graceful null fallback).
+  - In `src/hooks/useGameState.tsx`, added server clock sync (`syncReferenceClock`) with offset ref.
+  - Game init now snapshots `now` from synced server clock when available.
+  - Daily reset check now uses synced server time and runs every 5 minutes (robust to sleep/wake/timezone drift) instead of a single local-midnight timer.
+  - `initializeGame` default date-dependent state now uses the same synced server-time reference.
+- Validation:
+  - Frontend build passes (`npm run build`).
+  - Manual Playwright capture confirms new raid names in UI:
+    - `output/manual-raid-name-pass/raids.png`.
+- Expanded raid roster significantly in `src/hooks/useGameState.tsx` (`RAID_BOSS_BLUEPRINTS`):
+  - Added many new life-sabotage themed bosses (fear, distraction, procrastination, comparison, debt, overcommitment, burnout, etc.) across all domains.
+  - Each boss has unique id/name/intro/flavor for clearer identity and better hash distribution across `assets/mon*.png` raid art mapping.
+- Validation:
+  - Frontend build passes (`npm run build`) after roster expansion.

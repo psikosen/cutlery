@@ -16,6 +16,12 @@ import {
   generateInitialChromosome, mutateChromosome,
   serializeChromosome, deserializeChromosome,
 } from './evolution';
+import {
+  createSeededRng,
+  deriveSeed,
+  randomInt,
+  randomRange,
+} from '../utils/prng';
 
 // ============================================================
 // PLAYER
@@ -51,7 +57,7 @@ export function calculateHunterRank(totalPower: number): HunterRank {
 
 export function createAllCreatures(playerId: string): Creature[] {
   return (Object.keys(CREATURE_TO_DOMAIN) as CreatureId[]).map(id => {
-    const seed = Math.floor(Math.random() * 999999);
+    const seed = randomInt(createSeededRng(deriveSeed(playerId, id, 'appearance-seed')), 1, 999999);
     const domain = CREATURE_TO_DOMAIN[id];
     const chromosome = generateInitialChromosome(seed, domain);
     return {
@@ -89,34 +95,56 @@ export function getNextEvolutionThreshold(stage: EvolutionStage): number {
 // GENE GENERATION
 // ============================================================
 
-function pickBodySlot(geneType: GeneType, creature: Creature): BodySlot {
-  const affinities = GENE_SLOT_AFFINITIES[geneType] || BODY_SLOTS;
-  const slotCounts: Record<string, number> = {};
-  for (const slot of affinities) {
-    slotCounts[slot] = (creature.body_slots[slot] || []).length;
+function getSlotSoftCapacity(creature: Creature): number {
+  return Math.max(1, 1 + creature.evolution_stage);
+}
+
+function scoreBodySlotCandidate(
+  slot: BodySlot,
+  geneType: GeneType,
+  creature: Creature,
+  seed: number,
+): number {
+  const currentCount = (creature.body_slots[slot] || []).length;
+  const softCapacity = getSlotSoftCapacity(creature);
+  let score = 100;
+
+  // Strongly discourage overcrowded slots so morphologies stay readable.
+  score -= currentCount * 22;
+  if (currentCount >= softCapacity) {
+    score -= (currentCount - softCapacity + 1) * 28;
   }
 
-  // Check bilateral balance
+  // Slightly prefer building coherent clusters of related mutations.
+  const slotGenes = creature.body_slots[slot] || [];
+  const sameGeneTypeCount = slotGenes.filter((entry) => entry.gene_type === geneType).length;
+  score += sameGeneTypeCount * 7;
+
+  // Keep left/right morphology in balance for bilateral slots.
   for (const [left, right] of BILATERAL_PAIRS) {
-    if (affinities.includes(left) && affinities.includes(right)) {
-      const lc = slotCounts[left] || 0;
-      const rc = slotCounts[right] || 0;
-      if (lc > rc) return right;
-      if (rc > lc) return left;
-    }
+    if (slot !== left && slot !== right) continue;
+    const leftCount = (creature.body_slots[left] || []).length;
+    const rightCount = (creature.body_slots[right] || []).length;
+    const nextLeft = slot === left ? leftCount + 1 : leftCount;
+    const nextRight = slot === right ? rightCount + 1 : rightCount;
+    const imbalance = Math.abs(nextLeft - nextRight);
+    score -= imbalance * 18;
   }
 
-  // Pick the slot with fewest genes
-  let minSlot = affinities[0];
-  let minCount = Infinity;
-  for (const slot of affinities) {
-    const c = slotCounts[slot] || 0;
-    if (c < minCount) {
-      minCount = c;
-      minSlot = slot;
-    }
-  }
-  return minSlot;
+  const slotNoise = createSeededRng(deriveSeed(seed, slot, geneType))();
+  score += (slotNoise - 0.5) * 4;
+  return score;
+}
+
+function pickBodySlot(geneType: GeneType, creature: Creature, seed: number): BodySlot {
+  const affinities = GENE_SLOT_AFFINITIES[geneType] || BODY_SLOTS;
+  const scored = affinities
+    .map((slot) => ({
+      slot,
+      score: scoreBodySlotCandidate(slot, geneType, creature, seed),
+    }))
+    .sort((a, b) => b.score - a.score);
+  return scored[0]?.slot ?? affinities[0];
 }
 
 export function generateGene(
@@ -126,8 +154,17 @@ export function generateGene(
   creature: Creature,
   tier: GeneTier = 'base',
 ): Gene {
-  const bodySlot = pickBodySlot(geneType, creature);
   const statKey = GENE_STAT_KEYS[geneType] || 'Power';
+  const geneSeed = deriveSeed(
+    creature.appearance_seed,
+    creature.id,
+    taskId,
+    geneType,
+    tier,
+    creature.total_genes + 1,
+  );
+  const bodySlot = pickBodySlot(geneType, creature, geneSeed);
+  const rand = createSeededRng(geneSeed);
   return {
     id: uuidv4(),
     type: geneType,
@@ -136,11 +173,11 @@ export function generateGene(
     stat_key: statKey,
     stat_value: GENE_STAT_VALUES[tier],
     visual_params: {
-      size: 0.5 + Math.random() * 0.5,
-      color_shift: Math.random(),
-      animation_speed: 0.8 + Math.random() * 0.4,
+      size: randomRange(rand, 0.5, 1.0),
+      color_shift: rand(),
+      animation_speed: randomRange(rand, 0.8, 1.2),
       body_slot: bodySlot,
-      procedural_seed: Math.floor(Math.random() * 999999),
+      procedural_seed: randomInt(rand, 1, 999999),
     },
     acquired_from: taskId,
     acquired_at: new Date().toISOString(),
@@ -415,6 +452,16 @@ export function fuseGenes(
 
   const toRemove = matching.slice(0, 3);
   const removedIds = toRemove.map(g => g.id);
+  const fusionSeed = deriveSeed(
+    creature.appearance_seed,
+    creature.id,
+    geneType,
+    tier,
+    nextTier,
+    removedIds.join(':'),
+    creature.total_genes,
+  );
+  const fusionRand = createSeededRng(fusionSeed);
 
   // Remove from creature
   const updated = { ...creature };
@@ -448,7 +495,7 @@ export function fuseGenes(
   );
 
   // Create the new fused gene
-  const bodySlot = pickBodySlot(geneType, updated);
+  const bodySlot = pickBodySlot(geneType, updated, fusionSeed);
   const newGene: Gene = {
     id: uuidv4(),
     type: geneType,
@@ -457,11 +504,11 @@ export function fuseGenes(
     stat_key: GENE_STAT_KEYS[geneType],
     stat_value: GENE_STAT_VALUES[nextTier],
     visual_params: {
-      size: 0.7 + Math.random() * 0.5,
-      color_shift: Math.random(),
-      animation_speed: 0.7 + Math.random() * 0.3,
+      size: randomRange(fusionRand, 0.7, 1.2),
+      color_shift: fusionRand(),
+      animation_speed: randomRange(fusionRand, 0.7, 1.0),
       body_slot: bodySlot,
-      procedural_seed: Math.floor(Math.random() * 999999),
+      procedural_seed: randomInt(fusionRand, 1, 999999),
     },
     acquired_from: 'fusion',
     acquired_at: new Date().toISOString(),

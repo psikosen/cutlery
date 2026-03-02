@@ -52,8 +52,9 @@ export function CreaturesScreen() {
             >
               <CreatureCanvas
                 creature={c}
-                width={120}
-                height={120}
+                width={132}
+                height={112}
+                fillWidth
                 style={{ margin: '0 auto', display: 'block' }}
               />
               <div style={{
@@ -151,8 +152,9 @@ function CreatureDetail({ creature, onBack }: { creature: Creature; onBack: () =
       }}>
         <CreatureCanvas
           creature={creature}
-          width={280}
+          width={320}
           height={280}
+          fillWidth
           style={{ margin: '0 auto', display: 'block' }}
         />
       </div>

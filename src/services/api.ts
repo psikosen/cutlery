@@ -8,6 +8,7 @@
 import type { Player, Creature, Gene, Task, Achievement } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const API_ROOT = API_BASE.endsWith('/api') ? API_BASE.slice(0, -4) : API_BASE;
 
 let authToken: string | null = null;
 
@@ -196,9 +197,26 @@ export async function apiDailyReset() {
 
 export async function isServerAvailable(): Promise<boolean> {
   try {
-    const res = await fetch(`${API_BASE.replace('/api', '')}/health`, { method: 'GET' });
+    const res = await fetch(`${API_ROOT}/health`, { method: 'GET' });
     return res.ok;
   } catch {
     return false;
+  }
+}
+
+export async function apiGetServerTime(): Promise<Date | null> {
+  try {
+    const res = await fetch(`${API_ROOT}/health`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    const data = await res.json().catch(() => null) as { timestamp?: string } | null;
+    if (!data?.timestamp) return null;
+    const parsed = new Date(data.timestamp);
+    if (Number.isNaN(parsed.getTime())) return null;
+    return parsed;
+  } catch {
+    return null;
   }
 }

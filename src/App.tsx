@@ -9,6 +9,8 @@ import { HubScreen } from './screens/HubScreen';
 import { CalendarScreen } from './screens/CalendarScreen';
 import { QuestScreen } from './screens/QuestScreen';
 import { CreaturesScreen } from './screens/CreaturesScreen';
+import { RaidsScreen } from './screens/RaidsScreen';
+import { TimelineScreen } from './screens/TimelineScreen';
 import { LabScreen } from './screens/LabScreen';
 import { TrophiesScreen } from './screens/TrophiesScreen';
 import { AccountScreen } from './screens/AccountScreen';
@@ -18,7 +20,9 @@ const TAB_CONFIG: { id: TabId; icon: string; label: string }[] = [
   { id: 'quests', icon: '⚔️', label: 'Quests' },
   { id: 'creatures', icon: '🧬', label: 'Creatures' },
   { id: 'hub', icon: '🏠', label: 'Hub' },
+  { id: 'raids', icon: '👹', label: 'Raids' },
   { id: 'calendar', icon: '📅', label: 'Calendar' },
+  { id: 'timeline', icon: '🗺️', label: 'Timeline' },
   { id: 'lab', icon: '🧪', label: 'Lab' },
   { id: 'trophies', icon: '🏆', label: 'Trophies' },
   { id: 'account', icon: '🔐', label: 'Account' },
@@ -143,7 +147,9 @@ function GameContent() {
         <main className="app-main">
           <div style={{ opacity: 1, transition: 'opacity 0.2s ease' }}>
             {state.activeTab === 'hub' && <HubScreen />}
+            {state.activeTab === 'raids' && <RaidsScreen />}
             {state.activeTab === 'calendar' && <CalendarScreen />}
+            {state.activeTab === 'timeline' && <TimelineScreen />}
             {state.activeTab === 'quests' && <QuestScreen />}
             {state.activeTab === 'creatures' && <CreaturesScreen />}
             {state.activeTab === 'lab' && <LabScreen />}
@@ -170,7 +176,9 @@ function GameContent() {
           <div style={{
             display: 'flex',
             width: '100%',
-            maxWidth: 480,
+            maxWidth: '100%',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
           }}>
             {TAB_CONFIG.map(tab => {
               const isActive = state.activeTab === tab.id;
@@ -179,7 +187,7 @@ function GameContent() {
                   key={tab.id}
                   onClick={() => setTab(tab.id)}
                   style={{
-                    flex: 1,
+                    flex: '0 0 74px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
